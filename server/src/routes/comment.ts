@@ -1,6 +1,6 @@
-import experss from "express";
+import express from "express";
 
-const router = experss.Router();
+const router = express.Router();
 //Get all comments for a post
 router.get("/posts/:postId/comments");
 //Create new comment
