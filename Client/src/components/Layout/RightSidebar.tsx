@@ -1,0 +1,160 @@
+import React from "react";
+import { useTheme } from "../../contexts/ThemeContext";
+
+export const RightSidebar: React.FC = () => {
+  const { isDarkMode } = useTheme();
+
+  const popularCommunities = [
+    { name: "NoStupidQuestions", members: "6,570,220" },
+    { name: "Minecraft", members: "8,512,590" },
+    { name: "Fitness", members: "12,430,561" },
+    { name: "DnD", members: "4,155,949" },
+    { name: "videos", members: "26,748,233" },
+  ];
+
+  return (
+    <aside
+      className={`w-80 h-screen overflow-y-auto ${
+        isDarkMode ? "bg-gray-900" : "bg-white"
+      } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+    >
+      <div className="p-4">
+        {/* User Actions */}
+        <div
+          className={`p-4 rounded-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-gray-50"
+          }`}
+        >
+          <h3
+            className={`text-lg font-semibold mb-3 ${
+              isDarkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Log In / Sign Up
+          </h3>
+          <div className="space-y-2">
+            <button
+              className={`w-full py-2 px-4 rounded-full font-medium ${
+                isDarkMode
+                  ? "bg-orange-500 text-white hover:bg-orange-600"
+                  : "bg-orange-500 text-white hover:bg-orange-600"
+              }`}
+            >
+              Log In
+            </button>
+            <button
+              className={`w-full py-2 px-4 rounded-full font-medium border ${
+                isDarkMode
+                  ? "border-gray-600 text-white hover:bg-gray-800"
+                  : "border-gray-300 text-gray-900 hover:bg-gray-100"
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+
+        {/* Advertise Section */}
+        <div className="mt-4">
+          <button
+            className={`w-full text-left p-3 rounded-lg ${
+              isDarkMode
+                ? "text-gray-300 hover:bg-gray-800"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <span className="font-medium">Advertise on Reddit</span>
+          </button>
+          <button
+            className={`w-full text-left p-3 rounded-lg ${
+              isDarkMode
+                ? "text-gray-300 hover:bg-gray-800"
+                : "text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <span className="font-medium">Try Reddit Pro BETA</span>
+          </button>
+        </div>
+
+        {/* Popular Communities */}
+        <div className="mt-6">
+          <h3
+            className={`text-lg font-semibold mb-3 ${
+              isDarkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            POPULAR COMMUNITIES
+          </h3>
+          <div className="space-y-2">
+            {popularCommunities.map((community, index) => (
+              <div
+                key={index}
+                className={`flex items-center justify-between p-2 rounded-lg ${
+                  isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
+                }`}
+              >
+                <div className="flex items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full mr-3 ${
+                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  ></div>
+                  <div>
+                    <p
+                      className={`font-medium ${
+                        isDarkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      r/{community.name}
+                    </p>
+                    <p
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
+                      {community.members} members
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    isDarkMode
+                      ? "bg-orange-500 text-white hover:bg-orange-600"
+                      : "bg-orange-500 text-white hover:bg-orange-600"
+                  }`}
+                >
+                  Join
+                </button>
+              </div>
+            ))}
+            <button
+              className={`w-full text-center py-2 text-sm font-medium ${
+                isDarkMode ? "text-orange-400" : "text-orange-600"
+              } hover:underline`}
+            >
+              See more
+            </button>
+          </div>
+        </div>
+
+        {/* Notification/Ad Section */}
+        <div className="mt-6">
+          <div
+            className={`p-4 rounded-lg ${
+              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+            }`}
+          >
+            <p
+              className={`text-sm ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Syko Stu released from the I and is now home resting. He sustained
+              serious trauma to his head and neck area...
+            </p>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+};
