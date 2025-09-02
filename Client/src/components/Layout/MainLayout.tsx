@@ -1,38 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { RightSidebar } from "./RightSidebar";
-import { PostFeed } from "../Posts/PostFeed";
+import { PostFeed, type PostFeedRef } from "../Posts/PostFeed";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export const MainLayout: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const postFeedRef = useRef<PostFeedRef>(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
+  const handleSearch = (
+    query: string,
+    sort?: "relevance" | "hot" | "top" | "new" | "comments",
+    time?: "hour" | "day" | "week" | "month" | "year" | "all"
+  ) => {
+    if (postFeedRef.current) {
+      postFeedRef.current.handleSearch(query, sort, time);
+    }
+  };
+
+  const handleGoToHome = () => {
+    if (postFeedRef.current) {
+      postFeedRef.current.goToHome();
+    }
   };
 
   return (
     <div
       className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
-      <Header onToggleSidebar={toggleSidebar} />
+      <Header
+        onToggleSidebar={toggleSidebar}
+        onSearch={handleSearch}
+        onGoToHome={handleGoToHome}
+      />
 
       <div className="flex">
-        {/* Left Sidebar */}
-        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-
-        {/* Main Content */}
+        <Sidebar isOpen={isSidebarOpen} onGoToHome={handleGoToHome} />
         <main className="flex-1 min-h-screen">
-          <PostFeed />
+          <PostFeed ref={postFeedRef} />
         </main>
-
-        {/* Right Sidebar - only show on medium screens and below */}
         <div className="hidden xl:block">
           <RightSidebar />
         </div>

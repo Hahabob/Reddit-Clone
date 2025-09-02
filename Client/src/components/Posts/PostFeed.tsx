@@ -1,71 +1,69 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { PostCard } from "./PostCard";
+import { SearchResults } from "../Search/SearchResults";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useSocket } from "../../contexts/SocketContext";
+import { redditApiService } from "../../services/redditApi";
+import type { RedditPost } from "../../types/reddit";
+import { cn } from "../../lib/utils";
 
-// Mock data - replace with real data from your API
-const mockPosts = [
-  {
-    id: "1",
-    subreddit: "WatchPeopleDieInside",
-    timeAgo: "19 hr. ago",
-    title: "Tourist Decide to Ignore the White Lines.",
-    videoUrl: "/sample-video.mp4",
-    upvotes: 39000,
-    downvotes: 12000,
-    comments: 1250,
-  },
-  {
-    id: "2",
-    subreddit: "news",
-    timeAgo: "2 hr. ago",
-    title: "Giuliani injured in crash.",
-    imageUrl: "/sample-image.jpg",
-    upvotes: 8500,
-    downvotes: 1200,
-    comments: 340,
-  },
-  {
-    id: "3",
-    subreddit: "InternationalNews",
-    timeAgo: "4 hr. ago",
-    title: "Global Sumud Flotilla launch.",
-    imageUrl: "/sample-image2.jpg",
-    upvotes: 12000,
-    downvotes: 800,
-    comments: 560,
-  },
-  {
-    id: "4",
-    subreddit: "Fauxmoi",
-    timeAgo: "6 hr. ago",
-    title: "Remembering Princess Diana.",
-    imageUrl: "/sample-image3.jpg",
-    upvotes: 25000,
-    downvotes: 500,
-    comments: 1200,
-  },
-  {
-    id: "5",
-    subreddit: "logzillaAI",
-    timeAgo: "1 hr. ago",
-    title:
-      "This isn't an alert. It's your promotion. LogZilla AI gets to the root in plain English.",
-    content: "I DON'T WANT DASHBOARDS",
-    upvotes: 150,
-    downvotes: 50,
-    comments: 25,
-    isPromoted: true,
-  },
-];
+export interface PostFeedRef {
+  handleSearch: (
+    query: string,
+    sort?: "relevance" | "hot" | "top" | "new" | "comments",
+    time?: "hour" | "day" | "week" | "month" | "year" | "all"
+  ) => void;
+  goToHome: () => void;
+}
 
-export const PostFeed: React.FC = () => {
+export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const { isDarkMode } = useTheme();
   const { socket, isConnected } = useSocket();
-  const [posts, setPosts] = useState(mockPosts);
+  const [posts, setPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"hot" | "new" | "top" | "rising">("hot");
+  const [sortBy, setSortBy] = useState<
+    "hot" | "new" | "top" | "rising" | "controversial"
+  >("hot");
+  const [after, setAfter] = useState<string | undefined>();
+  const [hasMore, setHasMore] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<RedditPost[]>([]);
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  const loadPosts = async (sort: typeof sortBy, loadMore: boolean = false) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await redditApiService.posts.getHomePosts(sort, {
+        limit: 25,
+        after: loadMore ? after : undefined,
+      });
+
+      const newPosts = response.data.children.map((child) => child.data);
+
+      if (loadMore) {
+        setPosts((prev) => [...prev, ...newPosts]);
+      } else {
+        setPosts(newPosts);
+      }
+
+      setAfter(response.data.after);
+      setHasMore(!!response.data.after);
+    } catch (err) {
+      console.error("Error loading posts:", err);
+      setError("Failed to load posts. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load posts on component mount and when sort changes
+  useEffect(() => {
+    loadPosts(sortBy);
+  }, [sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (socket) {
@@ -90,30 +88,77 @@ export const PostFeed: React.FC = () => {
 
   const handleSortChange = (newSort: typeof sortBy) => {
     setSortBy(newSort);
-    // Here you would typically fetch posts with the new sort order
-    // For now, we'll just update the state
+    setAfter(undefined);
+    setHasMore(true);
   };
+
+  const handleLoadMore = () => {
+    if (hasMore && !loading) {
+      loadPosts(sortBy, true);
+    }
+  };
+
+  const handleSearch = async (
+    query: string,
+    sort: "relevance" | "hot" | "top" | "new" | "comments" = "relevance",
+    time: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
+  ) => {
+    try {
+      setIsSearching(true);
+      setSearchError(null);
+      setSearchQuery(query);
+
+      const response = await redditApiService.posts.searchPosts(
+        query,
+        sort,
+        time,
+        25
+      );
+
+      const searchPosts = response.data.children.map((child) => child.data);
+      setSearchResults(searchPosts);
+    } catch (err) {
+      console.error("Error searching posts:", err);
+      setSearchError("Failed to search posts. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleRetrySearch = () => {
+    if (searchQuery) {
+      handleSearch(searchQuery);
+    }
+  };
+
+  const goToHome = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setSearchError(null);
+    setIsSearching(false);
+    loadPosts(sortBy);
+  };
+
+  useImperativeHandle(ref, () => ({
+    handleSearch,
+    goToHome,
+  }));
 
   if (error) {
     return (
       <div
-        className={`p-8 text-center ${
+        className={cn(
+          "p-8 text-center",
           isDarkMode ? "text-red-400" : "text-red-600"
-        }`}
+        )}
       >
         <p className="text-lg font-medium">Error loading posts: {error}</p>
         <button
-          onClick={() => {
-            setError(null);
-            setLoading(true);
-            // Retry loading posts
-            setTimeout(() => setLoading(false), 1000);
-          }}
-          className={`mt-4 px-4 py-2 rounded-full ${
-            isDarkMode
-              ? "bg-orange-500 text-white hover:bg-orange-600"
-              : "bg-orange-500 text-white hover:bg-orange-600"
-          }`}
+          onClick={() => loadPosts(sortBy)}
+          className={cn(
+            "mt-4 px-4 py-2 rounded-full",
+            "bg-orange-500 text-white hover:bg-orange-600"
+          )}
         >
           Try Again
         </button>
@@ -123,90 +168,116 @@ export const PostFeed: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto lg:max-w-6xl">
-      {/* Sort Options */}
-      <div
-        className={`p-4 border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
-        }`}
-      >
-        <div className="flex items-center space-x-4">
-          <span
-            className={`text-sm font-medium ${
-              isDarkMode ? "text-gray-300" : "text-gray-600"
+      {isSearching || searchQuery ? (
+        <SearchResults
+          posts={searchResults}
+          loading={isSearching}
+          error={searchError}
+          query={searchQuery}
+          onRetry={handleRetrySearch}
+        />
+      ) : (
+        <>
+          <div
+            className={`p-4 border-b ${
+              isDarkMode ? "border-gray-700" : "border-gray-200"
             }`}
           >
-            Sort by:
-          </span>
-          <div className="flex space-x-2">
-            {(["hot", "new", "top", "rising"] as const).map((sort) => (
-              <button
-                key={sort}
-                onClick={() => handleSortChange(sort)}
-                className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                  sortBy === sort
-                    ? isDarkMode
-                      ? "bg-orange-500 text-white"
-                      : "bg-orange-500 text-white"
-                    : isDarkMode
-                    ? "text-gray-400 hover:text-white hover:bg-gray-800"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            <div className="flex items-center space-x-4">
+              <span
+                className={`text-sm font-medium ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
                 }`}
               >
-                {sort}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Posts */}
-      <div className="p-4">
-        {loading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className={`animate-pulse rounded-lg border ${
-                  isDarkMode
-                    ? "bg-gray-900 border-gray-700"
-                    : "bg-white border-gray-200"
-                } p-4`}
-              >
-                <div className="flex items-center space-x-2 mb-3">
-                  <div
-                    className={`w-6 h-6 rounded-full ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                Sort by:
+              </span>
+              <div className="flex space-x-2">
+                {(
+                  ["hot", "new", "top", "rising", "controversial"] as const
+                ).map((sort) => (
+                  <button
+                    key={sort}
+                    onClick={() => handleSortChange(sort)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+                      sortBy === sort
+                        ? isDarkMode
+                          ? "bg-orange-500 text-white"
+                          : "bg-orange-500 text-white"
+                        : isDarkMode
+                        ? "text-gray-400 hover:text-white hover:bg-gray-800"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
-                  ></div>
-                  <div
-                    className={`h-4 w-32 rounded ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                    }`}
-                  ></div>
-                </div>
-                <div
-                  className={`h-6 w-3/4 rounded mb-2 ${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                  }`}
-                ></div>
-                <div
-                  className={`h-4 w-full rounded ${
-                    isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                  }`}
-                ></div>
+                  >
+                    {sort}
+                  </button>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
+          <div className="p-4">
+            {loading ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`animate-pulse rounded-lg border ${
+                      isDarkMode
+                        ? "bg-gray-900 border-gray-700"
+                        : "bg-white border-gray-200"
+                    } p-4`}
+                  >
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div
+                        className={`w-6 h-6 rounded-full ${
+                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                      ></div>
+                      <div
+                        className={`h-4 w-32 rounded ${
+                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                      ></div>
+                    </div>
+                    <div
+                      className={`h-6 w-3/4 rounded mb-2 ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    ></div>
+                    <div
+                      className={`h-4 w-full rounded ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <PostCard key={post.id} post={post} />
+                ))}
+                {hasMore && (
+                  <div className="flex justify-center py-4">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loading}
+                      className={`px-6 py-2 rounded-full font-medium ${
+                        loading
+                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                          : isDarkMode
+                          ? "bg-orange-500 text-white hover:bg-orange-600"
+                          : "bg-orange-500 text-white hover:bg-orange-600"
+                      }`}
+                    >
+                      {loading ? "Loading..." : "Load More"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* Connection Status */}
+        </>
+      )}
       {!isConnected && (
         <div
           className={`fixed bottom-4 right-4 p-3 rounded-lg ${
@@ -218,4 +289,4 @@ export const PostFeed: React.FC = () => {
       )}
     </div>
   );
-};
+});
