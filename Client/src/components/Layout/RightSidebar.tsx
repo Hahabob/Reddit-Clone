@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { cn } from "../../lib/utils";
 
 export const RightSidebar: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -21,33 +22,35 @@ export const RightSidebar: React.FC = () => {
       <div className="p-4">
         {/* User Actions */}
         <div
-          className={`p-4 rounded-lg ${
+          className={cn(
+            "p-4 rounded-lg",
             isDarkMode ? "bg-gray-800" : "bg-gray-50"
-          }`}
+          )}
         >
           <h3
-            className={`text-lg font-semibold mb-3 ${
+            className={cn(
+              "text-lg font-semibold mb-3",
               isDarkMode ? "text-white" : "text-gray-900"
-            }`}
+            )}
           >
             Log In / Sign Up
           </h3>
           <div className="space-y-2">
             <button
-              className={`w-full py-2 px-4 rounded-full font-medium ${
-                isDarkMode
-                  ? "bg-orange-500 text-white hover:bg-orange-600"
-                  : "bg-orange-500 text-white hover:bg-orange-600"
-              }`}
+              className={cn(
+                "w-full py-2 px-4 rounded-full font-medium",
+                "bg-orange-500 text-white hover:bg-orange-600"
+              )}
             >
               Log In
             </button>
             <button
-              className={`w-full py-2 px-4 rounded-full font-medium border ${
+              className={cn(
+                "w-full py-2 px-4 rounded-full font-medium border",
                 isDarkMode
                   ? "border-gray-600 text-white hover:bg-gray-800"
                   : "border-gray-300 text-gray-900 hover:bg-gray-100"
-              }`}
+              )}
             >
               Sign Up
             </button>
@@ -79,9 +82,10 @@ export const RightSidebar: React.FC = () => {
         {/* Popular Communities */}
         <div className="mt-6">
           <h3
-            className={`text-lg font-semibold mb-3 ${
+            className={cn(
+              "text-lg font-semibold mb-3",
               isDarkMode ? "text-white" : "text-gray-900"
-            }`}
+            )}
           >
             POPULAR COMMUNITIES
           </h3>
@@ -140,14 +144,16 @@ export const RightSidebar: React.FC = () => {
         {/* Notification/Ad Section */}
         <div className="mt-6">
           <div
-            className={`p-4 rounded-lg ${
+            className={cn(
+              "p-4 rounded-lg",
               isDarkMode ? "bg-gray-800" : "bg-gray-50"
-            }`}
+            )}
           >
             <p
-              className={`text-sm ${
+              className={cn(
+                "text-sm",
                 isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              )}
             >
               Syko Stu released from the I and is now home resting. He sustained
               serious trauma to his head and neck area...

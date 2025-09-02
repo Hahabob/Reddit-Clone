@@ -1,6 +1,41 @@
 import React, { useState } from "react";
-import { IconWrapper } from "../Icons/IconWrapper";
 import { useTheme } from "../../contexts/ThemeContext";
+import { cn } from "../../lib/utils";
+
+interface IconWrapperProps {
+  children: React.ReactNode;
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}
+
+const IconWrapper: React.FC<IconWrapperProps> = ({
+  children,
+  className = "",
+  size = "md",
+}) => {
+  const { isDarkMode } = useTheme();
+
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
+  };
+
+  return (
+    <div
+      className={cn(
+        sizeClasses[size],
+        className,
+        isDarkMode ? "text-white" : "text-gray-800"
+      )}
+      style={{
+        filter: isDarkMode ? "brightness(0) invert(1)" : "none",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 // SVG Icons - replace with your actual SVG imports
 const HomeIcon = () => (
@@ -60,11 +95,12 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     <div>
       <button
         onClick={onToggle}
-        className={`w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md ${
+        className={cn(
+          "w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md",
           isDarkMode
             ? "text-gray-300 hover:text-white hover:bg-gray-800"
             : "text-gray-700 hover:text-gray-900 hover:bg-gray-100"
-        }`}
+        )}
       >
         <div className="flex items-center">
           <IconWrapper size="sm" className="mr-3">
@@ -87,10 +123,10 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 interface SidebarProps {
   isOpen: boolean;
-  onClose: () => void;
+  onGoToHome?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
   const { isDarkMode } = useTheme();
   const [expandedSections, setExpandedSections] = useState<{
     resources: boolean;
@@ -109,31 +145,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Sidebar */}
       <aside
-        className={`fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isDarkMode ? "bg-gray-900" : "bg-white"} border-r ${
+        className={cn(
+          "fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          isDarkMode ? "bg-gray-900" : "bg-white",
+          "border-r",
           isDarkMode ? "border-gray-700" : "border-gray-200"
-        }`}
+        )}
       >
         <div className="p-4">
-          {/* Main Navigation */}
           <nav className="space-y-1">
-            <SidebarItem icon={<HomeIcon />} label="Home" />
+            <SidebarItem
+              icon={<HomeIcon />}
+              label="Home"
+              onToggle={onGoToHome}
+            />
             <SidebarItem icon={<PopularIcon />} label="Popular" />
             <SidebarItem icon={<AllIcon />} label="All" />
           </nav>
-
-          {/* Topics Section */}
           <div className="mt-6">
             <SidebarItem
               icon={<AllIcon />}
@@ -162,8 +192,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </div>
             </SidebarItem>
           </div>
-
-          {/* Resources Section */}
           <div className="mt-6">
             <SidebarItem
               icon={<AllIcon />}
@@ -183,13 +211,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               </div>
             </SidebarItem>
           </div>
-
-          {/* Communities Section */}
           <div className="mt-6">
             <h3
-              className={`px-3 text-xs font-semibold uppercase tracking-wider ${
+              className={cn(
+                "px-3 text-xs font-semibold uppercase tracking-wider",
                 isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
+              )}
             >
               Communities
             </h3>
@@ -200,13 +227,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <SidebarItem icon={<AllIcon />} label="Topics" />
             </div>
           </div>
-
-          {/* Legal Section */}
           <div className="mt-6">
             <h3
-              className={`px-3 text-xs font-semibold uppercase tracking-wider ${
+              className={cn(
+                "px-3 text-xs font-semibold uppercase tracking-wider",
                 isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
+              )}
             >
               Legal
             </h3>
@@ -217,13 +243,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <SidebarItem icon={<AllIcon />} label="Accessibility" />
             </div>
           </div>
-
-          {/* Footer */}
           <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
             <p
-              className={`text-xs ${
+              className={cn(
+                "text-xs",
                 isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
+              )}
             >
               Reddit, Inc. © 2025. All rights reserved.
             </p>

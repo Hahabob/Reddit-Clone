@@ -1,8 +1,43 @@
 import React, { useState } from "react";
-import { IconWrapper } from "../Icons/IconWrapper";
 import { useTheme } from "../../contexts/ThemeContext";
+import type { RedditPost } from "../../types/reddit";
+import { cn } from "../../lib/utils";
 
-// SVG Icons - replace with your actual SVG imports
+interface IconWrapperProps {
+  children: React.ReactNode;
+  className?: string;
+  size?: "sm" | "md" | "lg";
+}
+
+const IconWrapper: React.FC<IconWrapperProps> = ({
+  children,
+  className = "",
+  size = "md",
+}) => {
+  const { isDarkMode } = useTheme();
+
+  const sizeClasses = {
+    sm: "w-4 h-4",
+    md: "w-5 h-5",
+    lg: "w-6 h-6",
+  };
+
+  return (
+    <div
+      className={cn(
+        sizeClasses[size],
+        className,
+        isDarkMode ? "text-white" : "text-gray-800"
+      )}
+      style={{
+        filter: isDarkMode ? "brightness(0) invert(1)" : "none",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 const UpvoteIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="m18 15-6-6-6 6" />
@@ -38,19 +73,7 @@ const MoreIcon = () => (
 );
 
 interface PostCardProps {
-  post: {
-    id: string;
-    subreddit: string;
-    timeAgo: string;
-    title: string;
-    content?: string;
-    imageUrl?: string;
-    videoUrl?: string;
-    upvotes: number;
-    downvotes: number;
-    comments: number;
-    isPromoted?: boolean;
-  };
+  post: RedditPost;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({ post }) => {
@@ -65,45 +88,101 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     }
   };
 
+  // Helper functions to format Reddit data
+  const formatTimeAgo = (timestamp: number): string => {
+    const now = Date.now() / 1000;
+    const diff = now - timestamp;
+
+    if (diff < 3600) {
+      return `${Math.floor(diff / 60)}m ago`;
+    } else if (diff < 86400) {
+      return `${Math.floor(diff / 3600)}h ago`;
+    } else if (diff < 2592000) {
+      return `${Math.floor(diff / 86400)}d ago`;
+    } else {
+      return `${Math.floor(diff / 2592000)}mo ago`;
+    }
+  };
+
+  const getImageUrl = (): string | undefined => {
+    if (post.preview?.images?.[0]?.source?.url) {
+      return post.preview.images[0].source.url.replace(/&amp;/g, "&");
+    }
+    if (
+      post.thumbnail &&
+      post.thumbnail !== "self" &&
+      post.thumbnail !== "default"
+    ) {
+      return post.thumbnail;
+    }
+    return undefined;
+  };
+
+  const getVideoUrl = (): string | undefined => {
+    if (post.is_video && post.media?.reddit_video?.fallback_url) {
+      return post.media.reddit_video.fallback_url;
+    }
+    return undefined;
+  };
+
+  const formatScore = (score: number): string => {
+    if (score >= 1000000) {
+      return `${(score / 1000000).toFixed(1)}M`;
+    } else if (score >= 1000) {
+      return `${(score / 1000).toFixed(1)}k`;
+    }
+    return score.toString();
+  };
+
   return (
     <article
-      className={`rounded-lg border ${
+      className={cn(
+        "rounded-lg border mb-4",
         isDarkMode ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"
-      } mb-4`}
+      )}
     >
       {/* Post Header */}
       <div className="p-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div
-              className={`w-6 h-6 rounded-full ${
+              className={cn(
+                "w-6 h-6 rounded-full",
                 isDarkMode ? "bg-gray-700" : "bg-gray-200"
-              }`}
+              )}
             ></div>
             <span
-              className={`text-sm font-medium ${
+              className={cn(
+                "text-sm font-medium",
                 isDarkMode ? "text-gray-300" : "text-gray-600"
-              }`}
+              )}
             >
               r/{post.subreddit}
             </span>
             <span
-              className={`text-sm ${
+              className={cn(
+                "text-sm",
                 isDarkMode ? "text-gray-500" : "text-gray-400"
-              }`}
+              )}
             >
-              • {post.timeAgo}
+              • {formatTimeAgo(post.created_utc)}
             </span>
-            {post.isPromoted && (
-              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                Promoted
+            {post.stickied && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                Pinned
+              </span>
+            )}
+            {post.over_18 && (
+              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                NSFW
               </span>
             )}
           </div>
           <button
-            className={`p-1 rounded-full ${
+            className={cn(
+              "p-1 rounded-full",
               isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
-            }`}
+            )}
           >
             <IconWrapper size="sm">
               <MoreIcon />
@@ -115,106 +194,178 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
       {/* Post Title */}
       <div className="px-4 pb-2">
         <h2
-          className={`text-lg font-medium ${
+          className={cn(
+            "text-lg font-medium",
             isDarkMode ? "text-white" : "text-gray-900"
-          }`}
+          )}
         >
           {post.title}
         </h2>
       </div>
 
       {/* Post Content */}
-      {post.content && (
+      {post.selftext && (
         <div className="px-4 pb-4">
           <p
-            className={`text-sm ${
+            className={cn(
+              "text-sm",
               isDarkMode ? "text-gray-300" : "text-gray-700"
-            }`}
+            )}
           >
-            {post.content}
+            {post.selftext}
           </p>
         </div>
       )}
 
       {/* Post Media */}
-      {post.imageUrl && (
-        <div className="px-4 pb-4">
-          <img
-            src={post.imageUrl}
-            alt={post.title}
-            className="w-full rounded-lg"
-          />
-        </div>
-      )}
-
-      {post.videoUrl && (
+      {getVideoUrl() ? (
         <div className="px-4 pb-4">
           <div className="relative w-full bg-black rounded-lg">
-            <video src={post.videoUrl} controls className="w-full rounded-lg">
+            <video
+              src={getVideoUrl()}
+              controls
+              autoPlay
+              muted
+              loop
+              className="w-full rounded-lg"
+            >
               Your browser does not support the video tag.
             </video>
           </div>
         </div>
+      ) : getImageUrl() ? (
+        <div className="px-4 pb-4">
+          <img
+            src={getImageUrl()}
+            alt={post.title}
+            className="w-full rounded-lg"
+          />
+        </div>
+      ) : null}
+
+      {/* External Link */}
+      {post.url && !post.is_self && !getImageUrl() && !getVideoUrl() && (
+        <div className="px-4 pb-4">
+          <a
+            href={post.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "block p-3 rounded-lg border",
+              isDarkMode
+                ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
+                : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+            )}
+          >
+            <div className="flex items-center space-x-3">
+              <div className="flex-1">
+                <p
+                  className={cn(
+                    "text-sm font-medium",
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  )}
+                >
+                  {post.domain}
+                </p>
+                <p
+                  className={cn(
+                    "text-xs",
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  )}
+                >
+                  {post.url}
+                </p>
+              </div>
+              <div className="text-gray-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </div>
+            </div>
+          </a>
+        </div>
       )}
 
       {/* Post Actions */}
-      <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+      <div
+        className={cn(
+          "px-4 py-2 border-t",
+          isDarkMode ? "border-gray-700" : "border-gray-200"
+        )}
+      >
         <div className="flex items-center space-x-4">
           {/* Upvote */}
           <button
             onClick={() => handleVote("up")}
-            className={`flex items-center space-x-1 px-2 py-1 rounded-full ${
+            className={cn(
+              "flex items-center space-x-1 px-2 py-1 rounded-full",
               voteState === "up"
                 ? "bg-orange-100 text-orange-600"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-800"
                 : "text-gray-500 hover:bg-gray-100"
-            }`}
+            )}
           >
             <IconWrapper size="sm">
               <UpvoteIcon />
             </IconWrapper>
-            <span className="text-sm font-medium">{post.upvotes}</span>
+            <span className="text-sm font-medium">
+              {formatScore(post.score)}
+            </span>
           </button>
 
           {/* Downvote */}
           <button
             onClick={() => handleVote("down")}
-            className={`flex items-center space-x-1 px-2 py-1 rounded-full ${
+            className={cn(
+              "flex items-center space-x-1 px-2 py-1 rounded-full",
               voteState === "down"
                 ? "bg-blue-100 text-blue-600"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-800"
                 : "text-gray-500 hover:bg-gray-100"
-            }`}
+            )}
           >
             <IconWrapper size="sm">
               <DownvoteIcon />
             </IconWrapper>
-            <span className="text-sm font-medium">{post.downvotes}</span>
           </button>
 
           {/* Comments */}
           <button
-            className={`flex items-center space-x-1 px-2 py-1 rounded-full ${
+            className={cn(
+              "flex items-center space-x-1 px-2 py-1 rounded-full",
               isDarkMode
                 ? "text-gray-400 hover:bg-gray-800"
                 : "text-gray-500 hover:bg-gray-100"
-            }`}
+            )}
           >
             <IconWrapper size="sm">
               <CommentIcon />
             </IconWrapper>
-            <span className="text-sm font-medium">{post.comments}</span>
+            <span className="text-sm font-medium">
+              {formatScore(post.num_comments)}
+            </span>
           </button>
 
           {/* Share */}
           <button
-            className={`flex items-center space-x-1 px-2 py-1 rounded-full ${
+            className={cn(
+              "flex items-center space-x-1 px-2 py-1 rounded-full",
               isDarkMode
                 ? "text-gray-400 hover:bg-gray-800"
                 : "text-gray-500 hover:bg-gray-100"
-            }`}
+            )}
           >
             <IconWrapper size="sm">
               <ShareIcon />
