@@ -4,9 +4,10 @@ import { Post } from "../models/Post"; // long schema model
 const PostController = {
   async create(req: Request, res: Response) {
     try {
-      const { title, content, subreddit } = req.body;
+      const { title, content, communityId } = req.body;
+      const author = "req.auth?.userId || req.user?._id;"; // Clerk vs JWT?
 
-      if (!title || !content?.type || !content?.value || !subreddit) {
+      if (!title || !content?.type || !content?.value || !communityId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -24,7 +25,8 @@ const PostController = {
           type: content.type,
           value: content.value,
         },
-        subreddit,
+        author,
+        communityId,
         upvotes: 0,
         downvotes: 0,
         comments: [],

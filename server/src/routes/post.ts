@@ -7,7 +7,7 @@ const router = express.Router();
 // //Get single post with comments
 // router.get("/posts/:id");
 //Create new post
-router.post("/posts", PostController.create);
+router.post("/", PostController.create);
 //Edit post
 // router.put("/posts/:id");
 // //Delete post
