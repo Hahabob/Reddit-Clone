@@ -1,7 +1,7 @@
 import express from "express";
 import { Comment } from "../models/Comment";
 import { Post } from "../models/Post";
-import { User } from "../models/User";
+import User from "../models/User";
 
 const router = express.Router();
 
