@@ -4,6 +4,7 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import redditRoutes from "./routes/reddit";
+import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -17,6 +18,23 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 3001;
+
+const MONGODB_URI = process.env.MONGODB_URI as string;
+
+if (!MONGODB_URI) {
+  throw new Error("No uri provided");
+}
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(MONGODB_URI);
+    console.log("Successfully connected to DB");
+  } catch (error) {
+    throw new Error("We've got an issue here");
+  }
+};
+
+connectDB();
 
 app.use(cors());
 app.use(express.json());
