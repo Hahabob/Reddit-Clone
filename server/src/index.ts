@@ -63,7 +63,7 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/reddit", redditRoutes);
-app.use("/api/posts", postRoutes);
+app.use("/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Reddit Clone API Server" });
