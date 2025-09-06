@@ -49,6 +49,7 @@ export const RightSidebar: React.FC = () => {
           </h3>
           <div className="space-y-2">
             <button
+              onClick={handleLoginClick}
               className={cn(
                 "w-full py-2 px-4 rounded-full font-medium",
                 "bg-orange-500 text-white hover:bg-orange-600"
@@ -57,6 +58,7 @@ export const RightSidebar: React.FC = () => {
               Log In
             </button>
             <button
+              onClick={handleSignUpClick}
               className={cn(
                 "w-full py-2 px-4 rounded-full font-medium border",
                 isDarkMode
