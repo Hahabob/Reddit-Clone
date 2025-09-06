@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { MainLayout } from "./components/Layout/MainLayout";
+import SignUpPage from "./pages/signup";
+import SignInPage from "./pages/signin";
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
                 path="/r/:subreddit/comments/:postId"
                 element={<MainLayout />}
               />
+              <Route path="/sign-up" element={<SignUpPage />} />
+              <Route path="/sign-in" element={<SignInPage />} />
             </Routes>
           </div>
         </Router>

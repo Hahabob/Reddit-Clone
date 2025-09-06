@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
 
 export const RightSidebar: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
 
   const popularCommunities = [
     { name: "NoStupidQuestions", members: "6,570,220" },
@@ -12,6 +14,14 @@ export const RightSidebar: React.FC = () => {
     { name: "DnD", members: "4,155,949" },
     { name: "videos", members: "26,748,233" },
   ];
+
+  const handleLoginClick = () => {
+    navigate("/sign-in");
+  };
+
+  const handleSignUpClick = () => {
+    navigate("/sign-up");
+  };
 
   return (
     <aside
@@ -37,6 +47,7 @@ export const RightSidebar: React.FC = () => {
           </h3>
           <div className="space-y-2">
             <button
+              onClick={handleLoginClick}
               className={cn(
                 "w-full py-2 px-4 rounded-full font-medium",
                 "bg-orange-500 text-white hover:bg-orange-600"
@@ -45,6 +56,7 @@ export const RightSidebar: React.FC = () => {
               Log In
             </button>
             <button
+              onClick={handleSignUpClick}
               className={cn(
                 "w-full py-2 px-4 rounded-full font-medium border",
                 isDarkMode
