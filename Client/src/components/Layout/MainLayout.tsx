@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { RightSidebar } from "./RightSidebar";
@@ -44,7 +45,22 @@ export const MainLayout: React.FC = () => {
           <PostFeed ref={postFeedRef} />
         </main>
         <div className="hidden xl:block">
-          <RightSidebar />
+          <SignedOut>
+            <RightSidebar />
+          </SignedOut>
+          <SignedIn>
+            <div
+              className={`w-80 h-screen overflow-y-auto ${
+                isDarkMode ? "bg-gray-900" : "bg-white"
+              } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+            >
+              <div className="p-4">
+                <div className="flex items-center justify-center">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </div>
+            </div>
+          </SignedIn>
         </div>
       </div>
     </div>
