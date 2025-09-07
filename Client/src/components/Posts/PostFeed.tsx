@@ -554,8 +554,7 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       ) : (
         <>
           <div
-            className={cn(
-              "p-4 border-b transition-colors",
+            className={`p-4 border-b ${
               isDarkMode ? "border-gray-900 bg-black" : "border-gray-200"
             }`}
           >

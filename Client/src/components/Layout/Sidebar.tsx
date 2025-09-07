@@ -62,11 +62,7 @@ const IconWrapper: React.FC<IconWrapperProps> = ({
   );
 };
 
-const HomeIcon = () => (
-  <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
-    <HomeSvg />
-  </div>
-);
+const HomeIcon = () => <HomeSvg />;
 
 const PopularIcon = () => (
   <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
@@ -197,6 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
         className={cn(
           "fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
+          isDarkMode ? "bg-black" : "bg-white",
           isDarkMode ? "bg-black" : "bg-white",
           "border-r",
           isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -386,6 +383,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   className={cn(
                     "text-sm px-3 py-1.5 rounded-full transition-colors",
                     isDarkMode
+                      ? "text-white hover:text-white hover:bg-gray-900/70"
                       ? "text-white hover:text-white hover:bg-gray-900/70"
                       : "text-black hover:text-black hover:bg-gray-200"
                   )}
