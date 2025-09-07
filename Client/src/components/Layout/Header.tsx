@@ -173,11 +173,11 @@ export const Header: React.FC<HeaderProps> = ({
                   setTimeout(() => setShowSearchResults(false), 200)
                 }
                 className={cn(
-                  "block w-full pl-10 pr-3 py-2 border rounded-md leading-5",
-                  "focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500",
+                  "block w-full pl-10 pr-3 py-3 rounded-full leading-5 text-sm",
+                  "focus:outline-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-600",
                   isDarkMode
-                    ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-                    : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500"
+                    ? "bg-gray-700 text-white placeholder-gray-500 "
+                    : "bg-gray-200 text-gray-900 placeholder-gray-600"
                 )}
               />
             </form>

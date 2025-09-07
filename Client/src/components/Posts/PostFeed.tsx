@@ -37,10 +37,14 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       setLoading(true);
       setError(null);
 
-      const response = await redditApiService.posts.getHomePosts(sort, {
-        limit: 25,
-        after: loadMore ? after : undefined,
-      });
+      // Add minimum loading time for better UX
+      const [response] = await Promise.all([
+        redditApiService.posts.getHomePosts(sort, {
+          limit: 25,
+          after: loadMore ? after : undefined,
+        }),
+        new Promise((resolve) => setTimeout(resolve, 300)), // Minimum 300ms loading
+      ]);
 
       const newPosts = response.data.children.map((child) => child.data);
 
@@ -215,62 +219,34 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
             </div>
           </div>
           <div className="p-4">
-            {loading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`animate-pulse rounded-lg border ${
-                      isDarkMode
-                        ? "bg-gray-900 border-gray-700"
-                        : "bg-white border-gray-200"
-                    } p-4`}
-                  >
-                    <div className="flex items-center space-x-2 mb-3">
-                      <div
-                        className={`w-6 h-6 rounded-full ${
-                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                        }`}
-                      ></div>
-                      <div
-                        className={`h-4 w-32 rounded ${
-                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                        }`}
-                      ></div>
-                    </div>
-                    <div
-                      className={`h-6 w-3/4 rounded mb-2 ${
-                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                      }`}
-                    ></div>
-                    <div
-                      className={`h-4 w-full rounded ${
-                        isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                      }`}
-                    ></div>
-                  </div>
-                ))}
-              </div>
+            {loading && posts.length === 0 ? (
+              <div
+                className={`min-h-screen ${
+                  isDarkMode ? "bg-gray-900" : "bg-white"
+                }`}
+              ></div>
             ) : (
               <div className="space-y-4">
                 {posts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
-                {hasMore && (
+                {hasMore && !loading && (
                   <div className="flex justify-center py-4">
                     <button
                       onClick={handleLoadMore}
-                      disabled={loading}
                       className={`px-6 py-2 rounded-full font-medium ${
-                        loading
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : isDarkMode
+                        isDarkMode
                           ? "bg-orange-500 text-white hover:bg-orange-600"
                           : "bg-orange-500 text-white hover:bg-orange-600"
                       }`}
                     >
-                      {loading ? "Loading..." : "Load More"}
+                      Load More
                     </button>
+                  </div>
+                )}
+                {loading && posts.length > 0 && (
+                  <div className="flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
                   </div>
                 )}
               </div>
