@@ -384,10 +384,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
           return isFromLocationSubreddit || hasLocationKeywords;
         });
-
-        console.log(
-          `Location: ${location}, Found ${filteredPosts.length} relevant posts out of ${response.data.children.length} total posts`
-        );
       }
 
       if (loadMore) {
@@ -399,7 +395,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       setAfter(response.data.after);
       setHasMore(!!response.data.after);
     } catch (err) {
-      console.error("Error loading posts:", err);
       setError("Failed to load posts. Please try again.");
     } finally {
       setLoading(false);
@@ -408,7 +403,7 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   useEffect(() => {
     loadPosts(sortBy);
-  }, [sortBy, location]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortBy, location]);
 
   useEffect(() => {
     if (socket) {
@@ -472,7 +467,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       const searchPosts = response.data.children.map((child) => child.data);
       setSearchResults(searchPosts);
     } catch (err) {
-      console.error("Error searching posts:", err);
       setSearchError("Failed to search posts. Please try again.");
     } finally {
       setIsSearching(false);
@@ -533,9 +527,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       ) : (
         <>
           <div
-            className={`p-4 border-b ${
+            className={cn(
+              "p-4 border-b",
               isDarkMode ? "border-gray-900 bg-black" : "border-gray-200"
-            }`}
+            )}
           >
             <div className="flex items-center space-x-1">
               <SortDropdown
@@ -555,9 +550,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
           <div className="p-4">
             {loading && posts.length === 0 ? (
               <div
-                className={`min-h-screen ${
+                className={cn(
+                  "min-h-screen",
                   isDarkMode ? "bg-gray-900" : "bg-white"
-                }`}
+                )}
               ></div>
             ) : (
               <div
@@ -570,11 +566,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
                   <div className="flex justify-center py-4">
                     <button
                       onClick={handleLoadMore}
-                      className={`px-6 py-2 rounded-full font-medium ${
-                        isDarkMode
-                          ? "bg-orange-500 text-white hover:bg-orange-600"
-                          : "bg-orange-500 text-white hover:bg-orange-600"
-                      }`}
+                      className={cn(
+                        "px-6 py-2 rounded-full font-medium",
+                        "bg-orange-500 text-white hover:bg-orange-600"
+                      )}
                     >
                       Load More
                     </button>
@@ -592,9 +587,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       )}
       {!isConnected && (
         <div
-          className={`fixed bottom-4 right-4 p-3 rounded-lg ${
+          className={cn(
+            "fixed bottom-4 right-4 p-3 rounded-lg",
             isDarkMode ? "bg-red-900 text-red-200" : "bg-red-100 text-red-800"
-          }`}
+          )}
         >
           <p className="text-sm">Disconnected from server</p>
         </div>

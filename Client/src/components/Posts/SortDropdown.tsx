@@ -70,7 +70,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
     sortOptions.find((option) => option.value === currentSort) ||
     sortOptions[0];
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -94,7 +93,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Tooltip */}
       {showTooltip && (
         <div className="absolute -top-12 left-12 transform -translate-x-1/2 z-50">
           <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
@@ -104,7 +102,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         </div>
       )}
 
-      {/* Dropdown Button */}
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
@@ -121,7 +118,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         <ChevronDownIcon />
       </button>
 
-      {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-32 z-50">
           <div
@@ -132,7 +128,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
                 : "bg-white border-gray-200"
             )}
           >
-            {/* Header */}
             <div className="px-3 py-2">
               <span
                 className={cn(
@@ -144,7 +139,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
               </span>
             </div>
 
-            {/* Options */}
             <div className="py-1">
               {sortOptions.map((option) => (
                 <button
