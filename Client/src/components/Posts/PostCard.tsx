@@ -153,6 +153,8 @@ export const PostCard: React.FC<PostCardProps> = ({
                 "p-1 rounded",
                 voteState === "up"
                   ? "text-orange-500"
+                  : isDarkMode
+                  ? "text-gray-400 hover:text-orange-500"
                   : "text-gray-400 hover:text-orange-500"
               )}
             >
@@ -172,6 +174,8 @@ export const PostCard: React.FC<PostCardProps> = ({
                 "p-1 rounded",
                 voteState === "down"
                   ? "text-blue-500"
+                  : isDarkMode
+                  ? "text-gray-400 hover:text-blue-500"
                   : "text-gray-400 hover:text-blue-500"
               )}
             >
@@ -208,7 +212,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   return (
     <article
       className={cn(
-        "rounded-lg border mb-4 transition-colors",
+        "rounded-lg border mb-4",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
