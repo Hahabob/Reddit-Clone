@@ -92,7 +92,6 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  // Helper functions to format Reddit data
   const formatTimeAgo = (timestamp: number): string => {
     const now = Date.now() / 1000;
     const diff = now - timestamp;
