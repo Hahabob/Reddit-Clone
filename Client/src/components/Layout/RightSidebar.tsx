@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
 
@@ -30,44 +31,68 @@ export const RightSidebar: React.FC = () => {
       } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
     >
       <div className="p-4">
-        {/* User Actions */}
-        <div
-          className={cn(
-            "p-4 rounded-lg",
-            isDarkMode ? "bg-gray-800" : "bg-gray-50"
-          )}
-        >
-          <h3
+        {/* User Actions - Only show when signed out */}
+        <SignedOut>
+          <div
             className={cn(
-              "text-lg font-semibold mb-3",
-              isDarkMode ? "text-white" : "text-gray-900"
+              "p-4 rounded-lg mb-4",
+              isDarkMode ? "bg-gray-800" : "bg-gray-50"
             )}
           >
-            Log In / Sign Up
-          </h3>
-          <div className="space-y-2">
-            <button
-              onClick={handleLoginClick}
+            <h3
               className={cn(
-                "w-full py-2 px-4 rounded-full font-medium",
-                "bg-orange-500 text-white hover:bg-orange-600"
+                "text-lg font-semibold mb-3",
+                isDarkMode ? "text-white" : "text-gray-900"
               )}
             >
-              Log In
-            </button>
-            <button
-              onClick={handleSignUpClick}
-              className={cn(
-                "w-full py-2 px-4 rounded-full font-medium border",
-                isDarkMode
-                  ? "border-gray-600 text-white hover:bg-gray-800"
-                  : "border-gray-300 text-gray-900 hover:bg-gray-100"
-              )}
-            >
-              Sign Up
-            </button>
+              Log In / Sign Up
+            </h3>
+            <div className="space-y-2">
+              <button
+                onClick={handleLoginClick}
+                className={cn(
+                  "w-full py-2 px-4 rounded-full font-medium",
+                  "bg-orange-500 text-white hover:bg-orange-600"
+                )}
+              >
+                Log In
+              </button>
+              <button
+                onClick={handleSignUpClick}
+                className={cn(
+                  "w-full py-2 px-4 rounded-full font-medium border",
+                  isDarkMode
+                    ? "border-gray-600 text-white hover:bg-gray-800"
+                    : "border-gray-300 text-gray-900 hover:bg-gray-100"
+                )}
+              >
+                Sign Up
+              </button>
+            </div>
           </div>
-        </div>
+        </SignedOut>
+
+        {/* User Profile - Only show when signed in */}
+        <SignedIn>
+          <div
+            className={cn(
+              "p-4 rounded-lg mb-4",
+              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+            )}
+          >
+            <h3
+              className={cn(
+                "text-lg font-semibold mb-3",
+                isDarkMode ? "text-white" : "text-gray-900"
+              )}
+            >
+              Welcome back!
+            </h3>
+            <div className="flex items-center justify-center">
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          </div>
+        </SignedIn>
 
         {/* Advertise Section */}
         <div className="mt-4">
