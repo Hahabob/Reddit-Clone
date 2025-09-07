@@ -216,7 +216,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
-      {/* Post Header */}
       <div className="p-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -266,7 +265,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       </div>
 
-      {/* Post Title */}
       <div className="px-4 pb-2">
         <h2
           className={cn(
@@ -278,7 +276,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         </h2>
       </div>
 
-      {/* Post Content */}
       {post.selftext && (
         <div className="px-4 pb-4">
           <p
@@ -292,7 +289,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       )}
 
-      {/* Post Media */}
       {getVideoUrl() ? (
         <div className="px-4 pb-4">
           <div className="relative w-full bg-black rounded-lg">
@@ -318,7 +314,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       ) : null}
 
-      {/* External Link */}
       {post.url && !post.is_self && !getImageUrl() && !getVideoUrl() && (
         <div className="px-4 pb-4">
           <a
@@ -371,7 +366,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       )}
 
-      {/* Post Actions */}
       <div
         className={cn(
           "px-4 py-2 border-t",
@@ -379,7 +373,6 @@ export const PostCard: React.FC<PostCardProps> = ({
         )}
       >
         <div className="flex items-center space-x-4">
-          {/* Upvote */}
           <button
             onClick={() => handleVote("up")}
             className={cn(
@@ -399,7 +392,6 @@ export const PostCard: React.FC<PostCardProps> = ({
             </span>
           </button>
 
-          {/* Downvote */}
           <button
             onClick={() => handleVote("down")}
             className={cn(
@@ -416,7 +408,6 @@ export const PostCard: React.FC<PostCardProps> = ({
             </IconWrapper>
           </button>
 
-          {/* Comments */}
           <button
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full",
@@ -433,7 +424,6 @@ export const PostCard: React.FC<PostCardProps> = ({
             </span>
           </button>
 
-          {/* Share */}
           <button
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full",
