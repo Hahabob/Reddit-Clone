@@ -16,7 +16,7 @@ export const RightSidebar: React.FC = () => {
   return (
     <aside
       className={`w-80 h-screen overflow-y-auto ${
-        isDarkMode ? "bg-gray-900" : "bg-white"
+        isDarkMode ? "bg-black" : "bg-white"
       } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
     >
       <div className="p-4">
@@ -24,7 +24,7 @@ export const RightSidebar: React.FC = () => {
         <div
           className={cn(
             "p-4 rounded-lg",
-            isDarkMode ? "bg-gray-800" : "bg-gray-50"
+            isDarkMode ? "bg-gray-900" : "bg-gray-50"
           )}
         >
           <h3
@@ -48,7 +48,7 @@ export const RightSidebar: React.FC = () => {
               className={cn(
                 "w-full py-2 px-4 rounded-full font-medium border",
                 isDarkMode
-                  ? "border-gray-600 text-white hover:bg-gray-800"
+                  ? "border-gray-600 text-white hover:bg-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-100"
               )}
             >
@@ -62,7 +62,7 @@ export const RightSidebar: React.FC = () => {
           <button
             className={`w-full text-left p-3 rounded-lg ${
               isDarkMode
-                ? "text-gray-300 hover:bg-gray-800"
+                ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -71,7 +71,7 @@ export const RightSidebar: React.FC = () => {
           <button
             className={`w-full text-left p-3 rounded-lg ${
               isDarkMode
-                ? "text-gray-300 hover:bg-gray-800"
+                ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -94,13 +94,13 @@ export const RightSidebar: React.FC = () => {
               <div
                 key={index}
                 className={`flex items-center justify-between p-2 rounded-lg ${
-                  isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
+                  isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
                 }`}
               >
                 <div className="flex items-center">
                   <div
                     className={`w-8 h-8 rounded-full mr-3 ${
-                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                      isDarkMode ? "bg-gray-800" : "bg-gray-200"
                     }`}
                   ></div>
                   <div>
@@ -146,7 +146,7 @@ export const RightSidebar: React.FC = () => {
           <div
             className={cn(
               "p-4 rounded-lg",
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+              isDarkMode ? "bg-gray-900" : "bg-gray-50"
             )}
           >
             <p
