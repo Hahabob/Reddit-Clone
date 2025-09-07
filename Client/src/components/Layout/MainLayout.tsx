@@ -31,9 +31,7 @@ export const MainLayout: React.FC = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
-    >
+    <div className={`min-h-screen ${isDarkMode ? "bg-black" : "bg-gray-50"}`}>
       <Header
         onToggleSidebar={toggleSidebar}
         onSearch={handleSearch}

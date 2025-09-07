@@ -1,6 +1,9 @@
 import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { PostCard } from "./PostCard";
 import { SearchResults } from "../Search/SearchResults";
+import { SortDropdown } from "./SortDropdown";
+import { ViewDropdown } from "./ViewDropdown";
+import { LocationDropdown } from "./LocationDropdown";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useSocket } from "../../contexts/SocketContext";
 import { redditApiService } from "../../services/redditApi";
@@ -23,8 +26,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<
-    "hot" | "new" | "top" | "rising" | "controversial"
-  >("hot");
+    "best" | "hot" | "new" | "top" | "rising"
+  >("best");
+  const [viewMode, setViewMode] = useState<"card" | "compact">("card");
+  const [location, setLocation] = useState<string>("everywhere");
   const [after, setAfter] = useState<string | undefined>();
   const [hasMore, setHasMore] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -37,21 +42,363 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       setLoading(true);
       setError(null);
 
-      // Add minimum loading time for better UX
+      // Map "best" to "hot" for API call
+      const apiSort = sort === "best" ? "hot" : sort;
+
+      // Filter posts by location (simulate location-based filtering)
       const [response] = await Promise.all([
-        redditApiService.posts.getHomePosts(sort, {
+        redditApiService.posts.getHomePosts(apiSort, {
           limit: 25,
           after: loadMore ? after : undefined,
         }),
         new Promise((resolve) => setTimeout(resolve, 300)), // Minimum 300ms loading
       ]);
 
-      const newPosts = response.data.children.map((child) => child.data);
+      let filteredPosts = response.data.children.map((child) => child.data);
+
+      // Apply location-based filtering
+      if (location !== "everywhere") {
+        const locationSubreddits = {
+          "united-states": [
+            "AskAnAmerican",
+            "mildlyinfuriating",
+            "WhitePeopleTwitter",
+            "PublicFreakout",
+            "unpopularopinion",
+            "AmItheAsshole",
+            "tifu",
+            "LifeProTips",
+            "Showerthoughts",
+            "memes",
+            "funny",
+            "gaming",
+            "pics",
+            "videos",
+            "worldnews",
+            "news",
+            "politics",
+            "AskReddit",
+            "explainlikeimfive",
+            "todayilearned",
+          ],
+          israel: [
+            "Israel",
+            "israel",
+            "hebrew",
+            "Judaism",
+            "Jewish",
+            "TelAviv",
+            "Jerusalem",
+            "IsraelPalestine",
+            "IsraelConflict",
+            "IsraelNews",
+            "IsraelPolitics",
+          ],
+          germany: [
+            "de",
+            "germany",
+            "berlin",
+            "munich",
+            "hamburg",
+            "cologne",
+            "frankfurt",
+            "AskAGerman",
+            "Germany",
+            "deutschland",
+            "German",
+            "Bavaria",
+          ],
+          france: [
+            "france",
+            "paris",
+            "lyon",
+            "marseille",
+            "AskFrance",
+            "France",
+            "french",
+            "Rance",
+            "frenchmemes",
+            "FranceLibre",
+          ],
+          "united-kingdom": [
+            "unitedkingdom",
+            "AskUK",
+            "london",
+            "manchester",
+            "birmingham",
+            "glasgow",
+            "liverpool",
+            "leeds",
+            "sheffield",
+            "bristol",
+            "edinburgh",
+            "scotland",
+            "wales",
+            "northernireland",
+            "britishproblems",
+            "casualuk",
+          ],
+          canada: [
+            "canada",
+            "AskACanadian",
+            "toronto",
+            "montreal",
+            "vancouver",
+            "calgary",
+            "ottawa",
+            "edmonton",
+            "winnipeg",
+            "quebec",
+            "hamilton",
+            "kitchener",
+            "canadian",
+            "onguardforthee",
+            "metacanada",
+          ],
+          australia: [
+            "australia",
+            "AskAnAustralian",
+            "sydney",
+            "melbourne",
+            "brisbane",
+            "perth",
+            "adelaide",
+            "goldcoast",
+            "newcastle",
+            "wollongong",
+            "hobart",
+            "darwin",
+            "australian",
+            "straya",
+            "AussieMemes",
+          ],
+          argentina: [
+            "argentina",
+            "AskArgentina",
+            "buenosaires",
+            "cordoba",
+            "rosario",
+            "mendoza",
+            "laplata",
+            "tucuman",
+            "mardelplata",
+            "salta",
+            "santafe",
+            "argentine",
+          ],
+          bulgaria: [
+            "bulgaria",
+            "AskBulgaria",
+            "sofia",
+            "plovdiv",
+            "varna",
+            "burgas",
+            "ruse",
+            "starazagora",
+            "pleven",
+            "sliven",
+            "dobrich",
+            "shumen",
+            "bulgarian",
+          ],
+        };
+
+        const targetSubreddits =
+          locationSubreddits[location as keyof typeof locationSubreddits] || [];
+
+        filteredPosts = filteredPosts.filter((post) => {
+          const subredditLower = post.subreddit.toLowerCase();
+          const titleLower = post.title.toLowerCase();
+          const selftextLower = (post.selftext || "").toLowerCase();
+
+          // Check if post is from a location-specific subreddit
+          const isFromLocationSubreddit = targetSubreddits.some((sub) =>
+            subredditLower.includes(sub.toLowerCase())
+          );
+
+          // Check if post contains location-specific keywords
+          const locationKeywords = {
+            "united-states": [
+              "usa",
+              "america",
+              "united states",
+              "us",
+              "texas",
+              "california",
+              "new york",
+              "florida",
+              "chicago",
+              "miami",
+              "los angeles",
+              "washington",
+              "boston",
+              "seattle",
+              "trump",
+              "biden",
+              "congress",
+              "senate",
+              "house",
+              "democrat",
+              "republican",
+            ],
+            israel: [
+              "israel",
+              "israeli",
+              "hebrew",
+              "ישראל",
+              "tel aviv",
+              "jerusalem",
+              "haifa",
+              "beer sheva",
+              "netanyahu",
+              "gaza",
+              "west bank",
+              "palestine",
+              "jewish",
+              "judaism",
+              "orthodox",
+              "haredi",
+            ],
+            germany: [
+              "germany",
+              "german",
+              "deutschland",
+              "berlin",
+              "munich",
+              "hamburg",
+              "cologne",
+              "frankfurt",
+              "stuttgart",
+              "merkel",
+              "bundestag",
+              "bavaria",
+              "ruhr",
+              "hamburg",
+            ],
+            france: [
+              "france",
+              "french",
+              "français",
+              "paris",
+              "lyon",
+              "marseille",
+              "toulouse",
+              "nice",
+              "macron",
+              "le pen",
+              "champs elysees",
+              "eiffel",
+              "louvre",
+            ],
+            "united-kingdom": [
+              "uk",
+              "britain",
+              "england",
+              "scotland",
+              "wales",
+              "london",
+              "manchester",
+              "birmingham",
+              "glasgow",
+              "liverpool",
+              "leeds",
+              "sheffield",
+              "bristol",
+              "edinburgh",
+              "boris",
+              "johnson",
+              "tory",
+              "labour",
+              "brexit",
+            ],
+            canada: [
+              "canada",
+              "canadian",
+              "toronto",
+              "montreal",
+              "vancouver",
+              "calgary",
+              "ottawa",
+              "edmonton",
+              "winnipeg",
+              "quebec",
+              "trudeau",
+              "ontario",
+              "british columbia",
+              "alberta",
+            ],
+            australia: [
+              "australia",
+              "australian",
+              "sydney",
+              "melbourne",
+              "brisbane",
+              "perth",
+              "adelaide",
+              "gold coast",
+              "newcastle",
+              "wollongong",
+              "hobart",
+              "darwin",
+              "scomo",
+              "morrison",
+              "queensland",
+              "victoria",
+            ],
+            argentina: [
+              "argentina",
+              "argentine",
+              "buenos aires",
+              "córdoba",
+              "rosario",
+              "mendoza",
+              "la plata",
+              "tucumán",
+              "mar del plata",
+              "salta",
+              "santa fe",
+              "fernandez",
+              "peron",
+              "kirchner",
+            ],
+            bulgaria: [
+              "bulgaria",
+              "bulgarian",
+              "sofia",
+              "plovdiv",
+              "varna",
+              "burgas",
+              "ruse",
+              "stara zagora",
+              "pleven",
+              "sliven",
+              "dobrich",
+              "shumen",
+              "borisov",
+              "rusev",
+            ],
+          };
+
+          const keywords =
+            locationKeywords[location as keyof typeof locationKeywords] || [];
+          const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
+
+          const hasLocationKeywords = keywords.some((keyword) =>
+            searchText.includes(keyword.toLowerCase())
+          );
+
+          return isFromLocationSubreddit || hasLocationKeywords;
+        });
+
+        console.log(
+          `Location: ${location}, Found ${filteredPosts.length} relevant posts out of ${response.data.children.length} total posts`
+        );
+      }
 
       if (loadMore) {
-        setPosts((prev) => [...prev, ...newPosts]);
+        setPosts((prev) => [...prev, ...filteredPosts]);
       } else {
-        setPosts(newPosts);
+        setPosts(filteredPosts);
       }
 
       setAfter(response.data.after);
@@ -64,10 +411,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
     }
   };
 
-  // Load posts on component mount and when sort changes
+  // Load posts on component mount and when sort or location changes
   useEffect(() => {
     loadPosts(sortBy);
-  }, [sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortBy, location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (socket) {
@@ -94,6 +441,18 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
     setSortBy(newSort);
     setAfter(undefined);
     setHasMore(true);
+  };
+
+  const handleViewChange = (newView: typeof viewMode) => {
+    setViewMode(newView);
+  };
+
+  const handleLocationChange = (newLocation: string) => {
+    setLocation(newLocation);
+    // Reload posts when location changes
+    setAfter(undefined);
+    setHasMore(true);
+    loadPosts(sortBy);
   };
 
   const handleLoadMore = () => {
@@ -184,38 +543,22 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
         <>
           <div
             className={`p-4 border-b ${
-              isDarkMode ? "border-gray-700" : "border-gray-200"
+              isDarkMode ? "border-gray-900 bg-black" : "border-gray-200"
             }`}
           >
-            <div className="flex items-center space-x-4">
-              <span
-                className={`text-sm font-medium ${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
-                }`}
-              >
-                Sort by:
-              </span>
-              <div className="flex space-x-2">
-                {(
-                  ["hot", "new", "top", "rising", "controversial"] as const
-                ).map((sort) => (
-                  <button
-                    key={sort}
-                    onClick={() => handleSortChange(sort)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                      sortBy === sort
-                        ? isDarkMode
-                          ? "bg-orange-500 text-white"
-                          : "bg-orange-500 text-white"
-                        : isDarkMode
-                        ? "text-gray-400 hover:text-white hover:bg-gray-800"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    }`}
-                  >
-                    {sort}
-                  </button>
-                ))}
-              </div>
+            <div className="flex items-center space-x-1">
+              <SortDropdown
+                currentSort={sortBy}
+                onSortChange={handleSortChange}
+              />
+              <LocationDropdown
+                currentLocation={location}
+                onLocationChange={handleLocationChange}
+              />
+              <ViewDropdown
+                currentView={viewMode}
+                onViewChange={handleViewChange}
+              />
             </div>
           </div>
           <div className="p-4">
@@ -226,9 +569,11 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
                 }`}
               ></div>
             ) : (
-              <div className="space-y-4">
+              <div
+                className={viewMode === "compact" ? "space-y-1" : "space-y-4"}
+              >
                 {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={post} viewMode={viewMode} />
                 ))}
                 {hasMore && !loading && (
                   <div className="flex justify-center py-4">
