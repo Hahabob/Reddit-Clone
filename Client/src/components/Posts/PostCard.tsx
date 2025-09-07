@@ -217,7 +217,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   return (
     <article
       className={cn(
-        "rounded-lg border mb-4 transition-colors",
+        "rounded-lg border mb-4",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}

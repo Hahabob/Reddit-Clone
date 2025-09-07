@@ -26,10 +26,9 @@ export const RightSidebar: React.FC = () => {
 
   return (
     <aside
-      className={cn(
-        "w-80 h-screen overflow-y-auto border-l transition-colors",
-        isDarkMode ? "bg-black border-gray-700" : "bg-white border-gray-200"
-      )}
+      className={`w-80 h-screen overflow-y-auto ${
+        isDarkMode ? "bg-black" : "bg-white"
+      } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
     >
       <div className="p-4">
         {/* User Actions */}
