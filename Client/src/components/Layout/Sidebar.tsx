@@ -213,7 +213,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
           </nav>
           <div className="mt-6">
             <SidebarItem
-              icon={""}
               label={
                 <span
                   className={cn(
@@ -357,7 +356,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
           </div>
           <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
             <SidebarItem
-              icon={""}
               label={
                 <span
                   className={cn(

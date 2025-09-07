@@ -153,8 +153,6 @@ export const PostCard: React.FC<PostCardProps> = ({
                 "p-1 rounded",
                 voteState === "up"
                   ? "text-orange-500"
-                  : isDarkMode
-                  ? "text-gray-400 hover:text-orange-500"
                   : "text-gray-400 hover:text-orange-500"
               )}
             >
@@ -174,8 +172,6 @@ export const PostCard: React.FC<PostCardProps> = ({
                 "p-1 rounded",
                 voteState === "down"
                   ? "text-blue-500"
-                  : isDarkMode
-                  ? "text-gray-400 hover:text-blue-500"
                   : "text-gray-400 hover:text-blue-500"
               )}
             >
