@@ -75,8 +75,13 @@ const MoreIcon = () => (
 interface PostCardProps {
   post: RedditPost;
   viewMode?: "card" | "compact";
+  viewMode?: "card" | "compact";
 }
 
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  viewMode = "card",
+}) => {
 export const PostCard: React.FC<PostCardProps> = ({
   post,
   viewMode = "card",
@@ -214,6 +219,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       className={cn(
         "rounded-lg border mb-4",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
       <div className="p-4 pb-2">
@@ -222,6 +228,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             <div
               className={cn(
                 "w-6 h-6 rounded-full",
+                isDarkMode ? "bg-gray-800" : "bg-gray-200"
                 isDarkMode ? "bg-gray-800" : "bg-gray-200"
               )}
             ></div>
@@ -255,6 +262,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             className={cn(
               "p-1 rounded-full",
+              isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
               isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
             )}
           >
@@ -324,6 +332,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               "block p-3 rounded-lg border",
               isDarkMode
                 ? "bg-gray-900 border-gray-700 hover:bg-gray-800"
+                ? "bg-gray-900 border-gray-700 hover:bg-gray-800"
                 : "bg-gray-50 border-gray-200 hover:bg-gray-100"
             )}
           >
@@ -381,6 +390,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 ? "bg-orange-100 text-orange-600"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
@@ -399,6 +409,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 ? "bg-blue-100 text-blue-600"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
@@ -410,6 +421,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               isDarkMode
+                ? "text-gray-400 hover:bg-gray-900"
                 ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
@@ -425,6 +437,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               isDarkMode
+                ? "text-gray-400 hover:bg-gray-900"
                 ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
