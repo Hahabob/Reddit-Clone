@@ -32,68 +32,42 @@ export const RightSidebar: React.FC = () => {
       )}
     >
       <div className="p-4">
-        {/* User Actions - Only show when signed out */}
-        <SignedOut>
-          <div
+        {/* User Actions */}
+        <div
+          className={cn(
+            "p-4 rounded-lg",
+            isDarkMode ? "bg-gray-900" : "bg-gray-50"
+          )}
+        >
+          <h3
             className={cn(
-              "p-4 rounded-lg mb-4",
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+              "text-lg font-semibold mb-3",
+              isDarkMode ? "text-white" : "text-gray-900"
             )}
           >
-            <h3
+            Log In / Sign Up
+          </h3>
+          <div className="space-y-2">
+            <button
               className={cn(
-                "text-lg font-semibold mb-3",
-                isDarkMode ? "text-white" : "text-gray-900"
+                "w-full py-2 px-4 rounded-full font-medium",
+                "bg-orange-500 text-white hover:bg-orange-600"
               )}
             >
-              Log In / Sign Up
-            </h3>
-            <div className="space-y-2">
-              <button
-                onClick={handleLoginClick}
-                className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium",
-                  "bg-orange-500 text-white hover:bg-orange-600"
-                )}
-              >
-                Log In
-              </button>
-              <button
-                onClick={handleSignUpClick}
-                className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium border",
-                  isDarkMode
-                    ? "border-gray-600 text-white hover:bg-gray-800"
-                    : "border-gray-300 text-gray-900 hover:bg-gray-100"
-                )}
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
-        </SignedOut>
-
-        {/* User Profile - Only show when signed in */}
-        <SignedIn>
-          <div
-            className={cn(
-              "p-4 rounded-lg mb-4",
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
-            )}
-          >
-            <h3
+              Log In
+            </button>
+            <button
               className={cn(
-                "text-lg font-semibold mb-3",
-                isDarkMode ? "text-white" : "text-gray-900"
+                "w-full py-2 px-4 rounded-full font-medium border",
+                isDarkMode
+                  ? "border-gray-600 text-white hover:bg-gray-900"
+                  : "border-gray-300 text-gray-900 hover:bg-gray-100"
               )}
             >
-              Welcome back!
-            </h3>
-            <div className="flex items-center justify-center">
-              <UserButton afterSignOutUrl="/" />
-            </div>
+              Sign Up
+            </button>
           </div>
-        </SignedIn>
+        </div>
 
         <div className="mt-4">
           <button

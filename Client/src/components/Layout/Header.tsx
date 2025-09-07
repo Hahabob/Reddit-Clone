@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b transition-colors",
+        "sticky top-0 z-50 border-b",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
@@ -213,8 +213,8 @@ export const Header: React.FC<HeaderProps> = ({
                   "block w-full pl-10 pr-3 py-3 rounded-full text-sm transition-colors",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500",
                   isDarkMode
-                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:ring-white"
-                    : "bg-gray-200 text-gray-900 placeholder-gray-600 focus:ring-blue-500"
+                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:border-white focus:ring-white "
+                    : "bg-gray-200 text-gray-900 placeholder-gray-600"
                 )}
               />
             </form>
