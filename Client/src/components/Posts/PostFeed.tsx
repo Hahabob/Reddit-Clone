@@ -42,21 +42,18 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       setLoading(true);
       setError(null);
 
-      // Map "best" to "hot" for API call
       const apiSort = sort === "best" ? "hot" : sort;
 
-      // Filter posts by location (simulate location-based filtering)
       const [response] = await Promise.all([
         redditApiService.posts.getHomePosts(apiSort, {
           limit: 25,
           after: loadMore ? after : undefined,
         }),
-        new Promise((resolve) => setTimeout(resolve, 300)), // Minimum 300ms loading
+        new Promise((resolve) => setTimeout(resolve, 300)),
       ]);
 
       let filteredPosts = response.data.children.map((child) => child.data);
 
-      // Apply location-based filtering
       if (location !== "everywhere") {
         const locationSubreddits = {
           "united-states": [
@@ -211,12 +208,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
           const titleLower = post.title.toLowerCase();
           const selftextLower = (post.selftext || "").toLowerCase();
 
-          // Check if post is from a location-specific subreddit
           const isFromLocationSubreddit = targetSubreddits.some((sub) =>
             subredditLower.includes(sub.toLowerCase())
           );
 
-          // Check if post contains location-specific keywords
           const locationKeywords = {
             "united-states": [
               "usa",
@@ -411,19 +406,16 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
     }
   };
 
-  // Load posts on component mount and when sort or location changes
   useEffect(() => {
     loadPosts(sortBy);
   }, [sortBy, location]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (socket) {
-      // Listen for new posts
       socket.on("newPost", (newPost) => {
         setPosts((prev) => [newPost, ...prev]);
       });
 
-      // Listen for post updates
       socket.on("postUpdate", (updatedPost) => {
         setPosts((prev) =>
           prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
@@ -449,7 +441,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   const handleLocationChange = (newLocation: string) => {
     setLocation(newLocation);
-    // Reload posts when location changes
     setAfter(undefined);
     setHasMore(true);
     loadPosts(sortBy);
