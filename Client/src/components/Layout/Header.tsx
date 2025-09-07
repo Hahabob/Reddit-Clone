@@ -99,6 +99,7 @@ export const Header: React.FC<HeaderProps> = ({
       className={cn(
         "sticky top-0 z-50 border-b",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,6 +111,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className={cn(
                   "p-2 rounded-md mr-2 cursor-pointer",
                   isDarkMode
+                    ? "text-gray-400 hover:text-white hover:bg-gray-900"
                     ? "text-gray-400 hover:text-white hover:bg-gray-900"
                     : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                 )}
@@ -176,7 +178,7 @@ export const Header: React.FC<HeaderProps> = ({
                   "block w-full pl-10 pr-3 py-3 rounded-full leading-5 text-sm",
                   "focus:outline-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-600",
                   isDarkMode
-                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:border-white focus:ring-white"
+                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:border-white focus:ring-white "
                     : "bg-gray-200 text-gray-900 placeholder-gray-600"
                 )}
               />
@@ -186,6 +188,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className={cn(
                   "absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-10",
                   isDarkMode
+                    ? "bg-gray-900 border border-gray-800"
                     ? "bg-gray-900 border border-gray-800"
                     : "bg-white border border-gray-200"
                 )}
@@ -209,6 +212,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={cn(
                 "p-2 rounded-md cursor-pointer",
                 isDarkMode
+                  ? "text-gray-400 hover:text-white hover:bg-gray-900"
                   ? "text-gray-400 hover:text-white hover:bg-gray-900"
                   : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
               )}

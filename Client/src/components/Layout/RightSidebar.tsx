@@ -26,52 +26,47 @@ export const RightSidebar: React.FC = () => {
 
   return (
     <aside
-      className={cn(
-        "w-80 h-screen overflow-y-auto border-l",
-        isDarkMode ? "bg-black border-gray-700" : "bg-white border-gray-200"
-      )}
+      className={`w-80 h-screen overflow-y-auto ${
+        isDarkMode ? "bg-black" : "bg-white"
+      } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
     >
       <div className="p-4">
-        {/* User Actions - Only show when signed out */}
-        <SignedOut>
-          <div
+        {/* User Actions */}
+        <div
+          className={cn(
+            "p-4 rounded-lg",
+            isDarkMode ? "bg-gray-900" : "bg-gray-50"
+          )}
+        >
+          <h3
             className={cn(
-              "p-4 rounded-lg mb-4",
-              isDarkMode ? "bg-gray-800" : "bg-gray-50"
+              "text-lg font-semibold mb-3",
+              isDarkMode ? "text-white" : "text-gray-900"
             )}
           >
-            <h3
+            Log In / Sign Up
+          </h3>
+          <div className="space-y-2">
+            <button
               className={cn(
-                "text-lg font-semibold mb-3",
-                isDarkMode ? "text-white" : "text-gray-900"
+                "w-full py-2 px-4 rounded-full font-medium",
+                "bg-orange-500 text-white hover:bg-orange-600"
               )}
             >
-              Log In / Sign Up
-            </h3>
-            <div className="space-y-2">
-              <button
-                onClick={handleLoginClick}
-                className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium",
-                  "bg-orange-500 text-white hover:bg-orange-600"
-                )}
-              >
-                Log In
-              </button>
-              <button
-                onClick={handleSignUpClick}
-                className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium border",
-                  isDarkMode
-                    ? "border-gray-600 text-white hover:bg-gray-800"
-                    : "border-gray-300 text-gray-900 hover:bg-gray-100"
-                )}
-              >
-                Sign Up
-              </button>
-            </div>
+              Log In
+            </button>
+            <button
+              className={cn(
+                "w-full py-2 px-4 rounded-full font-medium border",
+                isDarkMode
+                  ? "border-gray-600 text-white hover:bg-gray-900"
+                  : "border-gray-300 text-gray-900 hover:bg-gray-100"
+              )}
+            >
+              Sign Up
+            </button>
           </div>
-        </SignedOut>
+        </div>
 
         {/* User Profile - Only show when signed in */}
         <SignedIn>
@@ -101,6 +96,7 @@ export const RightSidebar: React.FC = () => {
               "w-full text-left p-3 rounded-lg",
               isDarkMode
                 ? "text-gray-300 hover:bg-gray-900"
+                ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
             )}
           >
@@ -110,6 +106,7 @@ export const RightSidebar: React.FC = () => {
             className={cn(
               "w-full text-left p-3 rounded-lg",
               isDarkMode
+                ? "text-gray-300 hover:bg-gray-900"
                 ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
             )}
@@ -131,17 +128,15 @@ export const RightSidebar: React.FC = () => {
             {popularCommunities.map((community, index) => (
               <div
                 key={index}
-                className={cn(
-                  "flex items-center justify-between p-2 rounded-lg",
+                className={`flex items-center justify-between p-2 rounded-lg ${
                   isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
-                )}
+                }`}
               >
                 <div className="flex items-center">
                   <div
-                    className={cn(
-                      "w-8 h-8 rounded-full mr-3",
+                    className={`w-8 h-8 rounded-full mr-3 ${
                       isDarkMode ? "bg-gray-800" : "bg-gray-200"
-                    )}
+                    }`}
                   ></div>
                   <div>
                     <p
@@ -187,6 +182,7 @@ export const RightSidebar: React.FC = () => {
           <div
             className={cn(
               "p-4 rounded-lg",
+              isDarkMode ? "bg-gray-900" : "bg-gray-50"
               isDarkMode ? "bg-gray-900" : "bg-gray-50"
             )}
           >
