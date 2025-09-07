@@ -12,6 +12,14 @@ import BlogSvg from "../../assets/blog-logo.svg";
 import CareersSvg from "../../assets/careers-logo.svg";
 import PressSvg from "../../assets/press-logo.svg";
 import AnswersSvg from "../../assets/answer-logo.svg";
+import CommunitiesSvg from "../../assets/communities-logo.svg";
+import BestOfRedditSvg from "../../assets/best-of-reddit-logo.svg";
+import TopTranslatedPostsSvg from "../../assets/top-translated-posts-logo.svg";
+import TopicsSvg from "../../assets/topics-logo.svg";
+import RedditRulesSvg from "../../assets/reddit-rules-logo.svg";
+import PrivacyPolicySvg from "../../assets/privacy-policy-logo.svg";
+import UserAgreementSvg from "../../assets/user-agreement-logo.svg";
+import AccessibilitySvg from "../../assets/accessibility-logo.svg";
 
 interface IconWrapperProps {
   children: React.ReactNode;
@@ -128,16 +136,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
   const [expandedSections, setExpandedSections] = useState<{
     resources: boolean;
     topics: boolean;
+    communities: boolean;
+    legal: boolean;
+    internetCulture: boolean;
+    games: boolean;
+    qas: boolean;
+    technology: boolean;
+    popCulture: boolean;
+    moviesTv: boolean;
   }>({
     resources: false,
     topics: false,
+    communities: false,
+    legal: false,
+    internetCulture: false,
+    games: false,
+    qas: false,
+    technology: false,
+    popCulture: false,
+    moviesTv: false,
   });
+
+  const [showMore, setShowMore] = useState(false);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
+  };
+
+  const toggleShowMore = () => {
+    setShowMore((prev) => !prev);
   };
 
   return (
@@ -188,13 +218,98 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                 <SidebarItem
                   icon={<AllIcon />}
                   label="Internet Culture (Viral)"
-                />
-                <SidebarItem icon={<AllIcon />} label="Games" />
-                <SidebarItem icon={<AllIcon />} label="Q&As" />
-                <SidebarItem icon={<AllIcon />} label="Technology" />
-                <SidebarItem icon={<AllIcon />} label="Pop Culture" />
-                <SidebarItem icon={<AllIcon />} label="Movies & TV" />
+                  hasDropdown
+                  isExpanded={expandedSections.internetCulture}
+                  onToggle={() => toggleSection("internetCulture")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="Memes" />
+                    <SidebarItem icon={<AllIcon />} label="Viral Videos" />
+                    <SidebarItem icon={<AllIcon />} label="Trending Topics" />
+                    <SidebarItem icon={<AllIcon />} label="Social Media" />
+                  </div>
+                </SidebarItem>
+                <SidebarItem
+                  icon={<AllIcon />}
+                  label="Games"
+                  hasDropdown
+                  isExpanded={expandedSections.games}
+                  onToggle={() => toggleSection("games")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="PC Gaming" />
+                    <SidebarItem icon={<AllIcon />} label="Console Gaming" />
+                    <SidebarItem icon={<AllIcon />} label="Mobile Games" />
+                    <SidebarItem icon={<AllIcon />} label="Indie Games" />
+                    <SidebarItem icon={<AllIcon />} label="Esports" />
+                  </div>
+                </SidebarItem>
+                <SidebarItem
+                  icon={<AllIcon />}
+                  label="Q&As"
+                  hasDropdown
+                  isExpanded={expandedSections.qas}
+                  onToggle={() => toggleSection("qas")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="Ask Reddit" />
+                    <SidebarItem icon={<AllIcon />} label="IAmA" />
+                    <SidebarItem icon={<AllIcon />} label="ELI5" />
+                    <SidebarItem icon={<AllIcon />} label="AMA" />
+                  </div>
+                </SidebarItem>
+                <SidebarItem
+                  icon={<AllIcon />}
+                  label="Technology"
+                  hasDropdown
+                  isExpanded={expandedSections.technology}
+                  onToggle={() => toggleSection("technology")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="Programming" />
+                    <SidebarItem icon={<AllIcon />} label="Hardware" />
+                    <SidebarItem icon={<AllIcon />} label="Software" />
+                    <SidebarItem
+                      icon={<AllIcon />}
+                      label="AI & Machine Learning"
+                    />
+                    <SidebarItem icon={<AllIcon />} label="Cybersecurity" />
+                  </div>
+                </SidebarItem>
+                <SidebarItem
+                  icon={<AllIcon />}
+                  label="Pop Culture"
+                  hasDropdown
+                  isExpanded={expandedSections.popCulture}
+                  onToggle={() => toggleSection("popCulture")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="Celebrities" />
+                    <SidebarItem icon={<AllIcon />} label="Music" />
+                    <SidebarItem icon={<AllIcon />} label="Fashion" />
+                    <SidebarItem
+                      icon={<AllIcon />}
+                      label="Entertainment News"
+                    />
+                  </div>
+                </SidebarItem>
+                <SidebarItem
+                  icon={<AllIcon />}
+                  label="Movies & TV"
+                  hasDropdown
+                  isExpanded={expandedSections.moviesTv}
+                  onToggle={() => toggleSection("moviesTv")}
+                >
+                  <div className="space-y-1">
+                    <SidebarItem icon={<AllIcon />} label="Movies" />
+                    <SidebarItem icon={<AllIcon />} label="TV Shows" />
+                    <SidebarItem icon={<AllIcon />} label="Streaming" />
+                    <SidebarItem icon={<AllIcon />} label="Reviews" />
+                    <SidebarItem icon={<AllIcon />} label="Trailers" />
+                  </div>
+                </SidebarItem>
                 <button
+                  onClick={toggleShowMore}
                   className={cn(
                     "text-sm px-3 py-1.5 rounded-full transition-colors",
                     isDarkMode
@@ -202,12 +317,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                       : "text-black hover:text-black hover:bg-gray-200"
                   )}
                 >
-                  See more
+                  {showMore ? "See less" : "See more"}
                 </button>
               </div>
             </SidebarItem>
           </div>
-          <div className="mt-6">
+          <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
             <SidebarItem
               icon={""}
               label="Resources"
@@ -240,42 +355,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
               </div>
             </SidebarItem>
           </div>
-          <div className="mt-6">
-            <h3
-              className={cn(
-                "px-3 text-xs font-semibold uppercase tracking-wider",
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              )}
-            >
-              Communities
-            </h3>
-            <div className="mt-2 space-y-1">
-              <SidebarItem icon={<AllIcon />} label="Communities" />
-              <SidebarItem icon={<AllIcon />} label="Best of Reddit" />
-              <SidebarItem icon={<AllIcon />} label="Top Translated Posts" />
-              <SidebarItem icon={<AllIcon />} label="Topics" />
-            </div>
+
+          <div className="space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
+            <SidebarItem icon={<CommunitiesSvg />} label="Communities" />
+            <SidebarItem icon={<BestOfRedditSvg />} label="Best of Reddit" />
+            <SidebarItem
+              icon={<TopTranslatedPostsSvg />}
+              label="Top Translated Posts"
+            />
+            <SidebarItem icon={<TopicsSvg />} label="Topics" />
           </div>
-          <div className="mt-6">
-            <h3
-              className={cn(
-                "px-3 text-xs font-semibold uppercase tracking-wider",
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              )}
-            >
-              Legal
-            </h3>
-            <div className="mt-2 space-y-1">
-              <SidebarItem icon={<AllIcon />} label="Reddit Rules" />
-              <SidebarItem icon={<AllIcon />} label="Privacy Policy" />
-              <SidebarItem icon={<AllIcon />} label="User Agreement" />
-              <SidebarItem icon={<AllIcon />} label="Accessibility" />
-            </div>
+
+          <div className="space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
+            <SidebarItem icon={<RedditRulesSvg />} label="Reddit Rules" />
+            <SidebarItem icon={<PrivacyPolicySvg />} label="Privacy Policy" />
+            <SidebarItem icon={<UserAgreementSvg />} label="User Agreement" />
+            <SidebarItem icon={<AccessibilitySvg />} label="Accessibility" />
           </div>
-          <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700">
+
+          <div className="mt-4 pt-4">
             <p
               className={cn(
-                "text-xs",
+                "text-xs ",
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               )}
             >
