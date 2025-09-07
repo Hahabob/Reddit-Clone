@@ -49,6 +49,7 @@ const PostController = {
   },
   async getAll(req: Request, res: Response) {
     try {
+      //todo implement sorting
       const Posts = (await PostModel.find({})) || "no posts yet";
       res.json({
         data: Posts,
