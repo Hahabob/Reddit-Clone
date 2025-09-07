@@ -126,7 +126,6 @@ export const ViewDropdown: React.FC<ViewDropdownProps> = ({
               </span>
             </div>
 
-            {/* Options */}
             <div className="py-1">
               {viewOptions.map((option) => (
                 <button
