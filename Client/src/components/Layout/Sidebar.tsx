@@ -56,7 +56,6 @@ const IconWrapper: React.FC<IconWrapperProps> = ({
   );
 };
 
-// SVG Icons - using project assets via SVGR
 const HomeIcon = () => <HomeSvg className="w-5 h-5" />;
 
 const PopularIcon = () => <PopularSvg />;
