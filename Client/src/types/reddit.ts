@@ -56,10 +56,10 @@ export interface RedditPost {
   can_gild: boolean;
   is_crosspostable: boolean;
   pinned: boolean;
-  all_awardings: any[];
-  awarders: any[];
+  all_awardings: unknown[];
+  awarders: unknown[];
   author_flair_text?: string;
-  author_flair_richtext?: any[];
+  author_flair_richtext?: unknown[];
   author_flair_type?: string;
   author_flair_css_class?: string;
   author_flair_template_id?: string;
@@ -71,7 +71,7 @@ export interface RedditPost {
   distinguished?: string;
   edited: boolean | number;
   gilded: number;
-  gildings: any;
+  gildings: unknown;
   hidden: boolean;
   is_meta: boolean;
   is_original_content: boolean;
@@ -79,17 +79,17 @@ export interface RedditPost {
   is_robot_indexable: boolean;
   link_flair_background_color?: string;
   link_flair_css_class?: string;
-  link_flair_richtext?: any[];
+  link_flair_richtext?: unknown[];
   link_flair_template_id?: string;
   link_flair_text?: string;
   link_flair_text_color?: string;
   link_flair_type?: string;
-  media_embed: any;
+  media_embed: unknown;
   media_only: boolean;
   mod_note?: string;
   mod_reason_by?: string;
   mod_reason_title?: string;
-  mod_reports: any[];
+  mod_reports: unknown[];
   name: string;
   no_follow: boolean;
   num_crossposts: number;
@@ -98,9 +98,9 @@ export interface RedditPost {
   pwls?: number;
   quarantine: boolean;
   removal_reason?: string;
-  report_reasons?: any[];
-  secure_media?: any;
-  secure_media_embed?: any;
+  report_reasons?: unknown[];
+  secure_media?: unknown;
+  secure_media_embed?: unknown;
   selftext_html?: string;
   send_replies: boolean;
   shortlink: string;
@@ -111,9 +111,9 @@ export interface RedditPost {
   thumbnail_height?: number;
   thumbnail_width?: number;
   total_awards_received: number;
-  treatment_tags: any[];
+  treatment_tags: unknown[];
   upvoted?: boolean;
-  user_reports: any[];
+  user_reports: unknown[];
   view_count?: number;
   whitelist_status?: string;
   wls?: number;
@@ -134,7 +134,7 @@ export interface RedditComment {
   subreddit_id: string;
   author_fullname: string;
   author_flair_text?: string;
-  author_flair_richtext?: any[];
+  author_flair_richtext?: unknown[];
   author_flair_type?: string;
   author_flair_css_class?: string;
   author_flair_template_id?: string;
@@ -148,7 +148,7 @@ export interface RedditComment {
   depth: number;
   edited: boolean | number;
   gilded: number;
-  gildings: any;
+  gildings: unknown;
   is_submitter: boolean;
   locked: boolean;
   no_follow: boolean;
@@ -159,9 +159,9 @@ export interface RedditComment {
   subreddit_name_prefixed: string;
   subreddit_type: string;
   total_awards_received: number;
-  treatment_tags: any[];
+  treatment_tags: unknown[];
   upvoted?: boolean;
-  user_reports: any[];
+  user_reports: unknown[];
   replies?: string | RedditComment[];
 }
 
@@ -212,7 +212,7 @@ export interface RedditSubreddit {
   user_is_muted: boolean;
   user_flair_enabled_in_sr: boolean;
   user_flair_position: string;
-  user_flair_richtext: any[];
+  user_flair_richtext: unknown[];
   user_flair_template_id?: string;
   user_flair_text?: string;
   user_flair_text_color?: string;
@@ -322,7 +322,7 @@ export interface RedditListing<T> {
       data: T;
     }>;
     dist?: number;
-    facets?: any;
+    facets?: unknown;
     modhash?: string;
     geo_filter?: string;
   };

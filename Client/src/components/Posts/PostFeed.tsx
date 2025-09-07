@@ -1,4 +1,10 @@
-import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
+import {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+  useCallback,
+} from "react";
 import { PostCard } from "./PostCard";
 import { SearchResults } from "../Search/SearchResults";
 import { SortDropdown } from "./SortDropdown";
@@ -37,260 +43,90 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const [searchResults, setSearchResults] = useState<RedditPost[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  const loadPosts = async (sort: typeof sortBy, loadMore: boolean = false) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const loadPosts = useCallback(
+    async (sort: typeof sortBy, loadMore: boolean = false) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const apiSort = sort === "best" ? "hot" : sort;
+        const apiSort = sort === "best" ? "hot" : sort;
 
-      const [response] = await Promise.all([
-        redditApiService.posts.getHomePosts(apiSort, {
-          limit: 25,
-          after: loadMore ? after : undefined,
-        }),
-        new Promise((resolve) => setTimeout(resolve, 300)),
-      ]);
+        const [response] = await Promise.all([
+          redditApiService.posts.getHomePosts(apiSort, {
+            limit: 25,
+            after: loadMore ? after : undefined,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 300)),
+        ]);
 
-      let filteredPosts = response.data.children.map((child) => child.data);
+        let filteredPosts = response.data.children.map((child) => child.data);
 
-      if (location !== "everywhere") {
-        const locationSubreddits = {
-          "united-states": [
-            "AskAnAmerican",
-            "mildlyinfuriating",
-            "WhitePeopleTwitter",
-            "PublicFreakout",
-            "unpopularopinion",
-            "AmItheAsshole",
-            "tifu",
-            "LifeProTips",
-            "Showerthoughts",
-            "memes",
-            "funny",
-            "gaming",
-            "pics",
-            "videos",
-            "worldnews",
-            "news",
-            "politics",
-            "AskReddit",
-            "explainlikeimfive",
-            "todayilearned",
-          ],
-          israel: [
-            "Israel",
-            "israel",
-            "hebrew",
-            "Judaism",
-            "Jewish",
-            "TelAviv",
-            "Jerusalem",
-            "IsraelPalestine",
-            "IsraelConflict",
-            "IsraelNews",
-            "IsraelPolitics",
-          ],
-          germany: [
-            "de",
-            "germany",
-            "berlin",
-            "munich",
-            "hamburg",
-            "cologne",
-            "frankfurt",
-            "AskAGerman",
-            "Germany",
-            "deutschland",
-            "German",
-            "Bavaria",
-          ],
-          france: [
-            "france",
-            "paris",
-            "lyon",
-            "marseille",
-            "AskFrance",
-            "France",
-            "french",
-            "Rance",
-            "frenchmemes",
-            "FranceLibre",
-          ],
-          "united-kingdom": [
-            "unitedkingdom",
-            "AskUK",
-            "london",
-            "manchester",
-            "birmingham",
-            "glasgow",
-            "liverpool",
-            "leeds",
-            "sheffield",
-            "bristol",
-            "edinburgh",
-            "scotland",
-            "wales",
-            "northernireland",
-            "britishproblems",
-            "casualuk",
-          ],
-          canada: [
-            "canada",
-            "AskACanadian",
-            "toronto",
-            "montreal",
-            "vancouver",
-            "calgary",
-            "ottawa",
-            "edmonton",
-            "winnipeg",
-            "quebec",
-            "hamilton",
-            "kitchener",
-            "canadian",
-            "onguardforthee",
-            "metacanada",
-          ],
-          australia: [
-            "australia",
-            "AskAnAustralian",
-            "sydney",
-            "melbourne",
-            "brisbane",
-            "perth",
-            "adelaide",
-            "goldcoast",
-            "newcastle",
-            "wollongong",
-            "hobart",
-            "darwin",
-            "australian",
-            "straya",
-            "AussieMemes",
-          ],
-          argentina: [
-            "argentina",
-            "AskArgentina",
-            "buenosaires",
-            "cordoba",
-            "rosario",
-            "mendoza",
-            "laplata",
-            "tucuman",
-            "mardelplata",
-            "salta",
-            "santafe",
-            "argentine",
-          ],
-          bulgaria: [
-            "bulgaria",
-            "AskBulgaria",
-            "sofia",
-            "plovdiv",
-            "varna",
-            "burgas",
-            "ruse",
-            "starazagora",
-            "pleven",
-            "sliven",
-            "dobrich",
-            "shumen",
-            "bulgarian",
-          ],
-        };
-
-        const targetSubreddits =
-          locationSubreddits[location as keyof typeof locationSubreddits] || [];
-
-        filteredPosts = filteredPosts.filter((post) => {
-          const subredditLower = post.subreddit.toLowerCase();
-          const titleLower = post.title.toLowerCase();
-          const selftextLower = (post.selftext || "").toLowerCase();
-
-          const isFromLocationSubreddit = targetSubreddits.some((sub) =>
-            subredditLower.includes(sub.toLowerCase())
-          );
-
-          const locationKeywords = {
+        if (location !== "everywhere") {
+          const locationSubreddits = {
             "united-states": [
-              "usa",
-              "america",
-              "united states",
-              "us",
-              "texas",
-              "california",
-              "new york",
-              "florida",
-              "chicago",
-              "miami",
-              "los angeles",
-              "washington",
-              "boston",
-              "seattle",
-              "trump",
-              "biden",
-              "congress",
-              "senate",
-              "house",
-              "democrat",
-              "republican",
+              "AskAnAmerican",
+              "mildlyinfuriating",
+              "WhitePeopleTwitter",
+              "PublicFreakout",
+              "unpopularopinion",
+              "AmItheAsshole",
+              "tifu",
+              "LifeProTips",
+              "Showerthoughts",
+              "memes",
+              "funny",
+              "gaming",
+              "pics",
+              "videos",
+              "worldnews",
+              "news",
+              "politics",
+              "AskReddit",
+              "explainlikeimfive",
+              "todayilearned",
             ],
             israel: [
+              "Israel",
               "israel",
-              "israeli",
               "hebrew",
-              "ישראל",
-              "tel aviv",
-              "jerusalem",
-              "haifa",
-              "beer sheva",
-              "netanyahu",
-              "gaza",
-              "west bank",
-              "palestine",
-              "jewish",
-              "judaism",
-              "orthodox",
-              "haredi",
+              "Judaism",
+              "Jewish",
+              "TelAviv",
+              "Jerusalem",
+              "IsraelPalestine",
+              "IsraelConflict",
+              "IsraelNews",
+              "IsraelPolitics",
             ],
             germany: [
+              "de",
               "germany",
-              "german",
-              "deutschland",
               "berlin",
               "munich",
               "hamburg",
               "cologne",
               "frankfurt",
-              "stuttgart",
-              "merkel",
-              "bundestag",
-              "bavaria",
-              "ruhr",
-              "hamburg",
+              "AskAGerman",
+              "Germany",
+              "deutschland",
+              "German",
+              "Bavaria",
             ],
             france: [
               "france",
-              "french",
-              "français",
               "paris",
               "lyon",
               "marseille",
-              "toulouse",
-              "nice",
-              "macron",
-              "le pen",
-              "champs elysees",
-              "eiffel",
-              "louvre",
+              "AskFrance",
+              "France",
+              "french",
+              "Rance",
+              "frenchmemes",
+              "FranceLibre",
             ],
             "united-kingdom": [
-              "uk",
-              "britain",
-              "england",
-              "scotland",
-              "wales",
+              "unitedkingdom",
+              "AskUK",
               "london",
               "manchester",
               "birmingham",
@@ -300,15 +136,15 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               "sheffield",
               "bristol",
               "edinburgh",
-              "boris",
-              "johnson",
-              "tory",
-              "labour",
-              "brexit",
+              "scotland",
+              "wales",
+              "northernireland",
+              "britishproblems",
+              "casualuk",
             ],
             canada: [
               "canada",
-              "canadian",
+              "AskACanadian",
               "toronto",
               "montreal",
               "vancouver",
@@ -317,93 +153,267 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               "edmonton",
               "winnipeg",
               "quebec",
-              "trudeau",
-              "ontario",
-              "british columbia",
-              "alberta",
+              "hamilton",
+              "kitchener",
+              "canadian",
+              "onguardforthee",
+              "metacanada",
             ],
             australia: [
               "australia",
-              "australian",
+              "AskAnAustralian",
               "sydney",
               "melbourne",
               "brisbane",
               "perth",
               "adelaide",
-              "gold coast",
+              "goldcoast",
               "newcastle",
               "wollongong",
               "hobart",
               "darwin",
-              "scomo",
-              "morrison",
-              "queensland",
-              "victoria",
+              "australian",
+              "straya",
+              "AussieMemes",
             ],
             argentina: [
               "argentina",
-              "argentine",
-              "buenos aires",
-              "córdoba",
+              "AskArgentina",
+              "buenosaires",
+              "cordoba",
               "rosario",
               "mendoza",
-              "la plata",
-              "tucumán",
-              "mar del plata",
+              "laplata",
+              "tucuman",
+              "mardelplata",
               "salta",
-              "santa fe",
-              "fernandez",
-              "peron",
-              "kirchner",
+              "santafe",
+              "argentine",
             ],
             bulgaria: [
               "bulgaria",
-              "bulgarian",
+              "AskBulgaria",
               "sofia",
               "plovdiv",
               "varna",
               "burgas",
               "ruse",
-              "stara zagora",
+              "starazagora",
               "pleven",
               "sliven",
               "dobrich",
               "shumen",
-              "borisov",
-              "rusev",
+              "bulgarian",
             ],
           };
 
-          const keywords =
-            locationKeywords[location as keyof typeof locationKeywords] || [];
-          const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
+          const targetSubreddits =
+            locationSubreddits[location as keyof typeof locationSubreddits] ||
+            [];
 
-          const hasLocationKeywords = keywords.some((keyword) =>
-            searchText.includes(keyword.toLowerCase())
-          );
+          filteredPosts = filteredPosts.filter((post) => {
+            const subredditLower = post.subreddit.toLowerCase();
+            const titleLower = post.title.toLowerCase();
+            const selftextLower = (post.selftext || "").toLowerCase();
 
-          return isFromLocationSubreddit || hasLocationKeywords;
-        });
+            const isFromLocationSubreddit = targetSubreddits.some((sub) =>
+              subredditLower.includes(sub.toLowerCase())
+            );
+
+            const locationKeywords = {
+              "united-states": [
+                "usa",
+                "america",
+                "united states",
+                "us",
+                "texas",
+                "california",
+                "new york",
+                "florida",
+                "chicago",
+                "miami",
+                "los angeles",
+                "washington",
+                "boston",
+                "seattle",
+                "trump",
+                "biden",
+                "congress",
+                "senate",
+                "house",
+                "democrat",
+                "republican",
+              ],
+              israel: [
+                "israel",
+                "israeli",
+                "hebrew",
+                "ישראל",
+                "tel aviv",
+                "jerusalem",
+                "haifa",
+                "beer sheva",
+                "netanyahu",
+                "gaza",
+                "west bank",
+                "palestine",
+                "jewish",
+                "judaism",
+                "orthodox",
+                "haredi",
+              ],
+              germany: [
+                "germany",
+                "german",
+                "deutschland",
+                "berlin",
+                "munich",
+                "hamburg",
+                "cologne",
+                "frankfurt",
+                "stuttgart",
+                "merkel",
+                "bundestag",
+                "bavaria",
+                "ruhr",
+                "hamburg",
+              ],
+              france: [
+                "france",
+                "french",
+                "français",
+                "paris",
+                "lyon",
+                "marseille",
+                "toulouse",
+                "nice",
+                "macron",
+                "le pen",
+                "champs elysees",
+                "eiffel",
+                "louvre",
+              ],
+              "united-kingdom": [
+                "uk",
+                "britain",
+                "england",
+                "scotland",
+                "wales",
+                "london",
+                "manchester",
+                "birmingham",
+                "glasgow",
+                "liverpool",
+                "leeds",
+                "sheffield",
+                "bristol",
+                "edinburgh",
+                "boris",
+                "johnson",
+                "tory",
+                "labour",
+                "brexit",
+              ],
+              canada: [
+                "canada",
+                "canadian",
+                "toronto",
+                "montreal",
+                "vancouver",
+                "calgary",
+                "ottawa",
+                "edmonton",
+                "winnipeg",
+                "quebec",
+                "trudeau",
+                "ontario",
+                "british columbia",
+                "alberta",
+              ],
+              australia: [
+                "australia",
+                "australian",
+                "sydney",
+                "melbourne",
+                "brisbane",
+                "perth",
+                "adelaide",
+                "gold coast",
+                "newcastle",
+                "wollongong",
+                "hobart",
+                "darwin",
+                "scomo",
+                "morrison",
+                "queensland",
+                "victoria",
+              ],
+              argentina: [
+                "argentina",
+                "argentine",
+                "buenos aires",
+                "córdoba",
+                "rosario",
+                "mendoza",
+                "la plata",
+                "tucumán",
+                "mar del plata",
+                "salta",
+                "santa fe",
+                "fernandez",
+                "peron",
+                "kirchner",
+              ],
+              bulgaria: [
+                "bulgaria",
+                "bulgarian",
+                "sofia",
+                "plovdiv",
+                "varna",
+                "burgas",
+                "ruse",
+                "stara zagora",
+                "pleven",
+                "sliven",
+                "dobrich",
+                "shumen",
+                "borisov",
+                "rusev",
+              ],
+            };
+
+            const keywords =
+              locationKeywords[location as keyof typeof locationKeywords] || [];
+            const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
+
+            const hasLocationKeywords = keywords.some((keyword) =>
+              searchText.includes(keyword.toLowerCase())
+            );
+
+            return isFromLocationSubreddit || hasLocationKeywords;
+          });
+        }
+
+        if (loadMore) {
+          setPosts((prev) => [...prev, ...filteredPosts]);
+        } else {
+          setPosts(filteredPosts);
+        }
+
+        setAfter(response.data.after);
+        setHasMore(!!response.data.after);
+      } catch {
+        setError("Failed to load posts. Please try again.");
+      } finally {
+        setLoading(false);
       }
-
-      if (loadMore) {
-        setPosts((prev) => [...prev, ...filteredPosts]);
-      } else {
-        setPosts(filteredPosts);
-      }
-
-      setAfter(response.data.after);
-      setHasMore(!!response.data.after);
-    } catch (err) {
-      setError("Failed to load posts. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [location, after]
+  );
 
   useEffect(() => {
     loadPosts(sortBy);
-  }, [sortBy, location]);
+  }, [sortBy, location, loadPosts]);
 
   useEffect(() => {
     if (socket) {
@@ -466,7 +476,7 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
       const searchPosts = response.data.children.map((child) => child.data);
       setSearchResults(searchPosts);
-    } catch (err) {
+    } catch {
       setSearchError("Failed to search posts. Please try again.");
     } finally {
       setIsSearching(false);

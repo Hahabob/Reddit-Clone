@@ -303,7 +303,6 @@ export const usersApi = {
   },
 };
 
-// Main API object
 export const redditApiService = {
   posts: postsApi,
   comments: commentsApi,
