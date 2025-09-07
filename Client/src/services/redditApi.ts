@@ -11,15 +11,12 @@ import type {
   RedditSubredditsQuery,
 } from "../types/reddit";
 
-// Base URL for our server proxy
 const REDDIT_API_BASE = "http://localhost:3001/api/reddit";
 
-// Create axios instance with default config
 const redditApi = axios.create({
   baseURL: REDDIT_API_BASE,
 });
 
-// Helper function to build query string
 const buildQueryString = (
   params: Record<string, string | number | boolean | undefined>
 ): string => {
@@ -34,9 +31,7 @@ const buildQueryString = (
   return searchParams.toString();
 };
 
-// Posts API
 export const postsApi = {
-  // Get posts from a specific subreddit
   getSubredditPosts: async (
     subreddit: string,
     sort: "hot" | "new" | "rising" | "top" | "controversial" = "hot",
@@ -59,7 +54,6 @@ export const postsApi = {
     return response.data;
   },
 
-  // Get posts from home feed (popular posts)
   getHomePosts: async (
     sort: "hot" | "new" | "rising" | "top" | "controversial" = "hot",
     query?: RedditPostsQuery
@@ -79,7 +73,6 @@ export const postsApi = {
     return response.data;
   },
 
-  // Get a specific post by ID
   getPost: async (postId: string): Promise<RedditPost> => {
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       `/by_id/${postId}`
@@ -92,7 +85,6 @@ export const postsApi = {
     return response.data.data.children[0].data;
   },
 
-  // Search posts
   searchPosts: async (
     query: string,
     sort: "relevance" | "hot" | "top" | "new" | "comments" = "relevance",
@@ -117,9 +109,7 @@ export const postsApi = {
   },
 };
 
-// Comments API
 export const commentsApi = {
-  // Get comments for a specific post
   getPostComments: async (
     subreddit: string,
     postId: string,
@@ -142,7 +132,6 @@ export const commentsApi = {
     return response.data;
   },
 
-  // Get more comments (for expanding comment threads)
   getMoreComments: async (
     linkId: string,
     children: string[],
@@ -172,9 +161,7 @@ export const commentsApi = {
   },
 };
 
-// Subreddits API
 export const subredditsApi = {
-  // Get popular subreddits
   getPopular: async (
     query?: RedditSubredditsQuery
   ): Promise<RedditSubredditsResponse> => {
@@ -192,7 +179,6 @@ export const subredditsApi = {
     return response.data;
   },
 
-  // Get new subreddits
   getNew: async (
     query?: RedditSubredditsQuery
   ): Promise<RedditSubredditsResponse> => {
@@ -210,7 +196,6 @@ export const subredditsApi = {
     return response.data;
   },
 
-  // Get default subreddits
   getDefault: async (
     query?: RedditSubredditsQuery
   ): Promise<RedditSubredditsResponse> => {
@@ -230,7 +215,6 @@ export const subredditsApi = {
     return response.data;
   },
 
-  // Get a specific subreddit
   getSubreddit: async (subredditName: string): Promise<RedditSubreddit> => {
     const response: AxiosResponse<{ data: RedditSubreddit }> =
       await redditApi.get(`/r/${subredditName}/about.json?raw_json=1`);
@@ -238,7 +222,6 @@ export const subredditsApi = {
     return response.data.data;
   },
 
-  // Search subreddits
   searchSubreddits: async (
     query: string,
     limit: number = 25
@@ -257,7 +240,6 @@ export const subredditsApi = {
     return response.data;
   },
 
-  // Get subreddit posts
   getSubredditPosts: async (
     subredditName: string,
     sort: "hot" | "new" | "rising" | "top" | "controversial" = "hot",
@@ -267,9 +249,7 @@ export const subredditsApi = {
   },
 };
 
-// Users API
 export const usersApi = {
-  // Get user profile
   getUser: async (username: string): Promise<RedditUser> => {
     const response: AxiosResponse<{ data: RedditUser }> = await redditApi.get(
       `/user/${username}/about.json?raw_json=1`
@@ -278,7 +258,6 @@ export const usersApi = {
     return response.data.data;
   },
 
-  // Get user's posts
   getUserPosts: async (
     username: string,
     sort: "hot" | "new" | "top" | "controversial" = "hot",
@@ -301,7 +280,6 @@ export const usersApi = {
     return response.data;
   },
 
-  // Get user's comments
   getUserComments: async (
     username: string,
     sort: "hot" | "new" | "top" | "controversial" = "hot",
