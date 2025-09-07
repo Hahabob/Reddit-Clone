@@ -26,12 +26,12 @@ export const RightSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`w-80 h-screen overflow-y-auto ${
-        isDarkMode ? "bg-black" : "bg-white"
-      } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+      className={cn(
+        "w-80 h-screen overflow-y-auto border-l",
+        isDarkMode ? "bg-black border-gray-700" : "bg-white border-gray-200"
+      )}
     >
       <div className="p-4">
-        {/* User Actions */}
         <div
           className={cn(
             "p-4 rounded-lg",
@@ -68,29 +68,29 @@ export const RightSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Advertise Section */}
         <div className="mt-4">
           <button
-            className={`w-full text-left p-3 rounded-lg ${
+            className={cn(
+              "w-full text-left p-3 rounded-lg",
               isDarkMode
                 ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
-            }`}
+            )}
           >
             <span className="font-medium">Advertise on Reddit</span>
           </button>
           <button
-            className={`w-full text-left p-3 rounded-lg ${
+            className={cn(
+              "w-full text-left p-3 rounded-lg",
               isDarkMode
                 ? "text-gray-300 hover:bg-gray-900"
                 : "text-gray-700 hover:bg-gray-100"
-            }`}
+            )}
           >
             <span className="font-medium">Try Reddit Pro BETA</span>
           </button>
         </div>
 
-        {/* Popular Communities */}
         <div className="mt-6">
           <h3
             className={cn(
@@ -104,55 +104,58 @@ export const RightSidebar: React.FC = () => {
             {popularCommunities.map((community, index) => (
               <div
                 key={index}
-                className={`flex items-center justify-between p-2 rounded-lg ${
+                className={cn(
+                  "flex items-center justify-between p-2 rounded-lg",
                   isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
-                }`}
+                )}
               >
                 <div className="flex items-center">
                   <div
-                    className={`w-8 h-8 rounded-full mr-3 ${
+                    className={cn(
+                      "w-8 h-8 rounded-full mr-3",
                       isDarkMode ? "bg-gray-800" : "bg-gray-200"
-                    }`}
+                    )}
                   ></div>
                   <div>
                     <p
-                      className={`font-medium ${
+                      className={cn(
+                        "font-medium",
                         isDarkMode ? "text-white" : "text-gray-900"
-                      }`}
+                      )}
                     >
                       r/{community.name}
                     </p>
                     <p
-                      className={`text-sm ${
+                      className={cn(
+                        "text-sm",
                         isDarkMode ? "text-gray-400" : "text-gray-500"
-                      }`}
+                      )}
                     >
                       {community.members} members
                     </p>
                   </div>
                 </div>
                 <button
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    isDarkMode
-                      ? "bg-orange-500 text-white hover:bg-orange-600"
-                      : "bg-orange-500 text-white hover:bg-orange-600"
-                  }`}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-sm font-medium",
+                    "bg-orange-500 text-white hover:bg-orange-600"
+                  )}
                 >
                   Join
                 </button>
               </div>
             ))}
             <button
-              className={`w-full text-center py-2 text-sm font-medium ${
+              className={cn(
+                "w-full text-center py-2 text-sm font-medium hover:underline",
                 isDarkMode ? "text-orange-400" : "text-orange-600"
-              } hover:underline`}
+              )}
             >
               See more
             </button>
           </div>
         </div>
 
-        {/* Notification/Ad Section */}
         <div className="mt-6">
           <div
             className={cn(
