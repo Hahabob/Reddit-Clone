@@ -74,9 +74,13 @@ const MoreIcon = () => (
 
 interface PostCardProps {
   post: RedditPost;
+  viewMode?: "card" | "compact";
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+export const PostCard: React.FC<PostCardProps> = ({
+  post,
+  viewMode = "card",
+}) => {
   const { isDarkMode } = useTheme();
   const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
 
@@ -134,11 +138,83 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return score.toString();
   };
 
+  if (viewMode === "compact") {
+    return (
+      <article
+        className={cn(
+          "border-b py-2 px-4 hover:bg-gray-50",
+          isDarkMode ? "border-gray-800 hover:bg-gray-900" : "border-gray-200"
+        )}
+      >
+        <div className="flex items-center space-x-2">
+          <div className="flex flex-col items-center space-y-1">
+            <button
+              onClick={() => handleVote("up")}
+              className={cn(
+                "p-1 rounded",
+                voteState === "up"
+                  ? "text-orange-500"
+                  : isDarkMode
+                  ? "text-gray-400 hover:text-orange-500"
+                  : "text-gray-400 hover:text-orange-500"
+              )}
+            >
+              <UpvoteIcon />
+            </button>
+            <span
+              className={cn(
+                "text-xs font-medium",
+                isDarkMode ? "text-gray-300" : "text-gray-600"
+              )}
+            >
+              {formatScore(post.score)}
+            </span>
+            <button
+              onClick={() => handleVote("down")}
+              className={cn(
+                "p-1 rounded",
+                voteState === "down"
+                  ? "text-blue-500"
+                  : isDarkMode
+                  ? "text-gray-400 hover:text-blue-500"
+                  : "text-gray-400 hover:text-blue-500"
+              )}
+            >
+              <DownvoteIcon />
+            </button>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center space-x-1 text-xs text-gray-500">
+              <span>r/{post.subreddit}</span>
+              <span>•</span>
+              <span>u/{post.author}</span>
+              <span>•</span>
+              <span>{formatTimeAgo(post.created_utc)}</span>
+            </div>
+            <h3
+              className={cn(
+                "text-sm font-medium mt-1 line-clamp-2",
+                isDarkMode ? "text-white" : "text-gray-900"
+              )}
+            >
+              {post.title}
+            </h3>
+            <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+              <span>{post.num_comments} comments</span>
+              <span>Share</span>
+              <span>Save</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
   return (
     <article
       className={cn(
         "rounded-lg border mb-4",
-        isDarkMode ? "bg-gray-900 border-gray-700" : "bg-white border-gray-200"
+        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
       {/* Post Header */}
@@ -148,7 +224,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <div
               className={cn(
                 "w-6 h-6 rounded-full",
-                isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                isDarkMode ? "bg-gray-800" : "bg-gray-200"
               )}
             ></div>
             <span
@@ -181,7 +257,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             className={cn(
               "p-1 rounded-full",
-              isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
+              isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
             )}
           >
             <IconWrapper size="sm">
@@ -253,7 +329,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className={cn(
               "block p-3 rounded-lg border",
               isDarkMode
-                ? "bg-gray-800 border-gray-600 hover:bg-gray-700"
+                ? "bg-gray-900 border-gray-700 hover:bg-gray-800"
                 : "bg-gray-50 border-gray-200 hover:bg-gray-100"
             )}
           >
@@ -312,7 +388,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               voteState === "up"
                 ? "bg-orange-100 text-orange-600"
                 : isDarkMode
-                ? "text-gray-400 hover:bg-gray-800"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
@@ -332,7 +408,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               voteState === "down"
                 ? "bg-blue-100 text-blue-600"
                 : isDarkMode
-                ? "text-gray-400 hover:bg-gray-800"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
@@ -346,7 +422,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full",
               isDarkMode
-                ? "text-gray-400 hover:bg-gray-800"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
@@ -363,7 +439,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full",
               isDarkMode
-                ? "text-gray-400 hover:bg-gray-800"
+                ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
           >
