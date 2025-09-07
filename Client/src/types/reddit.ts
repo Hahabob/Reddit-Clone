@@ -1,5 +1,3 @@
-// Reddit API Types based on https://www.reddit.com/dev/api
-
 export interface RedditPost {
   id: string;
   title: string;
@@ -335,13 +333,11 @@ export interface RedditResponse<T> {
   data: T;
 }
 
-// API Response Types
 export type RedditPostsResponse = RedditListing<RedditPost>;
 export type RedditCommentsResponse = RedditListing<RedditComment>;
 export type RedditSubredditsResponse = RedditListing<RedditSubreddit>;
 export type RedditUsersResponse = RedditListing<RedditUser>;
 
-// Query Parameters
 export interface RedditPostsQuery {
   limit?: number;
   after?: string;
