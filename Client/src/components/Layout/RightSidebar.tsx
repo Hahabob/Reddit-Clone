@@ -26,9 +26,10 @@ export const RightSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`w-80 h-screen overflow-y-auto ${
-        isDarkMode ? "bg-black" : "bg-white"
-      } border-l ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+      className={cn(
+        "w-80 h-screen overflow-y-auto border-l transition-colors",
+        isDarkMode ? "bg-black border-gray-700" : "bg-white border-gray-200"
+      )}
     >
       <div className="p-4">
         {/* User Actions */}
@@ -49,7 +50,7 @@ export const RightSidebar: React.FC = () => {
           <div className="space-y-2">
             <button
               className={cn(
-                "w-full py-2 px-4 rounded-full font-medium",
+                "w-full py-2 px-4 rounded-full font-medium transition-colors",
                 "bg-orange-500 text-white hover:bg-orange-600"
               )}
             >
@@ -57,7 +58,7 @@ export const RightSidebar: React.FC = () => {
             </button>
             <button
               className={cn(
-                "w-full py-2 px-4 rounded-full font-medium border",
+                "w-full py-2 px-4 rounded-full font-medium border transition-colors",
                 isDarkMode
                   ? "border-gray-600 text-white hover:bg-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-100"
@@ -93,7 +94,7 @@ export const RightSidebar: React.FC = () => {
         <div className="mt-4">
           <button
             className={cn(
-              "w-full text-left p-3 rounded-lg",
+              "w-full text-left p-3 rounded-lg transition-colors",
               isDarkMode
                 ? "text-gray-300 hover:bg-gray-900"
                 ? "text-gray-300 hover:bg-gray-900"
@@ -104,7 +105,7 @@ export const RightSidebar: React.FC = () => {
           </button>
           <button
             className={cn(
-              "w-full text-left p-3 rounded-lg",
+              "w-full text-left p-3 rounded-lg transition-colors",
               isDarkMode
                 ? "text-gray-300 hover:bg-gray-900"
                 ? "text-gray-300 hover:bg-gray-900"
@@ -159,7 +160,7 @@ export const RightSidebar: React.FC = () => {
                 </div>
                 <button
                   className={cn(
-                    "px-3 py-1 rounded-full text-sm font-medium",
+                    "px-3 py-1 rounded-full text-sm font-medium transition-colors",
                     "bg-orange-500 text-white hover:bg-orange-600"
                   )}
                 >
@@ -169,7 +170,7 @@ export const RightSidebar: React.FC = () => {
             ))}
             <button
               className={cn(
-                "w-full text-center py-2 text-sm font-medium hover:underline",
+                "w-full text-center py-2 text-sm font-medium hover:underline transition-colors",
                 isDarkMode ? "text-orange-400" : "text-orange-600"
               )}
             >

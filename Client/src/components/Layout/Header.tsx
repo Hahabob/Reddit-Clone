@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import RedditLogoSvg from "../../assets/reddit-logo.svg";
 import RedditLogoName from "../../assets/reddit-logo-name-letters-together.svg";
 import { cn } from "../../lib/utils";
+import QRCodeIcon from "../../assets/QRCode-icon.svg";
+import RedditProBetaSvg from "../../assets/reddit-pro-logo.svg";
+import AdvertiseRightBarIconSvg from "../../assets/advertise-rightBar.svg";
+import LogInOutIcon from "../../assets/log-in-out-icon.svg";
+import { QRCodeModal } from "../ui/RedditQRPop";
 
 interface IconWrapperProps {
   children: React.ReactNode;
@@ -60,6 +65,14 @@ const DarkModeIcon = () => (
   </svg>
 );
 
+const MoreIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="19" cy="12" r="2" />
+    <circle cx="5" cy="12" r="2" />
+  </svg>
+);
+
 interface HeaderProps {
   onToggleSidebar: () => void;
   onSearch?: (
@@ -68,17 +81,41 @@ interface HeaderProps {
     time?: "hour" | "day" | "week" | "month" | "year" | "all"
   ) => void;
   onGoToHome?: () => void;
+  isLoggedIn?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onSearch,
   onGoToHome,
+  isLoggedIn = false,
 }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        moreMenuRef.current &&
+        !moreMenuRef.current.contains(event.target as Node)
+      ) {
+        setShowMoreMenu(false);
+      }
+    };
+
+    if (showMoreMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMoreMenu]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,12 +134,11 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b",
-        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        "sticky top-0 z-50 border-b transition-colors",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
@@ -175,11 +211,11 @@ export const Header: React.FC<HeaderProps> = ({
                   setTimeout(() => setShowSearchResults(false), 200)
                 }
                 className={cn(
-                  "block w-full pl-10 pr-3 py-3 rounded-full leading-5 text-sm",
-                  "focus:outline-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-600",
+                  "block w-full pl-10 pr-3 py-3 rounded-full text-sm transition-colors",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-500",
                   isDarkMode
-                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:border-white focus:ring-white "
-                    : "bg-gray-200 text-gray-900 placeholder-gray-600"
+                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:ring-white"
+                    : "bg-gray-200 text-gray-900 placeholder-gray-600 focus:ring-blue-500"
                 )}
               />
             </form>
@@ -207,31 +243,100 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
           <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className={cn(
-                "p-2 rounded-md cursor-pointer",
-                isDarkMode
-                  ? "text-gray-400 hover:text-white hover:bg-gray-900"
-                  ? "text-gray-400 hover:text-white hover:bg-gray-900"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-              )}
-            >
-              <IconWrapper>
-                <DarkModeIcon />
-              </IconWrapper>
-            </button>
-            <button
-              className={cn(
-                "px-4 py-2 rounded-full font-medium cursor-pointer",
-                "bg-orange-500 text-white hover:bg-orange-600"
-              )}
-            >
-              Log in
-            </button>
+            {isLoggedIn ? (
+              <>
+                <button
+                  onClick={toggleTheme}
+                  className={cn(
+                    "p-2 rounded-md cursor-pointer",
+                    isDarkMode
+                      ? "text-gray-400 hover:text-white hover:bg-gray-900"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <IconWrapper>
+                    <DarkModeIcon />
+                  </IconWrapper>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setShowQRModal(true)}
+                  className={cn(
+                    "px-3 py-2.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-2",
+                    "text-black bg-gray-200 hover:bg-gray-300",
+                    "hidden sm:flex"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <QRCodeIcon />
+                  </IconWrapper>
+                  Get App
+                </button>
+                <button
+                  className={cn(
+                    "px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer",
+                    "bg-orange-700 text-white hover:bg-orange-800"
+                  )}
+                >
+                  Log In
+                </button>
+                <div className="relative" ref={moreMenuRef}>
+                  <button
+                    onClick={() => setShowMoreMenu(!showMoreMenu)}
+                    className={cn(
+                      "p-2 rounded-full cursor-pointer",
+                      "text-gray-500 hover:text-gray-800 hover:bg-gray-300"
+                    )}
+                  >
+                    <IconWrapper size="md">
+                      <MoreIcon />
+                    </IconWrapper>
+                  </button>
+
+                  {showMoreMenu && (
+                    <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                      <div className="py-2">
+                        <button className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <IconWrapper size="md" className="mr-3">
+                            <LogInOutIcon />
+                          </IconWrapper>
+                          <span className="text-sm font-medium">
+                            Log In / Sign Up
+                          </span>
+                        </button>
+                        <button className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <IconWrapper size="md" className="mr-3">
+                            <AdvertiseRightBarIconSvg />
+                          </IconWrapper>
+                          <span className="text-sm font-medium">
+                            Advertise on Reddit
+                          </span>
+                        </button>
+                        <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <div className="flex items-center">
+                            <IconWrapper size="md" className="mr-3">
+                              <RedditProBetaSvg />
+                            </IconWrapper>
+                            <span>
+                              Try Reddit Pro{" "}
+                              <span className="text-xs font-semibold ml-1 text-orange-700 dark:text-orange-400">
+                                BETA
+                              </span>
+                            </span>
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
+      <QRCodeModal isOpen={showQRModal} onClose={() => setShowQRModal(false)} />
     </header>
   );
 };

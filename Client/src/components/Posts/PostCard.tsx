@@ -217,7 +217,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   return (
     <article
       className={cn(
-        "rounded-lg border mb-4",
+        "rounded-lg border mb-4 transition-colors",
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
         isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
       )}
@@ -385,7 +385,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <button
             onClick={() => handleVote("up")}
             className={cn(
-              "flex items-center space-x-1 px-2 py-1 rounded-full",
+              "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               voteState === "up"
                 ? "bg-orange-100 text-orange-600"
                 : isDarkMode
@@ -401,11 +401,10 @@ export const PostCard: React.FC<PostCardProps> = ({
               {formatScore(post.score)}
             </span>
           </button>
-
           <button
             onClick={() => handleVote("down")}
             className={cn(
-              "flex items-center space-x-1 px-2 py-1 rounded-full",
+              "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               voteState === "down"
                 ? "bg-blue-100 text-blue-600"
                 : isDarkMode
@@ -418,10 +417,9 @@ export const PostCard: React.FC<PostCardProps> = ({
               <DownvoteIcon />
             </IconWrapper>
           </button>
-
           <button
             className={cn(
-              "flex items-center space-x-1 px-2 py-1 rounded-full",
+              "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
                 ? "text-gray-400 hover:bg-gray-900"
@@ -435,10 +433,9 @@ export const PostCard: React.FC<PostCardProps> = ({
               {formatScore(post.num_comments)}
             </span>
           </button>
-
           <button
             className={cn(
-              "flex items-center space-x-1 px-2 py-1 rounded-full",
+              "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
               isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
                 ? "text-gray-400 hover:bg-gray-900"
