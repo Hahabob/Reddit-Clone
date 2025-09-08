@@ -12,9 +12,5 @@ router.post("/", PostController.create);
 // router.patch("/:id"); //todo implement
 //Delete post
 router.delete("/:id", PostController.delete);
-//Upvote post
-// router.post("/:id/upvote");
-//Downvote post
-// router.post("/:id/downvote");
 
 export default router;
