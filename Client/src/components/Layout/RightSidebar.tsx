@@ -50,7 +50,7 @@ export const RightSidebar: React.FC = () => {
           <div className="space-y-2">
             <button
               className={cn(
-                "w-full py-2 px-4 rounded-full font-medium",
+                "w-full py-2 px-4 rounded-full font-medium transition-colors",
                 "bg-orange-500 text-white hover:bg-orange-600"
               )}
             >
@@ -58,7 +58,7 @@ export const RightSidebar: React.FC = () => {
             </button>
             <button
               className={cn(
-                "w-full py-2 px-4 rounded-full font-medium border",
+                "w-full py-2 px-4 rounded-full font-medium border transition-colors",
                 isDarkMode
                   ? "border-gray-600 text-white hover:bg-gray-900"
                   : "border-gray-300 text-gray-900 hover:bg-gray-100"
