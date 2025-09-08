@@ -12,8 +12,6 @@ const PostController = {
       if (!userId) {
         userId = req.body.userId;
       }
-
-      // let { userId } = req.body;
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
@@ -46,9 +44,9 @@ const PostController = {
       return res.status(500).json({ message: "Server error" });
     }
   },
+  //todo implement sorting
   async getAll(req: Request, res: Response) {
     try {
-      //todo implement sorting
       const Posts = (await PostModel.find({})) || "no posts yet";
       res.json({
         data: Posts,
@@ -76,7 +74,34 @@ const PostController = {
       res.status(500).json({ message: "server error during get function" });
     }
   },
-  async edit(req: Request, res: Response) {},
+  async edit(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const { id } = req.params;
+      const post = await PostModel.findById(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      if (post.authorId.toString() !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const { content } = req.body;
+      post.content = content ?? post.content;
+      await post.save();
+      res.json({ success: true, data: post });
+    } catch (error) {
+      console.error("cant edit", error);
+      res.status(500).json({ message: "server error during edit" });
+    }
+  },
+  //development only .
   async delete(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -97,6 +122,64 @@ const PostController = {
       res.status(500).json({ message: "server error during delete" });
     }
   },
+  async tagNsfwPost(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const { id } = req.params;
+      const post = await PostModel.findById(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      if (post.authorId.toString() !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const { isNSFW } = req.body;
+      post.isNSFW = isNSFW ?? post.isNSFW;
+      await post.save();
+      res.json({ success: true, data: post });
+    } catch (error) {
+      console.error("cant tag nsfw", error);
+      res.status(500).json({ message: "server error during tag nsfw" });
+    }
+  },
+  async tagSpoilerPost(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      const { id } = req.params;
+      const post = await PostModel.findById(id);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      if (post.authorId.toString() !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const { isSpoiler } = req.body;
+      post.isSpoiler = isSpoiler ?? post.isSpoiler;
+      await post.save();
+      res.json({ success: true, data: post });
+    } catch (error) {
+      console.error("cant tag spoiler", error);
+      res.status(500).json({ message: "server error during tag spoiler" });
+    }
+  },
+  //todo implement pin post function (only moderators can pin post) need to update user model to add isModerator field
+  async pinPost(req: Request, res: Response) {},
+  //todo implement remove post function(moderators only , changes content to [removed]( change happens frontend only ) post still visible to mods but removed from feed )
+  async removePost(req: Request, res: Response) {},
+  //todo implement delete post function(user only , changes content and title to [removed] comments stay the same but is removed from feed )
+  async deletePost(req: Request, res: Response) {},
 };
 
 export default PostController;
