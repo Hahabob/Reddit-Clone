@@ -213,8 +213,8 @@ export const Header: React.FC<HeaderProps> = ({
                   "block w-full pl-10 pr-3 py-3 rounded-full text-sm transition-colors",
                   "focus:outline-none focus:ring-2 focus:ring-blue-500",
                   isDarkMode
-                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:border-white focus:ring-white "
-                    : "bg-gray-200 text-gray-900 placeholder-gray-600"
+                    ? "bg-gray-800 text-white placeholder-gray-400 hover:bg-gray-700 focus:ring-white"
+                    : "bg-gray-200 text-gray-900 placeholder-gray-600 focus:ring-blue-500"
                 )}
               />
             </form>
