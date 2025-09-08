@@ -133,7 +133,7 @@ const SignUpPage: React.FC = () => {
             </Link>
           </div>
           <div className="text-center mt-4 text-xs">
-            <p>Reddit Inc © 2024. All rights reserved.</p>
+            <p>Reddit Inc © 2025. All rights reserved.</p>
           </div>
         </div>
       </footer>
