@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import PostModel from "../models/Post"; // long schema model
-// import { getAuth } from "@clerk/express";
+import { getAuth } from "@clerk/express";
 
 const PostController = {
   async create(req: Request, res: Response) {
@@ -8,13 +8,13 @@ const PostController = {
       const { title, content, communityId } = req.body;
 
       // todo implement clerk here
-      // let { userId } = getAuth(req) || {};
+      let { userId } = getAuth(req) || {};
 
-      // if(!userId){
-      //   userId = req.body.userId
-      // }
+      if (!userId) {
+        userId = req.body.userId;
+      }
 
-      let { userId } = req.body;
+      // let { userId } = req.body;
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
