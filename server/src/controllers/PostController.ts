@@ -7,7 +7,6 @@ const PostController = {
     try {
       const { title, content, communityId } = req.body;
 
-      // todo implement clerk here
       let { userId } = getAuth(req) || {};
 
       if (!userId) {
