@@ -4,7 +4,9 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import redditRoutes from "./routes/reddit";
+import postRoutes from "./routes/post";
 import mongoose from "mongoose";
+import { clerkMiddleware } from "@clerk/express";
 
 dotenv.config();
 
@@ -38,6 +40,8 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -62,6 +66,7 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/reddit", redditRoutes);
+app.use("/posts", postRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Reddit Clone API Server" });

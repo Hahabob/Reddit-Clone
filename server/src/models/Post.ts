@@ -23,7 +23,13 @@ export interface IPost extends Document {
   authorId: ObjectId;
   title: string;
   content: PostContent;
-  votes: number;
+  isNSFW: boolean;
+  isSpoiler: boolean;
+  isPinned: boolean;
+  isDeleted: boolean;
+  isRemoved: boolean;
+  isLocked: boolean;
+  isCrosspostable: boolean;
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -74,11 +80,19 @@ const postSchema: Schema<IPost> = new Schema(
     authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     title: { type: String, required: true },
     content: { type: postContentSchema, required: true },
-    votes: { type: Number, default: 0 },
+    isNSFW: { type: Boolean, default: false },
+    isSpoiler: { type: Boolean, default: false },
+    isPinned: { type: Boolean, default: false },
+    isDeleted: { type: Boolean, default: false },
+    isRemoved: { type: Boolean, default: false },
+    isLocked: { type: Boolean, default: false },
+    isCrosspostable: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
   },
   { timestamps: true }
 );
 
-export const Post = model<IPost>("Post", postSchema);
+const Post = model<IPost>("Post", postSchema);
+
+export default Post;
