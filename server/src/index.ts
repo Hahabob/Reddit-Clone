@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import redditRoutes from "./routes/reddit";
 import postRoutes from "./routes/post";
 import mongoose from "mongoose";
+import { clerkMiddleware } from "@clerk/express";
 
 dotenv.config();
 
@@ -39,6 +40,8 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
