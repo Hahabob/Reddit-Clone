@@ -8,6 +8,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 export const MainLayout: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoggedIn] = useState(false);
   const postFeedRef = useRef<PostFeedRef>(null);
 
   const toggleSidebar = () => {
@@ -36,16 +37,16 @@ export const MainLayout: React.FC = () => {
         onToggleSidebar={toggleSidebar}
         onSearch={handleSearch}
         onGoToHome={handleGoToHome}
+        isLoggedIn={isLoggedIn}
       />
-
       <div className="flex">
         <Sidebar isOpen={isSidebarOpen} onGoToHome={handleGoToHome} />
         <main className="flex-1 min-h-screen">
           <PostFeed ref={postFeedRef} />
         </main>
-        <div className="hidden xl:block">
+        <aside className="hidden xl:block">
           <RightSidebar />
-        </div>
+        </aside>
       </div>
     </div>
   );

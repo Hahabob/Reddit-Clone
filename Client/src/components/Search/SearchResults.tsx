@@ -158,7 +158,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
     <div className="p-4">
       <div
         className={cn(
-          "mb-4 pb-4 border-b",
+          "mb-4 pb-4 border-b transition-colors",
           isDarkMode ? "border-gray-700" : "border-gray-200"
         )}
       >

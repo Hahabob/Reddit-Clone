@@ -5,7 +5,7 @@ import HomeSvg from "../../assets/home-icon.svg";
 import PopularSvg from "../../assets/popular-logo.svg";
 import AllSvg from "../../assets/all-logo.svg";
 import AboutRedditSvg from "../../assets/about-reddit-logo.svg";
-import AdvertiseSvg from "../../assets/advertise-icon.svg";
+import AdvertiseSideBarIconSvg from "../../assets/advertise-side-bar-icon.svg";
 import RedditProBetaSvg from "../../assets/reddit-pro-logo.svg";
 import HelpSvg from "../../assets/help-logo.svg";
 import BlogSvg from "../../assets/blog-logo.svg";
@@ -62,13 +62,29 @@ const IconWrapper: React.FC<IconWrapperProps> = ({
   );
 };
 
-const HomeIcon = () => <HomeSvg />;
+const HomeIcon = () => (
+  <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+    <HomeSvg />
+  </div>
+);
 
-const PopularIcon = () => <PopularSvg />;
+const PopularIcon = () => (
+  <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+    <PopularSvg />
+  </div>
+);
 
-const AllIcon = () => <AllSvg />;
+const AllIcon = () => (
+  <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+    <AllSvg />
+  </div>
+);
 
-const AnswersIcon = () => <AnswersSvg />;
+const AnswersIcon = () => (
+  <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+    <AnswersSvg />
+  </div>
+);
 
 const ChevronDownIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -106,20 +122,20 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       <button
         onClick={onToggle}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md",
+          "w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
           isDarkMode ? "text-white" : "text-black"
         )}
       >
-        <div className="flex items-center">
+        <div className="flex items-center min-w-0">
           {icon && (
-            <IconWrapper size="sm" className="mr-3">
+            <IconWrapper size="md" className="mr-3 flex-shrink-0">
               {icon}
             </IconWrapper>
           )}
-          {label}
+          <span className="truncate">{label}</span>
         </div>
         {hasDropdown && (
-          <IconWrapper size="sm">
+          <IconWrapper size="sm" className="ml-2 flex-shrink-0">
             {isExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </IconWrapper>
         )}
@@ -179,7 +195,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
     <>
       <aside
         className={cn(
-          "fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-transform duration-300 ease-in-out",
+          "fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           isDarkMode ? "bg-black" : "bg-white",
           "border-r",
@@ -211,6 +227,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
               }
             />
           </nav>
+          <hr className="my-4 border-gray-200 dark:border-gray-700" />
           <div className="mt-6">
             <SidebarItem
               label={
@@ -227,9 +244,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
               isExpanded={expandedSections.topics}
               onToggle={() => toggleSection("topics")}
             >
-              <div className="space-y-1">
+              <div className="space-y-1 -ml-4">
                 <SidebarItem
-                  icon={<InternetCultureSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <InternetCultureSvg />
+                    </div>
+                  }
                   label="Internet Culture (Viral)"
                   hasDropdown
                   isExpanded={expandedSections.internetCulture}
@@ -247,7 +268,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   </div>
                 </SidebarItem>
                 <SidebarItem
-                  icon={<GamesSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <GamesSvg />
+                    </div>
+                  }
                   label="Games"
                   hasDropdown
                   isExpanded={expandedSections.games}
@@ -269,7 +294,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   </div>
                 </SidebarItem>
                 <SidebarItem
-                  icon={<QAsSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <QAsSvg />
+                    </div>
+                  }
                   label="Q&As"
                   hasDropdown
                   isExpanded={expandedSections.qas}
@@ -281,7 +310,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   </div>
                 </SidebarItem>
                 <SidebarItem
-                  icon={<TechnologySvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <TechnologySvg />
+                    </div>
+                  }
                   label="Technology"
                   hasDropdown
                   isExpanded={expandedSections.technology}
@@ -301,7 +334,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   </div>
                 </SidebarItem>
                 <SidebarItem
-                  icon={<PopCultureSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <PopCultureSvg />
+                    </div>
+                  }
                   label="Pop Culture"
                   hasDropdown
                   isExpanded={expandedSections.popCulture}
@@ -317,7 +354,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                   </div>
                 </SidebarItem>
                 <SidebarItem
-                  icon={<MoviesTvSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <MoviesTvSvg />
+                    </div>
+                  }
                   label="Movies & TV"
                   hasDropdown
                   isExpanded={expandedSections.moviesTv}
@@ -370,11 +411,29 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
               isExpanded={expandedSections.resources}
               onToggle={() => toggleSection("resources")}
             >
-              <div className="space-y-1">
-                <SidebarItem icon={<AboutRedditSvg />} label="About Reddit" />
-                <SidebarItem icon={<AdvertiseSvg />} label="Advertise" />
+              <div className="space-y-1 -ml-4">
                 <SidebarItem
-                  icon={<RedditProBetaSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <AboutRedditSvg />
+                    </div>
+                  }
+                  label="About Reddit"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <AdvertiseSideBarIconSvg />
+                    </div>
+                  }
+                  label="Advertise"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <RedditProBetaSvg />
+                    </div>
+                  }
                   label={
                     <span>
                       Reddit Pro{" "}
@@ -388,37 +447,106 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                     </span>
                   }
                 />
-                <SidebarItem icon={<HelpSvg />} label="Help" />
-                <SidebarItem icon={<BlogSvg />} label="Blog" />
-                <SidebarItem icon={<CareersSvg />} label="Careers" />
-                <SidebarItem icon={<PressSvg />} label="Press" />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <HelpSvg />
+                    </div>
+                  }
+                  label="Help"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <BlogSvg />
+                    </div>
+                  }
+                  label="Blog"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <CareersSvg />
+                    </div>
+                  }
+                  label="Careers"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <PressSvg />
+                    </div>
+                  }
+                  label="Press"
+                />
               </div>
 
-              <div className="space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
-                <SidebarItem icon={<CommunitiesSvg />} label="Communities" />
+              <div className="-ml-4 space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
                 <SidebarItem
-                  icon={<BestOfRedditSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <CommunitiesSvg />
+                    </div>
+                  }
+                  label="Communities"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <BestOfRedditSvg />
+                    </div>
+                  }
                   label="Best of Reddit"
                 />
                 <SidebarItem
-                  icon={<TopTranslatedPostsSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <TopTranslatedPostsSvg />
+                    </div>
+                  }
                   label="Top Translated Posts"
                 />
-                <SidebarItem icon={<TopicsSvg />} label="Topics" />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <TopicsSvg />
+                    </div>
+                  }
+                  label="Topics"
+                />
               </div>
 
-              <div className="space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
-                <SidebarItem icon={<RedditRulesSvg />} label="Reddit Rules" />
+              <div className="-ml-4 space-y-1 mt-4 border-t border-gray-200 dark:border-gray-700 pt-3">
                 <SidebarItem
-                  icon={<PrivacyPolicySvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <RedditRulesSvg />
+                    </div>
+                  }
+                  label="Reddit Rules"
+                />
+                <SidebarItem
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <PrivacyPolicySvg />
+                    </div>
+                  }
                   label="Privacy Policy"
                 />
                 <SidebarItem
-                  icon={<UserAgreementSvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <UserAgreementSvg />
+                    </div>
+                  }
                   label="User Agreement"
                 />
                 <SidebarItem
-                  icon={<AccessibilitySvg />}
+                  icon={
+                    <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
+                      <AccessibilitySvg />
+                    </div>
+                  }
                   label="Accessibility"
                 />
               </div>
