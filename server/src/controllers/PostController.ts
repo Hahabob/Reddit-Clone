@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import PostModel from "../models/Post"; // long schema model
+import SubredditModel from "../models/Subreddit"; // long schema model
 import { getAuth } from "@clerk/express";
 
 const PostController = {
-  //todo implement checking if user is a member of the subreddit.
   async create(req: Request, res: Response) {
     try {
       const { title, content, subredditId } = req.body;
@@ -16,10 +16,22 @@ const PostController = {
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
+
+      const subreddit = await SubredditModel.findById(subredditId);
+
+      if (
+        !subreddit?.members
+          .map((member) => member.toString())
+          .includes(userId.toString())
+      ) {
+        return res
+          .status(403)
+          .json({ message: "User is not a member of this subreddit" });
+      }
+
       if (!title || !content?.type || !content?.value || !subredditId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
-
       // Validate allowed content types
       const allowedTypes = ["text", "image", "video", "link"];
       if (!allowedTypes.includes(content.type)) {
@@ -60,8 +72,8 @@ const PostController = {
   },
   async get(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const post = await PostModel.findById(id);
+      const { postId } = req.params;
+      const post = await PostModel.findById(postId);
       if (!post) {
         res.status(400).json({ success: false, message: "post not found" });
         return;
@@ -85,8 +97,8 @@ const PostController = {
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
-      const { id } = req.params;
-      const post = await PostModel.findById(id);
+      const { postId } = req.params;
+      const post = await PostModel.findById(postId);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
@@ -105,8 +117,8 @@ const PostController = {
   //development only .
   async delete(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const deletedPost = await PostModel.findByIdAndDelete(id);
+      const { postId } = req.params;
+      const deletedPost = await PostModel.findByIdAndDelete(postId);
       if (!deletedPost) {
         return res
           .status(404)
@@ -132,8 +144,8 @@ const PostController = {
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
-      const { id } = req.params;
-      const post = await PostModel.findById(id);
+      const { postId } = req.params;
+      const post = await PostModel.findById(postId);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
@@ -158,8 +170,8 @@ const PostController = {
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
-      const { id } = req.params;
-      const post = await PostModel.findById(id);
+      const { postId } = req.params;
+      const post = await PostModel.findById(postId);
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
       }
