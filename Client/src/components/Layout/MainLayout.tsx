@@ -44,9 +44,9 @@ export const MainLayout: React.FC = () => {
         <main className="flex-1 min-h-screen">
           <PostFeed ref={postFeedRef} />
         </main>
-        <div className="hidden xl:block">
+        <aside className="hidden xl:block">
           <RightSidebar />
-        </div>
+        </aside>
       </div>
     </div>
   );
