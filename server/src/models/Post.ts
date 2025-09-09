@@ -19,6 +19,7 @@ export type PostContent =
     };
 
 export interface IPost extends Document {
+  _id: ObjectId;
   subredditId: ObjectId;
   authorId: ObjectId;
   title: string;
