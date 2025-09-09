@@ -57,7 +57,7 @@ const PostController = {
       return res.status(500).json({ message: "Server error" });
     }
   },
-  //todo implement sorting
+  //todo implement sorting and specific commmunity from query params
   async getAll(req: Request, res: Response) {
     try {
       const Posts = (await PostModel.find({})) || "no posts yet";
