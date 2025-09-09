@@ -3,9 +3,10 @@ import PostModel from "../models/Post"; // long schema model
 import { getAuth } from "@clerk/express";
 
 const PostController = {
+  //todo implement checking if user is a member of the subreddit.
   async create(req: Request, res: Response) {
     try {
-      const { title, content, communityId } = req.body;
+      const { title, content, subredditId } = req.body;
 
       let { userId } = getAuth(req) || {};
 
@@ -15,7 +16,7 @@ const PostController = {
       if (!userId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
-      if (!title || !content?.type || !content?.value || !communityId) {
+      if (!title || !content?.type || !content?.value || !subredditId) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
@@ -34,7 +35,7 @@ const PostController = {
           value: content.value,
         },
         authorId: userId,
-        communityId,
+        subredditId,
         comments: [],
         createdAt: new Date(),
       });
