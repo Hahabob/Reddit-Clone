@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import PostModel from "../models/Post"; // long schema model
 import { getAuth } from "@clerk/express";
 import { IComment } from "../models/Comment";
 import CommentModel from "../models/Comment";
@@ -22,9 +21,72 @@ const buildCommentTree = (
 
 const CommentController = {
   //create comment on post
-  async create(req: Request, res: Response) {},
+  async create(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const { postId } = req.params;
+      if (!postId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "post not found" });
+      }
+      const { content } = req.body;
+      if (!content) {
+        return res.status(400).json({ message: "Missing content" });
+      }
+
+      const newComment = await CommentModel.create({
+        postId: postId,
+        authorId: userId,
+        content,
+        createdAt: new Date(),
+      });
+      return res.status(201).json(newComment);
+    } catch (error) {
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
   //create nested comment (comment of a comment)
-  async createReply(req: Request, res: Response) {},
+  async createReply(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const parentComment = await CommentModel.findById(req.params.commentId);
+      if (!parentComment)
+        return res.status(404).json({ message: "Comment not found" });
+
+      const { content } = req.body;
+      if (!content) {
+        return res.status(400).json({ message: "Missing content" });
+      }
+
+      const newReply = await CommentModel.create({
+        postId: parentComment.postId,
+        authorId: userId,
+        content,
+        parentId: parentComment._id,
+        createdAt: new Date(),
+      });
+      return res.status(201).json(newReply);
+    } catch (error) {
+      return res.status(500).json({ message: "Server error" });
+    }
+  },
   //get comments for post including nested //todo  implement sorting
   async getCommentsForPost(req: Request, res: Response) {
     try {
@@ -45,9 +107,74 @@ const CommentController = {
     }
   },
   //update comment only body.
-  async edit(req: Request, res: Response) {},
+  async edit(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const comment = await CommentModel.findById(req.params.commentId);
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+      if (comment.authorId.toString() !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      if (comment.isDeleted || comment.isRemoved) {
+        return res.status(403).json({ message: "Cannot edit this comment" });
+      }
+      const { content } = req.body;
+      comment.content = content ?? comment.content;
+      await comment.save();
+      res.json({ success: true, data: comment });
+    } catch (error) {
+      console.error("cant edit", error);
+      res.status(500).json({ message: "server error during edit" });
+    }
+  },
   //soft delete . swaps body with [removed]
-  async deleteComment(req: Request, res: Response) {},
+  async deleteComment(req: Request, res: Response) {
+    try {
+      let { userId } = getAuth(req) || {};
+
+      if (!userId) {
+        userId = req.body.userId;
+      }
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const comment = await CommentModel.findById(req.params.commentId);
+      if (!comment) {
+        return res.status(404).json({ message: "Comment not found" });
+      }
+
+      // Only the author can delete their comment
+      if (comment.authorId.toString() !== userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Block if already deleted or removed
+      if (comment.isDeleted || comment.isRemoved) {
+        return res.status(403).json({ message: "Cannot delete this comment" });
+      }
+
+      // Soft delete
+      comment.isDeleted = true;
+      comment.content = "[deleted]";
+      await comment.save();
+
+      res.json({ success: true, data: comment });
+    } catch (error) {
+      console.error("cannot delete comment", error);
+      res.status(500).json({ message: "Server error during delete" });
+    }
+  },
   //todo implement remove comment (same as remove post)
   async removeComment(req: Request, res: Response) {},
 };

@@ -48,7 +48,6 @@ const PostController = {
         },
         authorId: userId,
         subredditId,
-        comments: [],
         createdAt: new Date(),
       });
       return res.status(201).json(newPost);
@@ -105,6 +104,10 @@ const PostController = {
       if (post.authorId.toString() !== userId) {
         return res.status(401).json({ message: "Unauthorized" });
       }
+      if (post.isDeleted || post.isRemoved) {
+        return res.status(403).json({ message: "Cannot edit this post" });
+      }
+
       const { content } = req.body;
       post.content = content ?? post.content;
       await post.save();
@@ -191,7 +194,7 @@ const PostController = {
   async pinPost(req: Request, res: Response) {},
   //todo implement remove post function(moderators only , changes content to [removed]( change happens frontend only ) post still visible to mods but removed from feed )
   async removePost(req: Request, res: Response) {},
-  //todo implement delete post function(user only , changes content and title to [removed] comments stay the same but is removed from feed )
+  //todo implement delete post function(user only , changes content and title to [deleted] comments stay the same but is removed from feed )
   async deletePost(req: Request, res: Response) {},
 };
 
