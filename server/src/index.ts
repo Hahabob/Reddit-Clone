@@ -5,6 +5,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import redditRoutes from "./routes/reddit";
 import postRoutes from "./routes/post";
+import commentRoutes from "./routes/comment";
 import mongoose from "mongoose";
 import { clerkMiddleware } from "@clerk/express";
 
@@ -67,6 +68,7 @@ io.on("connection", (socket) => {
 
 app.use("/api/reddit", redditRoutes);
 app.use("/posts", postRoutes);
+app.use("/comments", commentRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Reddit Clone API Server" });
