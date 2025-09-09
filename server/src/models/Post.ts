@@ -19,7 +19,7 @@ export type PostContent =
     };
 
 export interface IPost extends Document {
-  communityId: ObjectId;
+  subredditId: ObjectId;
   authorId: ObjectId;
   title: string;
   content: PostContent;
@@ -72,9 +72,9 @@ const postContentSchema = new Schema(
 
 const postSchema: Schema<IPost> = new Schema(
   {
-    communityId: {
+    subredditId: {
       type: Schema.Types.ObjectId,
-      ref: "Community",
+      ref: "Subreddit",
       required: true,
     },
     authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
