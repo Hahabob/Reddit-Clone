@@ -41,5 +41,5 @@ const subredditSchema = new Schema<ISubreddit>(
   }
 );
 
-const Subreddit = model<ISubreddit>("User", subredditSchema);
+const Subreddit = model<ISubreddit>("Subreddit", subredditSchema);
 export default Subreddit;
