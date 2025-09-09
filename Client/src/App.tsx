@@ -2,8 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { MainLayout } from "./components/Layout/MainLayout";
-import SignInPage from "./pages/SignIn";
-import SignUpPage from "./pages/SignUp";
+import SignInPage from "./pages/signin";
+import SignUpPage from "./pages/signup";
 import SSOCallback from "./pages/SSOCallback";
 
 function App() {
