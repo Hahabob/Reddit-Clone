@@ -10,9 +10,6 @@ import { SearchResults } from "../Search/SearchResults";
 import { SortDropdown } from "./SortDropdown";
 import { ViewDropdown } from "./ViewDropdown";
 import { LocationDropdown } from "./LocationDropdown";
-import { SortDropdown } from "./SortDropdown";
-import { ViewDropdown } from "./ViewDropdown";
-import { LocationDropdown } from "./LocationDropdown";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useSocket } from "../../contexts/SocketContext";
 import { redditApiService } from "../../services/redditApi";
@@ -39,10 +36,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   >("best");
   const [viewMode, setViewMode] = useState<"card" | "compact">("card");
   const [location, setLocation] = useState<string>("everywhere");
-    "best" | "hot" | "new" | "top" | "rising"
-  >("best");
-  const [viewMode, setViewMode] = useState<"card" | "compact">("card");
-  const [location, setLocation] = useState<string>("everywhere");
   const [after, setAfter] = useState<string | undefined>();
   const [hasMore, setHasMore] = useState(true);
   const [isSearching, setIsSearching] = useState(false);
@@ -56,260 +49,84 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
         setLoading(true);
         setError(null);
 
-      // Map "best" to "hot" for API call
-      const apiSort = sort === "best" ? "hot" : sort;
+        const apiSort = sort === "best" ? "hot" : sort;
 
-      // Filter posts by location (simulate location-based filtering)
-      const [response] = await Promise.all([
-        redditApiService.posts.getHomePosts(apiSort, {
-          limit: 25,
-          after: loadMore ? after : undefined,
-        }),
-        new Promise((resolve) => setTimeout(resolve, 300)), // Minimum 300ms loading
-      ]);
+        const [response] = await Promise.all([
+          redditApiService.posts.getHomePosts(apiSort, {
+            limit: 25,
+            after: loadMore ? after : undefined,
+          }),
+          new Promise((resolve) => setTimeout(resolve, 300)),
+        ]);
 
-      let filteredPosts = response.data.children.map((child) => child.data);
+        let filteredPosts = response.data.children.map((child) => child.data);
 
-      // Apply location-based filtering
-      if (location !== "everywhere") {
-        const locationSubreddits = {
-          "united-states": [
-            "AskAnAmerican",
-            "mildlyinfuriating",
-            "WhitePeopleTwitter",
-            "PublicFreakout",
-            "unpopularopinion",
-            "AmItheAsshole",
-            "tifu",
-            "LifeProTips",
-            "Showerthoughts",
-            "memes",
-            "funny",
-            "gaming",
-            "pics",
-            "videos",
-            "worldnews",
-            "news",
-            "politics",
-            "AskReddit",
-            "explainlikeimfive",
-            "todayilearned",
-          ],
-          israel: [
-            "Israel",
-            "israel",
-            "hebrew",
-            "Judaism",
-            "Jewish",
-            "TelAviv",
-            "Jerusalem",
-            "IsraelPalestine",
-            "IsraelConflict",
-            "IsraelNews",
-            "IsraelPolitics",
-          ],
-          germany: [
-            "de",
-            "germany",
-            "berlin",
-            "munich",
-            "hamburg",
-            "cologne",
-            "frankfurt",
-            "AskAGerman",
-            "Germany",
-            "deutschland",
-            "German",
-            "Bavaria",
-          ],
-          france: [
-            "france",
-            "paris",
-            "lyon",
-            "marseille",
-            "AskFrance",
-            "France",
-            "french",
-            "Rance",
-            "frenchmemes",
-            "FranceLibre",
-          ],
-          "united-kingdom": [
-            "unitedkingdom",
-            "AskUK",
-            "london",
-            "manchester",
-            "birmingham",
-            "glasgow",
-            "liverpool",
-            "leeds",
-            "sheffield",
-            "bristol",
-            "edinburgh",
-            "scotland",
-            "wales",
-            "northernireland",
-            "britishproblems",
-            "casualuk",
-          ],
-          canada: [
-            "canada",
-            "AskACanadian",
-            "toronto",
-            "montreal",
-            "vancouver",
-            "calgary",
-            "ottawa",
-            "edmonton",
-            "winnipeg",
-            "quebec",
-            "hamilton",
-            "kitchener",
-            "canadian",
-            "onguardforthee",
-            "metacanada",
-          ],
-          australia: [
-            "australia",
-            "AskAnAustralian",
-            "sydney",
-            "melbourne",
-            "brisbane",
-            "perth",
-            "adelaide",
-            "goldcoast",
-            "newcastle",
-            "wollongong",
-            "hobart",
-            "darwin",
-            "australian",
-            "straya",
-            "AussieMemes",
-          ],
-          argentina: [
-            "argentina",
-            "AskArgentina",
-            "buenosaires",
-            "cordoba",
-            "rosario",
-            "mendoza",
-            "laplata",
-            "tucuman",
-            "mardelplata",
-            "salta",
-            "santafe",
-            "argentine",
-          ],
-          bulgaria: [
-            "bulgaria",
-            "AskBulgaria",
-            "sofia",
-            "plovdiv",
-            "varna",
-            "burgas",
-            "ruse",
-            "starazagora",
-            "pleven",
-            "sliven",
-            "dobrich",
-            "shumen",
-            "bulgarian",
-          ],
-        };
-
-        const targetSubreddits =
-          locationSubreddits[location as keyof typeof locationSubreddits] || [];
-
-        filteredPosts = filteredPosts.filter((post) => {
-          const subredditLower = post.subreddit.toLowerCase();
-          const titleLower = post.title.toLowerCase();
-          const selftextLower = (post.selftext || "").toLowerCase();
-
-          // Check if post is from a location-specific subreddit
-          const isFromLocationSubreddit = targetSubreddits.some((sub) =>
-            subredditLower.includes(sub.toLowerCase())
-          );
-
-          // Check if post contains location-specific keywords
-          const locationKeywords = {
+        if (location !== "everywhere") {
+          const locationSubreddits = {
             "united-states": [
-              "usa",
-              "america",
-              "united states",
-              "us",
-              "texas",
-              "california",
-              "new york",
-              "florida",
-              "chicago",
-              "miami",
-              "los angeles",
-              "washington",
-              "boston",
-              "seattle",
-              "trump",
-              "biden",
-              "congress",
-              "senate",
-              "house",
-              "democrat",
-              "republican",
+              "AskAnAmerican",
+              "mildlyinfuriating",
+              "WhitePeopleTwitter",
+              "PublicFreakout",
+              "unpopularopinion",
+              "AmItheAsshole",
+              "tifu",
+              "LifeProTips",
+              "Showerthoughts",
+              "memes",
+              "funny",
+              "gaming",
+              "pics",
+              "videos",
+              "worldnews",
+              "news",
+              "politics",
+              "AskReddit",
+              "explainlikeimfive",
+              "todayilearned",
             ],
             israel: [
+              "Israel",
               "israel",
-              "israeli",
               "hebrew",
-              "ישראל",
-              "tel aviv",
-              "jerusalem",
-              "haifa",
-              "beer sheva",
-              "netanyahu",
-              "gaza",
-              "west bank",
-              "palestine",
-              "jewish",
-              "judaism",
-              "orthodox",
-              "haredi",
+              "Judaism",
+              "Jewish",
+              "TelAviv",
+              "Jerusalem",
+              "IsraelPalestine",
+              "IsraelConflict",
+              "IsraelNews",
+              "IsraelPolitics",
             ],
             germany: [
+              "de",
               "germany",
-              "german",
-              "deutschland",
               "berlin",
               "munich",
               "hamburg",
               "cologne",
               "frankfurt",
-              "stuttgart",
-              "merkel",
-              "bundestag",
-              "bavaria",
-              "ruhr",
-              "hamburg",
+              "AskAGerman",
+              "Germany",
+              "deutschland",
+              "German",
+              "Bavaria",
             ],
             france: [
               "france",
-              "french",
-              "français",
               "paris",
               "lyon",
               "marseille",
-              "toulouse",
-              "nice",
-              "macron",
-              "le pen",
-              "champs elysees",
-              "eiffel",
-              "louvre",
+              "AskFrance",
+              "France",
+              "french",
+              "Rance",
+              "frenchmemes",
+              "FranceLibre",
             ],
             "united-kingdom": [
-              "uk",
-              "britain",
-              "england",
-              "scotland",
-              "wales",
+              "unitedkingdom",
+              "AskUK",
               "london",
               "manchester",
               "birmingham",
@@ -319,15 +136,15 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               "sheffield",
               "bristol",
               "edinburgh",
-              "boris",
-              "johnson",
-              "tory",
-              "labour",
-              "brexit",
+              "scotland",
+              "wales",
+              "northernireland",
+              "britishproblems",
+              "casualuk",
             ],
             canada: [
               "canada",
-              "canadian",
+              "AskACanadian",
               "toronto",
               "montreal",
               "vancouver",
@@ -336,84 +153,252 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               "edmonton",
               "winnipeg",
               "quebec",
-              "trudeau",
-              "ontario",
-              "british columbia",
-              "alberta",
+              "hamilton",
+              "kitchener",
+              "canadian",
+              "onguardforthee",
+              "metacanada",
             ],
             australia: [
               "australia",
-              "australian",
+              "AskAnAustralian",
               "sydney",
               "melbourne",
               "brisbane",
               "perth",
               "adelaide",
-              "gold coast",
+              "goldcoast",
               "newcastle",
               "wollongong",
               "hobart",
               "darwin",
-              "scomo",
-              "morrison",
-              "queensland",
-              "victoria",
+              "australian",
+              "straya",
+              "AussieMemes",
             ],
             argentina: [
               "argentina",
-              "argentine",
-              "buenos aires",
-              "córdoba",
+              "AskArgentina",
+              "buenosaires",
+              "cordoba",
               "rosario",
               "mendoza",
-              "la plata",
-              "tucumán",
-              "mar del plata",
+              "laplata",
+              "tucuman",
+              "mardelplata",
               "salta",
-              "santa fe",
-              "fernandez",
-              "peron",
-              "kirchner",
+              "santafe",
+              "argentine",
             ],
             bulgaria: [
               "bulgaria",
-              "bulgarian",
+              "AskBulgaria",
               "sofia",
               "plovdiv",
               "varna",
               "burgas",
               "ruse",
-              "stara zagora",
+              "starazagora",
               "pleven",
               "sliven",
               "dobrich",
               "shumen",
-              "borisov",
-              "rusev",
+              "bulgarian",
             ],
           };
 
-          const keywords =
-            locationKeywords[location as keyof typeof locationKeywords] || [];
-          const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
+          const targetSubreddits =
+            locationSubreddits[location as keyof typeof locationSubreddits] ||
+            [];
 
-          const hasLocationKeywords = keywords.some((keyword) =>
-            searchText.includes(keyword.toLowerCase())
-          );
+          filteredPosts = filteredPosts.filter((post) => {
+            const subredditLower = post.subreddit.toLowerCase();
+            const titleLower = post.title.toLowerCase();
+            const selftextLower = (post.selftext || "").toLowerCase();
 
-          return isFromLocationSubreddit || hasLocationKeywords;
-        });
+            const isFromLocationSubreddit = targetSubreddits.some((sub) =>
+              subredditLower.includes(sub.toLowerCase())
+            );
 
-        console.log(
-          `Location: ${location}, Found ${filteredPosts.length} relevant posts out of ${response.data.children.length} total posts`
-        );
-      }
+            const locationKeywords = {
+              "united-states": [
+                "usa",
+                "america",
+                "united states",
+                "us",
+                "texas",
+                "california",
+                "new york",
+                "florida",
+                "chicago",
+                "miami",
+                "los angeles",
+                "washington",
+                "boston",
+                "seattle",
+                "trump",
+                "biden",
+                "congress",
+                "senate",
+                "house",
+                "democrat",
+                "republican",
+              ],
+              israel: [
+                "israel",
+                "israeli",
+                "hebrew",
+                "ישראל",
+                "tel aviv",
+                "jerusalem",
+                "haifa",
+                "beer sheva",
+                "netanyahu",
+                "gaza",
+                "west bank",
+                "palestine",
+                "jewish",
+                "judaism",
+                "orthodox",
+                "haredi",
+              ],
+              germany: [
+                "germany",
+                "german",
+                "deutschland",
+                "berlin",
+                "munich",
+                "hamburg",
+                "cologne",
+                "frankfurt",
+                "stuttgart",
+                "merkel",
+                "bundestag",
+                "bavaria",
+                "ruhr",
+                "hamburg",
+              ],
+              france: [
+                "france",
+                "french",
+                "français",
+                "paris",
+                "lyon",
+                "marseille",
+                "toulouse",
+                "nice",
+                "macron",
+                "le pen",
+                "champs elysees",
+                "eiffel",
+                "louvre",
+              ],
+              "united-kingdom": [
+                "uk",
+                "britain",
+                "england",
+                "scotland",
+                "wales",
+                "london",
+                "manchester",
+                "birmingham",
+                "glasgow",
+                "liverpool",
+                "leeds",
+                "sheffield",
+                "bristol",
+                "edinburgh",
+                "boris",
+                "johnson",
+                "tory",
+                "labour",
+                "brexit",
+              ],
+              canada: [
+                "canada",
+                "canadian",
+                "toronto",
+                "montreal",
+                "vancouver",
+                "calgary",
+                "ottawa",
+                "edmonton",
+                "winnipeg",
+                "quebec",
+                "trudeau",
+                "ontario",
+                "british columbia",
+                "alberta",
+              ],
+              australia: [
+                "australia",
+                "australian",
+                "sydney",
+                "melbourne",
+                "brisbane",
+                "perth",
+                "adelaide",
+                "gold coast",
+                "newcastle",
+                "wollongong",
+                "hobart",
+                "darwin",
+                "scomo",
+                "morrison",
+                "queensland",
+                "victoria",
+              ],
+              argentina: [
+                "argentina",
+                "argentine",
+                "buenos aires",
+                "córdoba",
+                "rosario",
+                "mendoza",
+                "la plata",
+                "tucumán",
+                "mar del plata",
+                "salta",
+                "santa fe",
+                "fernandez",
+                "peron",
+                "kirchner",
+              ],
+              bulgaria: [
+                "bulgaria",
+                "bulgarian",
+                "sofia",
+                "plovdiv",
+                "varna",
+                "burgas",
+                "ruse",
+                "stara zagora",
+                "pleven",
+                "sliven",
+                "dobrich",
+                "shumen",
+                "borisov",
+                "rusev",
+              ],
+            };
 
-      if (loadMore) {
-        setPosts((prev) => [...prev, ...filteredPosts]);
-      } else {
-        setPosts(filteredPosts);
-      }
+            const keywords =
+              locationKeywords[location as keyof typeof locationKeywords] || [];
+            const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
+
+            const hasLocationKeywords = keywords.some((keyword) =>
+              searchText.includes(keyword.toLowerCase())
+            );
+
+            return isFromLocationSubreddit || hasLocationKeywords;
+          });
+        }
+
+        if (loadMore) {
+          setPosts((prev) => [...prev, ...filteredPosts]);
+        } else {
+          setPosts(filteredPosts);
+        }
 
         setAfter(response.data.after);
         setHasMore(!!response.data.after);
@@ -426,10 +411,9 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
     [location, after]
   );
 
-  // Load posts on component mount and when sort or location changes
   useEffect(() => {
     loadPosts(sortBy);
-  }, [sortBy, location]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortBy, location, loadPosts]);
 
   useEffect(() => {
     if (socket) {
@@ -462,7 +446,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   const handleLocationChange = (newLocation: string) => {
     setLocation(newLocation);
-    // Reload posts when location changes
     setAfter(undefined);
     setHasMore(true);
     loadPosts(sortBy);
@@ -554,23 +537,11 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
       ) : (
         <>
           <div
-            className={`p-4 border-b ${
+            className={cn(
+              "p-4 border-b transition-colors",
               isDarkMode ? "border-gray-900 bg-black" : "border-gray-200"
-            }`}
+            )}
           >
-            <div className="flex items-center space-x-1">
-              <SortDropdown
-                currentSort={sortBy}
-                onSortChange={handleSortChange}
-              />
-              <LocationDropdown
-                currentLocation={location}
-                onLocationChange={handleLocationChange}
-              />
-              <ViewDropdown
-                currentView={viewMode}
-                onViewChange={handleViewChange}
-              />
             <div className="flex items-center space-x-1">
               <SortDropdown
                 currentSort={sortBy}
@@ -598,11 +569,7 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               <div
                 className={viewMode === "compact" ? "space-y-1" : "space-y-4"}
               >
-              <div
-                className={viewMode === "compact" ? "space-y-1" : "space-y-4"}
-              >
                 {posts.map((post) => (
-                  <PostCard key={post.id} post={post} viewMode={viewMode} />
                   <PostCard key={post.id} post={post} viewMode={viewMode} />
                 ))}
                 {hasMore && !loading && (
