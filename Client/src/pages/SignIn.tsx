@@ -86,13 +86,39 @@ const CustomSignIn: React.FC = () => {
       // Handle specific errors
       if (err.errors) {
         err.errors.forEach((error: any) => {
-          if (error.meta?.paramName === "identifier") {
+          // Check if user exists but signed up with OAuth (no password)
+          if (
+            error.code === "form_password_incorrect" ||
+            error.code === "session_invalid" ||
+            (error.longMessage && error.longMessage.includes("social"))
+          ) {
+            setError("email", {
+              message:
+                "This email is associated with a Google account. Please sign in with Google instead.",
+            });
+          } else if (error.meta?.paramName === "identifier") {
             setError("email", { message: error.longMessage });
           } else if (error.meta?.paramName === "password") {
             setError("password", { message: error.longMessage });
+          } else if (error.code === "form_identifier_not_found") {
+            setError("email", {
+              message: "No account found with this email address",
+            });
           } else {
-            // General error
-            setError("email", { message: "Invalid email or password" });
+            // Check if the error message suggests OAuth account
+            const errorMsg = error.longMessage || error.message || "";
+            if (
+              errorMsg.toLowerCase().includes("google") ||
+              errorMsg.toLowerCase().includes("oauth") ||
+              errorMsg.toLowerCase().includes("social")
+            ) {
+              setError("email", {
+                message:
+                  "This email is associated with a Google account. Please sign in with Google instead.",
+              });
+            } else {
+              setError("email", { message: "Invalid email or password" });
+            }
           }
         });
       }
