@@ -2,10 +2,10 @@ import express from "express";
 
 const router = express.Router();
 //Get user profile
-router.get("/users/:id");
+router.get("/:userId");
 //List users
-router.get("/users");
+router.get("/");
 //Update user info
-router.put("/users/:id");
+router.put("/:userId");
 //Delete user (admin only)
-router.delete("/users/:id");
+router.delete("/:userId");
