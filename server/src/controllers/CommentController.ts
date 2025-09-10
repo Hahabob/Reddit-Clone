@@ -177,6 +177,26 @@ const CommentController = {
   },
   //todo implement remove comment (same as remove post)
   async removeComment(req: Request, res: Response) {},
+  async getCommentsByUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User ID is required" });
+      }
+      const userComments = await CommentModel.find({ authorId: userId }).sort({
+        createdAt: -1,
+      });
+      res.json({ success: true, data: userComments });
+    } catch (error) {
+      console.error("Error fetching comments by user:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error while fetching user comments",
+      });
+    }
+  },
 };
 
 export default CommentController;
