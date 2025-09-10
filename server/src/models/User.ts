@@ -2,36 +2,71 @@ import { Document, Schema, model, ObjectId } from "mongoose";
 
 interface IUser extends Document {
   _id: ObjectId;
-  username: string; // unique
-  email: string;
-  isModerator: boolean;
-  password: string; // or Clerk ID if using Clerk
-  avatarUrl: string;
+  clerkId: string;
+  username: string; // unique cant ve changed
+  displayName?: string;
+  about?: string;
+  socialLinks?: string[];
+  isMature: boolean; //marks profile as nsfw defaults to false
+  isModerator: boolean; // false default , changes to true the moment you create a subreddit or get promoted to moderator
+  avatarUrl?: string;
+  bannerUrl?: string;
+  karma: {
+    post: number;
+    comment: number;
+  };
+  gender: string;
   createdAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
   {
+    clerkId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     username: {
       type: String,
       required: true,
       unique: true,
     },
-    email: {
+    displayName: {
       type: String,
-      required: true,
-      unique: true,
+    },
+    about: {
+      type: String,
+    },
+    socialLinks: {
+      type: [String],
+      default: [],
+    },
+    isMature: {
+      type: Boolean,
+      default: false,
     },
     isModerator: {
       type: Boolean,
       default: false,
     },
-    password: {
+    avatarUrl: {
+      type: String,
+    },
+    bannerUrl: {
+      type: String,
+    },
+    karma: {
+      post: { type: Number, default: 0 },
+      comment: { type: Number, default: 0 },
+    },
+    gender: {
       type: String,
       required: true,
     },
-    avatarUrl: {
-      type: String,
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      immutable: true,
     },
   },
   {
