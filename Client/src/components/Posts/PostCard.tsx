@@ -208,11 +208,11 @@ export const PostCard: React.FC<PostCardProps> = ({
   return (
     <article
       className={cn(
-        "rounded-lg border mb-4 transition-colors",
-        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        "border-b py-4 px-4 transition-colors hover:bg-gray-50",
+        isDarkMode ? "border-gray-800 hover:bg-gray-900" : "border-gray-200"
       )}
     >
-      <div className="p-4 pb-2">
+      <div className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div
@@ -238,12 +238,26 @@ export const PostCard: React.FC<PostCardProps> = ({
               • {formatTimeAgo(post.created_utc)}
             </span>
             {post.stickied && (
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+              <span
+                className={cn(
+                  "text-xs px-2 py-1 rounded",
+                  isDarkMode
+                    ? "bg-green-900 text-green-300"
+                    : "bg-green-100 text-green-800"
+                )}
+              >
                 Pinned
               </span>
             )}
             {post.over_18 && (
-              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+              <span
+                className={cn(
+                  "text-xs px-2 py-1 rounded",
+                  isDarkMode
+                    ? "bg-red-900 text-red-300"
+                    : "bg-red-100 text-red-800"
+                )}
+              >
                 NSFW
               </span>
             )}
@@ -261,7 +275,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       </div>
 
-      <div className="px-4 pb-2">
+      <div className="pb-2">
         <h2
           className={cn(
             "text-lg font-medium",
@@ -273,7 +287,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       </div>
 
       {post.selftext && (
-        <div className="px-4 pb-4">
+        <div className="pb-4">
           <p
             className={cn(
               "text-sm",
@@ -286,7 +300,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       )}
 
       {getVideoUrl() ? (
-        <div className="px-4 pb-4">
+        <div className="pb-4">
           <div className="relative w-full bg-black rounded-lg">
             <video
               src={getVideoUrl()}
@@ -301,7 +315,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           </div>
         </div>
       ) : getImageUrl() ? (
-        <div className="px-4 pb-4">
+        <div className="pb-4">
           <img
             src={getImageUrl()}
             alt={post.title}
@@ -311,7 +325,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       ) : null}
 
       {post.url && !post.is_self && !getImageUrl() && !getVideoUrl() && (
-        <div className="px-4 pb-4">
+        <div className="pb-4">
           <a
             href={post.url}
             target="_blank"
@@ -364,7 +378,7 @@ export const PostCard: React.FC<PostCardProps> = ({
 
       <div
         className={cn(
-          "px-4 py-2 border-t",
+          "py-2 border-t",
           isDarkMode ? "border-gray-700" : "border-gray-200"
         )}
       >

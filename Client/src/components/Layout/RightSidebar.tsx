@@ -1,247 +1,178 @@
-import React from "react";
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { SignedOut } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
+import { subredditsApi } from "../../services/redditApi";
+import type { RedditSubreddit } from "../../types/reddit";
 
 export const RightSidebar: React.FC = () => {
   const { isDarkMode } = useTheme();
-  const navigate = useNavigate();
-  const { user } = useUser();
+  const [showAll, setShowAll] = useState(false);
+  const [popularCommunities, setPopularCommunities] = useState<
+    RedditSubreddit[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const popularCommunities = [
-    { name: "NoStupidQuestions", members: "6,570,220" },
-    { name: "Minecraft", members: "8,512,590" },
-    { name: "Fitness", members: "12,430,561" },
-    { name: "DnD", members: "4,155,949" },
-    { name: "videos", members: "26,748,233" },
-  ];
+  useEffect(() => {
+    const fetchPopularCommunities = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await subredditsApi.getPopular({ limit: 10 });
+        setPopularCommunities(
+          response.data.children.map((child) => child.data)
+        );
+      } catch (err) {
+        setError("Failed to load popular communities");
+        console.error("Error fetching popular communities:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopularCommunities();
+  }, []);
+
+  const displayedCommunities = showAll
+    ? popularCommunities
+    : popularCommunities.slice(0, 5);
+
+  const formatMemberCount = (count: number): string => {
+    return count.toLocaleString();
+  };
 
   return (
     <aside
       className={cn(
-        "w-80 h-screen overflow-y-auto border-l transition-colors",
-        isDarkMode ? "bg-black border-gray-700" : "bg-white border-gray-200"
+        "w-80 h-screen overflow-y-auto transition-colors sticky top-10",
+        isDarkMode ? "bg-black" : "bg-white"
       )}
     >
-      <div className="p-4">
-        {/* Authentication Section */}
-        <SignedOut>
-          <div
-            className={cn(
-              "p-4 rounded-lg",
-              isDarkMode ? "bg-gray-900" : "bg-gray-50"
-            )}
-          >
-            <h3
+      <SignedOut>
+        <div className="p-4">
+          <div className="mt-6">
+            <div
               className={cn(
-                "text-lg font-semibold mb-3",
-                isDarkMode ? "text-white" : "text-gray-900"
+                "rounded-lg p-1 ml-2 mr-8",
+                isDarkMode ? "bg-gray-900" : "bg-gray-100"
               )}
             >
-              Log In / Sign Up
-            </h3>
-            <div className="space-y-2">
-              <button
-                onClick={() => navigate("/sign-in")}
+              <h3
                 className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium transition-colors",
-                  "bg-orange-500 text-white hover:bg-orange-600"
+                  "text-xs font-semibold mb-5 pl-3",
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
                 )}
               >
-                Log In
-              </button>
-              <button
-                onClick={() => navigate("/sign-up")}
-                className={cn(
-                  "w-full py-2 px-4 rounded-full font-medium border transition-colors",
-                  isDarkMode
-                    ? "border-gray-600 text-white hover:bg-gray-900"
-                    : "border-gray-300 text-gray-900 hover:bg-gray-100"
-                )}
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
-        </SignedOut>
-
-        {/* User Profile Section - When Signed In */}
-        <SignedIn>
-          <div
-            className={cn(
-              "p-4 rounded-lg",
-              isDarkMode ? "bg-gray-900" : "bg-gray-50"
-            )}
-          >
-            <div className="flex items-center space-x-3 mb-4">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10",
-                    userButtonPopoverCard: isDarkMode
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200",
-                    userButtonPopoverActionButton: isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700"
-                      : "text-gray-700 hover:bg-gray-100",
-                  },
-                }}
-              />
-              <div className="flex-1">
-                <p
-                  className={cn(
-                    "font-medium",
-                    isDarkMode ? "text-white" : "text-gray-900"
-                  )}
-                >
-                  {user?.firstName || user?.username || "User"}
-                </p>
-                <p
-                  className={cn(
-                    "text-sm",
-                    isDarkMode ? "text-gray-400" : "text-gray-500"
-                  )}
-                >
-                  @
-                  {user?.username ||
-                    user?.emailAddresses?.[0]?.emailAddress?.split("@")[0]}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                className={cn(
-                  "w-full text-left py-2 px-3 rounded-md text-sm transition-colors",
-                  isDarkMode
-                    ? "text-gray-300 hover:bg-gray-800"
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
-              >
-                Profile
-              </button>
-              <button
-                className={cn(
-                  "w-full text-left py-2 px-3 rounded-md text-sm transition-colors",
-                  isDarkMode
-                    ? "text-gray-300 hover:bg-gray-800"
-                    : "text-gray-700 hover:bg-gray-100"
-                )}
-              >
-                Settings
-              </button>
-            </div>
-          </div>
-        </SignedIn>
-
-        <div className="mt-4">
-          <button
-            className={cn(
-              "w-full text-left p-3 rounded-lg transition-colors",
-              isDarkMode
-                ? "text-gray-300 hover:bg-gray-900"
-                : "text-gray-700 hover:bg-gray-100"
-            )}
-          >
-            <span className="font-medium">Advertise on Reddit</span>
-          </button>
-          <button
-            className={cn(
-              "w-full text-left p-3 rounded-lg transition-colors",
-              isDarkMode
-                ? "text-gray-300 hover:bg-gray-900"
-                : "text-gray-700 hover:bg-gray-100"
-            )}
-          >
-            <span className="font-medium">Try Reddit Pro BETA</span>
-          </button>
-        </div>
-
-        <div className="mt-6">
-          <h3
-            className={cn(
-              "text-lg font-semibold mb-3",
-              isDarkMode ? "text-white" : "text-gray-900"
-            )}
-          >
-            POPULAR COMMUNITIES
-          </h3>
-          <div className="space-y-2">
-            {popularCommunities.map((community, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "flex items-center justify-between p-2 rounded-lg",
-                  isDarkMode ? "hover:bg-gray-900" : "hover:bg-gray-100"
-                )}
-              >
-                <div className="flex items-center">
-                  <div
-                    className={cn(
-                      "w-8 h-8 rounded-full mr-3",
-                      isDarkMode ? "bg-gray-800" : "bg-gray-200"
-                    )}
-                  ></div>
-                  <div>
-                    <p
-                      className={cn(
-                        "font-medium",
-                        isDarkMode ? "text-white" : "text-gray-900"
-                      )}
-                    >
-                      r/{community.name}
-                    </p>
+                POPULAR COMMUNITIES
+              </h3>
+              <div className="space-y-1 pl-5">
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500 mx-auto"></div>
+                  </div>
+                ) : error ? (
+                  <div className="text-center py-4">
                     <p
                       className={cn(
                         "text-sm",
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                        isDarkMode ? "text-red-400" : "text-red-500"
                       )}
                     >
-                      {community.members} members
+                      {error}
                     </p>
                   </div>
-                </div>
-                <button
-                  className={cn(
-                    "px-3 py-1 rounded-full text-sm font-medium transition-colors",
-                    "bg-orange-500 text-white hover:bg-orange-600"
-                  )}
-                >
-                  Join
-                </button>
+                ) : (
+                  <>
+                    {displayedCommunities.map((community) => (
+                      <div
+                        key={community.id}
+                        className="flex items-center justify-between py-2 px-1 rounded cursor-pointer"
+                      >
+                        <div className="flex items-center flex-1 min-w-0">
+                          <div className="flex-shrink-0 mr-3">
+                            {community.icon_img ? (
+                              <img
+                                src={community.icon_img}
+                                alt={community.display_name}
+                                className="w-6 h-6 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div
+                                className={cn(
+                                  "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                                  isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                                )}
+                              >
+                                r/
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={cn(
+                                "text-xs",
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              )}
+                            >
+                              r/{community.display_name}
+                            </p>
+                            <p
+                              className={cn(
+                                "text-xs",
+                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                              )}
+                            >
+                              {formatMemberCount(community.subscribers)} members
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {popularCommunities.length > 5 && (
+                      <button
+                        onClick={() => setShowAll(!showAll)}
+                        className={cn(
+                          "text-xs font-medium px-3 py-2 mb-4 -ml-2 rounded-full transition-colors cursor-pointer",
+                          isDarkMode
+                            ? "text-white hover:text-white hover:bg-gray-900"
+                            : "text-black hover:text-black hover:bg-gray-300"
+                        )}
+                      >
+                        {showAll ? "See less" : "See more"}
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
-            ))}
-            <button
-              className={cn(
-                "w-full text-center py-2 text-sm font-medium hover:underline transition-colors",
-                isDarkMode ? "text-orange-400" : "text-orange-600"
-              )}
-            >
-              See more
-            </button>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6">
-          <div
-            className={cn(
-              "p-4 rounded-lg",
-              isDarkMode ? "bg-gray-900" : "bg-gray-50"
-            )}
-          >
-            <p
-              className={cn(
-                "text-sm",
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              )}
-            >
-              Syko Stu released from the I and is now home resting. He sustained
-              serious trauma to his head and neck area...
-            </p>
+          <div className="mt-8">
+            <div className="mr-1">
+              <div className="space-y-1 text-xs text-gray-500 p-1">
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  <a href="#" className="hover:underline">
+                    Reddit Rules
+                  </a>
+                  <a href="#" className="hover:underline">
+                    Privacy Policy
+                  </a>
+                  <a href="#" className="hover:underline">
+                    User Agreement
+                  </a>
+                  <a href="#" className="hover:underline">
+                    Accessibility
+                  </a>
+                </div>
+                <p className="text-[10px] text-gray-400">
+                  Reddit Inc. © 2025. All rights reserved.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </SignedOut>
     </aside>
   );
 };

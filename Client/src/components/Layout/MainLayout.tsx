@@ -32,21 +32,27 @@ export const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-black" : "bg-gray-50"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-black" : "bg-white"}`}>
       <Header
         onToggleSidebar={toggleSidebar}
         onSearch={handleSearch}
         onGoToHome={handleGoToHome}
         isLoggedIn={isLoggedIn}
       />
-      <div className="flex">
-        <Sidebar isOpen={isSidebarOpen} onGoToHome={handleGoToHome} />
-        <main className="flex-1 min-h-screen">
-          <PostFeed ref={postFeedRef} />
-        </main>
-        <aside className="hidden xl:block">
-          <RightSidebar />
-        </aside>
+      <div className="flex max-w-7xl mx-auto">
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onGoToHome={handleGoToHome}
+        />
+        <div className="flex-1 flex ml-50">
+          <main className="flex-1 min-h-screen max-w-2xl">
+            <PostFeed ref={postFeedRef} />
+          </main>
+          <aside className="hidden xl:block w-80">
+            <RightSidebar />
+          </aside>
+        </div>
       </div>
     </div>
   );
