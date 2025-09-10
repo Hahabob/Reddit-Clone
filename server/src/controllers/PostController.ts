@@ -196,6 +196,28 @@ const PostController = {
   async removePost(req: Request, res: Response) {},
   //todo implement delete post function(user only , changes content and title to [deleted] comments stay the same but is removed from feed )
   async deletePost(req: Request, res: Response) {},
+  async getPostsByUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User ID is required" });
+      }
+      const userPosts = await PostModel.find({ authorId: userId }).sort({
+        createdAt: -1,
+      });
+      res.json({ success: true, data: userPosts });
+    } catch (error) {
+      console.error("Error fetching posts by user:", error);
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Server error while fetching user posts",
+        });
+    }
+  },
 };
 
 export default PostController;
