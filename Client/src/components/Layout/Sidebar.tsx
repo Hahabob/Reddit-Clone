@@ -149,10 +149,15 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 interface SidebarProps {
   isOpen: boolean;
+  onClose: () => void;
   onGoToHome?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  onClose,
+  onGoToHome,
+}) => {
   const { isDarkMode } = useTheme();
   const [expandedSections, setExpandedSections] = useState<{
     resources: boolean;
@@ -193,9 +198,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
 
   return (
     <>
+      {isOpen && <div className="fixed inset-0" onClick={onClose} />}
       <aside
         className={cn(
-          "fixed lg:static top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-all duration-300 ease-in-out",
+          "fixed top-16 left-0 z-40 w-64 h-[calc(100vh-4rem)] overflow-y-auto transform transition-all duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           isDarkMode ? "bg-black" : "bg-white",
           "border-r",
@@ -217,9 +223,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                 <span>
                   Answers{" "}
                   <span
-                    className={
-                      isDarkMode ? "text-orange-400" : "text-orange-600"
-                    }
+                    className={`text-xs font-semibold ml-1.5 ${
+                      isDarkMode ? "text-orange-400" : "text-orange-700"
+                    }`}
                   >
                     BETA
                   </span>
@@ -283,7 +289,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                     <SidebarItem label="Adventure Games" />
                     <SidebarItem label="Esports" />
                     <SidebarItem label="Gaming Consoles & Gear" />
-                    <SidebarItem label="Gaming News % Discussion" />
+                    <SidebarItem label="Gaming News & Discussion" />
                     <SidebarItem label="Mobile Games" />
                     <SidebarItem label="Other Games" />
                     <SidebarItem label="Role-Playing Games" />
@@ -306,7 +312,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                 >
                   <div className="space-y-1">
                     <SidebarItem label="Q&As" />
-                    <SidebarItem label="Stories % Confessions" />
+                    <SidebarItem label="Stories & Confessions" />
                   </div>
                 </SidebarItem>
                 <SidebarItem
@@ -328,7 +334,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onGoToHome }) => {
                     <SidebarItem label="DIY Electronics" />
                     <SidebarItem label="Programming" />
                     <SidebarItem label="Software & Apps" />
-                    <SidebarItem label="Steaming Services" />
+                    <SidebarItem label="Streaming Services" />
                     <SidebarItem label="Tech News & Discussion" />
                     <SidebarItem label="Virtual & Augmented Reality" />
                   </div>
