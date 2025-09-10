@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import redditRoutes from "./routes/reddit";
 import postRoutes from "./routes/post";
 import commentRoutes from "./routes/comment";
+import userRoutes from "./routes/user";
 import clerkWebhookRoutes from "./routes/clerkWebhook";
 import mongoose from "mongoose";
 import { clerkMiddleware } from "@clerk/express";
@@ -69,6 +70,7 @@ io.on("connection", (socket) => {
 
 app.use("/api/reddit", redditRoutes);
 app.use("/webhooks", clerkWebhookRoutes);
+app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
 
