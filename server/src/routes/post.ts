@@ -1,6 +1,7 @@
 import express from "express";
 import PostController from "../controllers/PostController";
 import CommentController from "../controllers/CommentController";
+import { VoteController } from "../controllers/VoteController";
 
 const router = express.Router();
 //List all posts; supports query params: feed=home, communityId=<id>, `sort=new
@@ -25,9 +26,7 @@ router.get("/:postId/comments", CommentController.getCommentsForPost);
 // router.patch("/:id/pin", PostController.pinPost);
 //Archive post
 // router.patch("/:id/archive", PostController.archivePost);
-//todo voting needs implementation
-//upvote post
-// router.post("/:postId/upvote", voteController.upvote);
-//downvote post
-// router.post("/:postId/downvote", voteController.downvote);
+//vote on post
+//! works by setting a dir variable in the body , 1 is upvote -1 is downvote 0 is clearing a vote
+router.post("/:postId/vote", VoteController.vote);
 export default router;
