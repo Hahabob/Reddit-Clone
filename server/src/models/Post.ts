@@ -24,6 +24,7 @@ export interface IPost extends Document {
   authorId: ObjectId;
   title: string;
   content: PostContent;
+  score: number;
   isNSFW: boolean;
   isSpoiler: boolean;
   isPinned: boolean;
@@ -81,6 +82,7 @@ const postSchema: Schema<IPost> = new Schema(
     authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     title: { type: String, required: true },
     content: { type: postContentSchema, required: true },
+    score: { type: Number, required: true, default: 0 },
     isNSFW: { type: Boolean, default: false },
     isSpoiler: { type: Boolean, default: false },
     isPinned: { type: Boolean, default: false },
