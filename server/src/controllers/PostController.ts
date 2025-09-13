@@ -210,12 +210,10 @@ const PostController = {
       res.json({ success: true, data: userPosts });
     } catch (error) {
       console.error("Error fetching posts by user:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Server error while fetching user posts",
-        });
+      res.status(500).json({
+        success: false,
+        message: "Server error while fetching user posts",
+      });
     }
   },
 };
