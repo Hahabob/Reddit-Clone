@@ -5,6 +5,7 @@ export interface IComment extends Document {
   postId: ObjectId;
   authorId: ObjectId;
   content: string;
+  score: number;
   parentId?: ObjectId; // for nested comments
   createdAt: Date;
   isDeleted: boolean;
@@ -25,6 +26,11 @@ const commentSchema: Schema<IComment> = new Schema({
   content: {
     type: String,
     required: true,
+  },
+  score: {
+    type: Number,
+    required: true,
+    default: 0,
   },
   parentId: {
     type: Schema.Types.ObjectId,
