@@ -41,18 +41,23 @@ export const VoteController = {
 
       const existingVote = await VoteModel.findOne(query);
 
+      let scoreChange = 0;
+
       if (dir === 0) {
         // clear vote
         if (existingVote) {
+          scoreChange = -existingVote.value; // reverse previous vote
           await existingVote.deleteOne();
         }
       } else {
         if (existingVote) {
           // update existing
+          scoreChange = dir - existingVote.value; // difference between new and old vote
           existingVote.value = dir;
           await existingVote.save();
         } else {
           // create new vote
+          scoreChange = dir;
           await VoteModel.create({
             userId,
             postId: postId || undefined,
@@ -60,6 +65,17 @@ export const VoteController = {
             value: dir,
           });
         }
+      }
+
+      // Update Post or Comment score
+      if (postId) {
+        await PostModel.findByIdAndUpdate(postId, {
+          $inc: { score: scoreChange },
+        });
+      } else if (commentId) {
+        await CommentModel.findByIdAndUpdate(commentId, {
+          $inc: { score: scoreChange },
+        });
       }
 
       return res.json({ success: true });
