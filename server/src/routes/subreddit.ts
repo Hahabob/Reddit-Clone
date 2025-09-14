@@ -1,22 +1,23 @@
 import experss from "express";
+import SubredditController from "../controllers/SubredditController";
 
 const router = experss.Router();
 
 //List all communities
-router.get("/subreddits");
+router.get("/", SubredditController.getAll);
 //Get single community
-router.get("/subreddits/:id");
-//Search communities
-router.get("/subreddits?search=<term>");
+router.get("/:subredditId", SubredditController.get);
 //Create community
-router.post("/subreddits");
-//Update community
-router.put("/subreddits/:id");
-//Delete community
-router.delete("/subreddits/:id");
+router.post("/", SubredditController.create);
+//Update community, currently edits the description only
+router.patch("/:subredditId", SubredditController.edit);
 //Add user to community
-router.post("/subreddits/:id/join");
+router.post("/:subredditId/join", SubredditController.join);
 //Remove user from community
-router.post("/subreddits/:id/leave");
+router.post("/:subredditId/leave", SubredditController.leave);
+//Get community posts
+router.get("/:subredditId/posts", SubredditController.getPosts);
 //Add/remove moderators
-router.post("/subreddits/:id/mods");
+router.post("/:subredditId/mods");
+
+export default router;

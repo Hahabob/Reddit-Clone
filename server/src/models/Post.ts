@@ -1,5 +1,6 @@
 import { Document, Schema, model, ObjectId } from "mongoose";
 
+//todo make topics field, on post creation inherits topics from community.
 export type PostContent =
   | { type: "text"; text: string }
   | { type: "image"; url: string; altText?: string }
