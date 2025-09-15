@@ -18,6 +18,6 @@ router.post("/:subredditId/leave", SubredditController.leave);
 //Get community posts
 router.get("/:subredditId/posts", SubredditController.getPosts);
 //Add/remove moderators
-router.post("/:subredditId/mods");
+// router.post("/:subredditId/mods");
 
 export default router;
