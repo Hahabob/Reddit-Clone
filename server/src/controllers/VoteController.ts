@@ -11,6 +11,7 @@ interface IVoteQuery {
 }
 
 export const VoteController = {
+  //todo add karma updates
   async vote(req: Request, res: Response) {
     try {
       let { userId } = getAuth(req) || {};
