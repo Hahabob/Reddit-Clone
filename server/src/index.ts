@@ -44,6 +44,11 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+
+// Webhook routes MUST be before clerkMiddleware to remain public
+app.use("/webhooks", clerkWebhookRoutes);
+
+// Now apply Clerk middleware to protect other routes
 app.use(clerkMiddleware());
 
 io.on("connection", (socket) => {
@@ -70,7 +75,6 @@ io.on("connection", (socket) => {
 });
 
 app.use("/api/reddit", redditRoutes);
-app.use("/webhooks", clerkWebhookRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
