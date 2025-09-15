@@ -2,7 +2,9 @@ import { Request, Response } from "express";
 import UserModel from "../models/User";
 import PostModel from "../models/Post";
 import CommentModel from "../models/Comment";
+import VoteModel from "../models/Vote";
 import { getAuth } from "@clerk/express";
+import { sortHot, sortNew, sortTop } from "../utils/sortUtils";
 
 const UserController = {
   async get(req: Request, res: Response) {
@@ -103,24 +105,93 @@ const UserController = {
       const posts = await PostModel.find({ authorId: userId }).lean();
       const comments = await CommentModel.find({ authorId: userId }).lean();
 
-      const normalizedPosts = posts.map((p) => ({
-        type: "post",
-        id: p._id,
-        content: p.content,
-        createdAt: p.createdAt,
-      }));
+      const postIds = posts.map((p) => p._id);
+      const commentIds = comments.map((c) => c._id);
 
-      const normalizedComments = comments.map((c) => ({
-        type: "comment",
-        id: c._id,
-        content: c.content,
-        createdAt: c.createdAt,
-      }));
+      // Aggregate votes for posts
+      const postVotes = await VoteModel.aggregate([
+        { $match: { postId: { $in: postIds } } },
+        {
+          $group: {
+            _id: "$postId",
+            upvotes: { $sum: { $cond: [{ $eq: ["$value", 1] }, 1, 0] } },
+            downvotes: { $sum: { $cond: [{ $eq: ["$value", -1] }, 1, 0] } },
+          },
+        },
+      ]);
+
+      // Aggregate votes for comments
+      const commentVotes = await VoteModel.aggregate([
+        { $match: { commentId: { $in: commentIds } } },
+        {
+          $group: {
+            _id: "$commentId",
+            upvotes: { $sum: { $cond: [{ $eq: ["$value", 1] }, 1, 0] } },
+            downvotes: { $sum: { $cond: [{ $eq: ["$value", -1] }, 1, 0] } },
+          },
+        },
+      ]);
+
+      // Create vote maps for quick lookup
+      const postVoteMap = new Map(
+        postVotes.map((v) => [
+          String(v._id),
+          { upvotes: v.upvotes, downvotes: v.downvotes },
+        ])
+      );
+
+      const commentVoteMap = new Map(
+        commentVotes.map((v) => [
+          String(v._id),
+          { upvotes: v.upvotes, downvotes: v.downvotes },
+        ])
+      );
+
+      const normalizedPosts = posts.map((p) => {
+        const { upvotes = 0, downvotes = 0 } =
+          postVoteMap.get(String(p._id)) || {};
+        return {
+          type: "post",
+          id: p._id,
+          content: p.content,
+          createdAt: p.createdAt,
+          upvotes,
+          downvotes,
+        };
+      });
+
+      const normalizedComments = comments.map((c) => {
+        const { upvotes = 0, downvotes = 0 } =
+          commentVoteMap.get(String(c._id)) || {};
+        return {
+          type: "comment",
+          id: c._id,
+          content: c.content,
+          createdAt: c.createdAt,
+          upvotes,
+          downvotes,
+        };
+      });
 
       const overview = [...normalizedPosts, ...normalizedComments].sort(
         (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
       );
-      res.json({ success: true, data: overview });
+
+      let sortedOverview;
+      switch (req.query.sort) {
+        case "hot":
+          sortedOverview = sortHot(overview);
+          break;
+        case "new":
+          sortedOverview = sortNew(overview);
+          break;
+        case "top":
+          sortedOverview = sortTop(overview, req.query.t as string);
+          break;
+        default:
+          sortedOverview = sortNew(overview); // fallback
+      }
+      res.json({ success: true, data: sortedOverview });
     } catch (error) {
       console.error("Error fetching overview:", error);
       res.status(500).json({
