@@ -20,7 +20,9 @@ export interface Voteable {
 // Omit all Document keys from IPost
 type ICommentWithoutDocument = Omit<IComment, keyof Document>;
 
-export interface EnrichedComment extends ICommentWithoutDocument, Voteable {}
+export interface EnrichedComment extends ICommentWithoutDocument, Voteable {
+  _id: ObjectId;
+}
 
 const commentSchema: Schema<IComment> = new Schema({
   postId: {
