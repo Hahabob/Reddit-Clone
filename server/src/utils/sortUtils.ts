@@ -1,5 +1,5 @@
-import { EnrichedPost, Voteable } from "../models/Post";
-import { EnrichedComment } from "../models/Comment";
+import { Voteable } from "../models/Post";
+
 //?optional feature , maybe implement different sortHot and SortTop for comments since reddit uses different algorithms for those
 export function sortHot<T extends Voteable & { createdAt: Date }>(
   items: T[]
