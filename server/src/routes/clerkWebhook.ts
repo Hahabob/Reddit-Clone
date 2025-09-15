@@ -28,6 +28,23 @@ router.post("/clerk-webhook", async (req, res) => {
           },
           gender: "unspecified",
         });
+        console.log(`User created in DB: ${id}`);
+        break;
+      }
+
+      case "user.updated": {
+        const { id, username, image_url } = event.data;
+
+        await UserModel.findOneAndUpdate(
+          { clerkId: id },
+          {
+            username: username || `user_${id.slice(0, 6)}`,
+            displayName: username || `user_${id.slice(0, 6)}`,
+            avatarUrl: image_url || "",
+          },
+          { new: true }
+        );
+        console.log(`User updated in DB: ${id}`);
         break;
       }
 
@@ -35,6 +52,7 @@ router.post("/clerk-webhook", async (req, res) => {
         const { id } = event.data;
 
         await UserModel.findOneAndDelete({ clerkId: id });
+        console.log(`User deleted from DB: ${id}`);
         break;
       }
 
