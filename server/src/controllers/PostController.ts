@@ -135,12 +135,39 @@ const PostController = {
     try {
       const { postId } = req.params;
       const post = await PostModel.findById(postId);
+
       if (!post) {
         res.status(400).json({ success: false, message: "post not found" });
         return;
       }
+      const votes = await VoteModel.aggregate([
+        { $match: { postId: postId } },
+        {
+          $group: {
+            _id: "$postId",
+            upvotes: { $sum: { $cond: [{ $eq: ["$value", 1] }, 1, 0] } },
+            downvotes: { $sum: { $cond: [{ $eq: ["$value", -1] }, 1, 0] } },
+          },
+        },
+      ]);
+
+      // Map for quick lookup
+      const voteMap = new Map(
+        votes.map((v) => [
+          String(v._id),
+          { upvotes: v.upvotes, downvotes: v.downvotes },
+        ])
+      );
+
+      const { upvotes = 0, downvotes = 0 } =
+        voteMap.get(String(post._id)) || {};
+      const enrichedPost: EnrichedPost = {
+        ...post.toObject(),
+        upvotes,
+        downvotes,
+      };
       res.json({
-        data: post,
+        data: enrichedPost,
         success: true,
       });
     } catch (error) {
