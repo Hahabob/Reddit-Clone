@@ -64,7 +64,6 @@ const PostController = {
       return res.status(500).json({ message: "Server error" });
     }
   },
-  //todo implement sorting (new , hot , etc...)
   //todo implement get by topic
   //?either all in the same function or different functions
   async getAll(req: Request, res: Response) {
