@@ -20,4 +20,5 @@ router.get("/:subredditId/posts", SubredditController.getPosts);
 //Add/remove moderators
 // router.post("/:subredditId/mods");
 
+
 export default router;
