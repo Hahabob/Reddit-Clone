@@ -18,7 +18,7 @@ router.post("/:subredditId/leave", SubredditController.leave);
 //Get community posts
 router.get("/:subredditId/posts", SubredditController.getPosts);
 //Add/remove moderators
-// TODO: Implement moderator management
-// router.post("/:subredditId/mods", SubredditController.manageMods);
+// router.post("/:subredditId/mods");
+
 
 export default router;
