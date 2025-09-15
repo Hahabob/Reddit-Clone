@@ -296,7 +296,56 @@ const PostController = {
       const userPosts = await PostModel.find({ authorId: userId }).sort({
         createdAt: -1,
       });
-      res.json({ success: true, data: userPosts });
+      const userPostIds = userPosts.map((p) => p._id);
+
+      // Aggregate votes
+      const votes = await VoteModel.aggregate([
+        { $match: { postId: { $in: userPostIds } } },
+        {
+          $group: {
+            _id: "$postId",
+            upvotes: { $sum: { $cond: [{ $eq: ["$value", 1] }, 1, 0] } },
+            downvotes: { $sum: { $cond: [{ $eq: ["$value", -1] }, 1, 0] } },
+          },
+        },
+      ]);
+
+      // Map for quick lookup
+      const voteMap = new Map(
+        votes.map((v) => [
+          String(v._id),
+          { upvotes: v.upvotes, downvotes: v.downvotes },
+        ])
+      );
+
+      // Attach to posts
+      const enrichedPosts: EnrichedPost[] = userPosts.map((p) => {
+        const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
+        return {
+          ...p,
+          upvotes,
+          downvotes,
+        };
+      });
+
+      let sortedPosts;
+      switch (req.query.sort) {
+        case "hot":
+          sortedPosts = sortHot(enrichedPosts);
+          break;
+        case "new":
+          sortedPosts = sortNew(enrichedPosts);
+          break;
+        case "top":
+          sortedPosts = sortTop(enrichedPosts, req.query.t as string);
+          break;
+        default:
+          sortedPosts = sortHot(enrichedPosts); // fallback
+      }
+      res.json({
+        data: sortedPosts,
+        success: true,
+      });
     } catch (error) {
       console.error("Error fetching posts by user:", error);
       res.status(500).json({
