@@ -37,6 +37,16 @@ export interface IPost extends Document {
   updatedAt?: Date;
 }
 
+export interface Voteable {
+  upvotes: number;
+  downvotes: number;
+}
+
+// Omit all Document keys from IPost
+type IPostWithoutDocument = Omit<IPost, keyof Document>;
+
+export interface EnrichedPost extends IPostWithoutDocument, Voteable {}
+
 const optionSchema = new Schema({
   text: { type: String, required: true },
   votes: { type: Number, default: 0 },
