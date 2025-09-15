@@ -1,13 +1,13 @@
-import { EnrichedPost } from "../models/Post";
+import { EnrichedPost, Voteable } from "../models/Post";
 import { EnrichedComment } from "../models/Comment";
-
-export function sortHot(
-  items: EnrichedPost[] | EnrichedComment[]
-): (EnrichedPost | EnrichedComment)[] {
+//?optional feature , maybe implement different sortHot and SortTop for comments since reddit uses different algorithms for those
+export function sortHot<T extends Voteable & { createdAt: Date }>(
+  items: T[]
+): T[] {
   return items.sort((a, b) => hotScore(b) - hotScore(a));
 }
 
-function hotScore(item: EnrichedPost | EnrichedComment) {
+function hotScore<T extends Voteable & { createdAt: Date }>(item: T) {
   const score = item.upvotes - item.downvotes;
   const order = Math.log10(Math.max(Math.abs(score), 1));
   const sign = score > 0 ? 1 : score < 0 ? -1 : 0;
@@ -15,18 +15,18 @@ function hotScore(item: EnrichedPost | EnrichedComment) {
   return sign * order + seconds / 45000;
 }
 
-export function sortNew(
-  items: EnrichedPost[] | EnrichedComment[]
-): (EnrichedPost | EnrichedComment)[] {
+export function sortNew<T extends Voteable & { createdAt: Date }>(
+  items: T[]
+): T[] {
   return items.sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
 
-export function sortTop(
-  items: EnrichedPost[] | EnrichedComment[],
+export function sortTop<T extends Voteable & { createdAt: Date }>(
+  items: T[],
   t: string = "all"
-): (EnrichedPost | EnrichedComment)[] {
+): T[] {
   const now = Date.now();
 
   const filtered = items.filter((p) => {
@@ -50,23 +50,25 @@ export function sortTop(
   );
 }
 
-export function sortRising(
-  items: EnrichedPost[] | EnrichedComment[]
-): (EnrichedPost | EnrichedComment)[] {
+export function sortRising<T extends Voteable & { createdAt: Date }>(
+  items: T[]
+): T[] {
   return items.sort((a, b) => risingScore(b) - risingScore(a));
 }
 
-function risingScore(item: EnrichedPost | EnrichedComment) {
+function risingScore<T extends Voteable & { createdAt: Date }>(item: T) {
   const score = item.upvotes - item.downvotes;
   const ageHours = (Date.now() - new Date(item.createdAt).getTime()) / 3600000;
   return score / Math.pow(ageHours + 2, 1.5); // fresh posts with fast growth rise
 }
 
-export function sortControversial(items: EnrichedPost[] | EnrichedComment[]) {
+export function sortControversial<T extends Voteable & { createdAt: Date }>(
+  items: T[]
+): T[] {
   return items.sort((a, b) => controversialScore(b) - controversialScore(a));
 }
 
-function controversialScore(item: EnrichedPost | EnrichedComment) {
+function controversialScore<T extends Voteable & { createdAt: Date }>(item: T) {
   const ups = item.upvotes;
   const downs = item.downvotes;
   if (ups <= 0 || downs <= 0) return 0;
