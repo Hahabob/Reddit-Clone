@@ -110,8 +110,10 @@ const SubredditController = {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      const { description } = req.body;
+      const { description, iconUrl, bannerUrl } = req.body;
       subreddit.description = description ?? subreddit.description;
+      subreddit.iconUrl = iconUrl ?? subreddit.iconUrl;
+      subreddit.bannerUrl = bannerUrl ?? subreddit.bannerUrl;
       await subreddit.save();
       res.json({ success: true, data: subreddit });
     } catch (error) {
