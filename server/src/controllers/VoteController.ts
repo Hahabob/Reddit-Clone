@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import VoteModel from "../models/Vote";
+import UserModel from "../models/User";
 import PostModel from "../models/Post";
 import CommentModel from "../models/Comment";
 
@@ -11,7 +12,6 @@ interface IVoteQuery {
 }
 
 export const VoteController = {
-  //todo add karma updates
   async vote(req: Request, res: Response) {
     try {
       let { userId } = getAuth(req) || {};
@@ -68,14 +68,27 @@ export const VoteController = {
         }
       }
 
-      // Update Post or Comment score
+      //? Update Post or Comment score
+      //? Keeping this for the chance  that the vote aggregation isn't working
+      // if (postId) {
+      //   await PostModel.findByIdAndUpdate(postId, {
+      //     $inc: { score: scoreChange },
+      //   });
+      // } else if (commentId) {
+      //   await CommentModel.findByIdAndUpdate(commentId, {
+      //     $inc: { score: scoreChange },
+      //   });
+      // }
+
       if (postId) {
-        await PostModel.findByIdAndUpdate(postId, {
-          $inc: { score: scoreChange },
+        const post = await PostModel.findById(postId);
+        await UserModel.findByIdAndUpdate(post?.authorId, {
+          $inc: { "karma.post": scoreChange },
         });
       } else if (commentId) {
-        await CommentModel.findByIdAndUpdate(commentId, {
-          $inc: { score: scoreChange },
+        const comment = await CommentModel.findById(commentId);
+        await UserModel.findByIdAndUpdate(comment?.authorId, {
+          $inc: { "karma.comment": scoreChange },
         });
       }
 
