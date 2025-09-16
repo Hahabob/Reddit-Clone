@@ -183,7 +183,6 @@ const SubredditController = {
       return res.status(500).json({ message: "Something went wrong" });
     }
   },
-  //todo implement sorting
   async getPosts(req: Request, res: Response) {
     try {
       const Posts =

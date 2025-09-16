@@ -112,7 +112,7 @@ const CommentController = {
       return res.status(500).json({ message: "Server error" });
     }
   },
-  //get comments for post including nested //todo  implement sorting
+  //get comments for post including nested
   async getCommentsForPost(req: Request, res: Response) {
     try {
       const { postId } = req.params;
