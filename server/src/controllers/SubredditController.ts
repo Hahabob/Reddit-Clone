@@ -1,8 +1,16 @@
 import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
 import SubredditModel from "../models/Subreddit";
-import PostModel from "../models/Post"; // long schema model
+import PostModel, { EnrichedPost } from "../models/Post"; // long schema model
 import UserModel from "../models/User";
+import {
+  sortHot,
+  sortNew,
+  sortTop,
+  sortControversial,
+  sortRising,
+} from "../utils/sortUtils";
+import VoteModel from "../models/Vote";
 
 const SubredditController = {
   async get(req: Request, res: Response) {
@@ -180,8 +188,60 @@ const SubredditController = {
     try {
       const Posts =
         (await PostModel.find({ subredditId: req.params.subredditId })) || [];
+      const postIds = Posts.map((p) => p._id);
+
+      // Aggregate votes
+      const votes = await VoteModel.aggregate([
+        { $match: { postId: { $in: postIds } } },
+        {
+          $group: {
+            _id: "$postId",
+            upvotes: { $sum: { $cond: [{ $eq: ["$value", 1] }, 1, 0] } },
+            downvotes: { $sum: { $cond: [{ $eq: ["$value", -1] }, 1, 0] } },
+          },
+        },
+      ]);
+
+      // Map for quick lookup
+      const voteMap = new Map(
+        votes.map((v) => [
+          String(v._id),
+          { upvotes: v.upvotes, downvotes: v.downvotes },
+        ])
+      );
+
+      // Attach to posts
+      const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
+        const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
+        return {
+          ...p,
+          upvotes,
+          downvotes,
+        };
+      });
+
+      let sortedPosts;
+      switch (req.query.sort) {
+        case "hot":
+          sortedPosts = sortHot(enrichedPosts);
+          break;
+        case "new":
+          sortedPosts = sortNew(enrichedPosts);
+          break;
+        case "top":
+          sortedPosts = sortTop(enrichedPosts, req.query.t as string);
+          break;
+        case "rising":
+          sortedPosts = sortRising(enrichedPosts);
+          break;
+        case "controversial":
+          sortedPosts = sortControversial(enrichedPosts);
+          break;
+        default:
+          sortedPosts = sortHot(enrichedPosts); // fallback
+      }
       res.json({
-        data: Posts,
+        data: sortedPosts,
         success: true,
       });
     } catch (error) {
