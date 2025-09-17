@@ -258,7 +258,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <SignedIn>
-              {/* Create button */}
               <button
                 className={cn(
                   "px-3 py-1.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
@@ -271,7 +270,6 @@ export const Header: React.FC<HeaderProps> = ({
                 Create
               </button>
 
-              {/* Advertise on Reddit icon */}
               <div className="relative">
                 <button
                   className={cn(
@@ -287,7 +285,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               </div>
 
-              {/* Chat icon with notification badge */}
               <div className="relative">
                 <button
                   className={cn(
@@ -306,7 +303,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
-              {/* Notifications icon with badge */}
               <div className="relative">
                 <button
                   className={cn(
@@ -317,9 +313,7 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
                 >
                   <IconWrapper size="md">
-                    <IconWrapper size="md">
-                      <NotificationsIconSvg />
-                    </IconWrapper>
+                    <NotificationsIconSvg />
                   </IconWrapper>
                 </button>
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
@@ -327,7 +321,6 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
-              {/* User avatar with online status */}
               <div className="relative">
                 <button
                   onClick={() => setShowUserSidebar(true)}
@@ -339,7 +332,6 @@ export const Header: React.FC<HeaderProps> = ({
                         user?.username?.charAt(0) ||
                         "U"}
                     </div>
-                    {/* Online status indicator */}
                     <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black"></div>
                   </div>
                 </button>
@@ -347,7 +339,6 @@ export const Header: React.FC<HeaderProps> = ({
             </SignedIn>
 
             <SignedOut>
-              {/* Signed out user display */}
               <button
                 onClick={() => setShowQRModal(true)}
                 className={cn(

@@ -62,7 +62,6 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
         )}
       >
         <div className="p-3">
-          {/* User Profile Section */}
           <div className="flex items-center space-x-3 mb-4">
             <div className="relative">
               <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
@@ -82,8 +81,6 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
               </div>
             </div>
           </div>
-
-          {/* User Actions */}
           <div className="space-y-0.5">
             <button
               className={cn(
@@ -207,10 +204,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             </button>
           </div>
 
-          {/* Divider */}
           <hr className="my-3 -mx-3 border-gray-200 dark:border-[#ffffff19]" />
-
-          {/* Additional Options */}
           <div className="space-y-0.5">
             <button
               className={cn(

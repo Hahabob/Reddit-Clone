@@ -6,20 +6,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn } from "../lib/utils";
 
-// Step 1: Define validation schema
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-// Step 2: Create TypeScript type from schema
 type SignInFormData = z.infer<typeof signInSchema>;
 
 const CustomSignIn: React.FC = () => {
-  // Step 3: Set up hooks and state
   const { signIn, isLoaded } = useSignIn();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Step 4: Set up form with react-hook-form and zod validation
   const {
     register,
     handleSubmit,
@@ -28,8 +24,6 @@ const CustomSignIn: React.FC = () => {
   } = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
   });
-
-  // Step 5: Handle Google sign-in
   const handleGoogleSignIn = async () => {
     if (!isLoaded) return;
 
@@ -43,28 +37,21 @@ const CustomSignIn: React.FC = () => {
     } catch (err: any) {
       console.error("Google sign-in error:", err);
 
-      // Handle specific OAuth errors
       if (err.errors) {
         err.errors.forEach((error: any) => {
           console.error("OAuth error:", error.longMessage || error.message);
         });
       }
 
-      // Reset loading state on error since redirect won't happen
       setIsLoading(false);
     }
-    // Note: Don't set loading to false in finally block for OAuth
-    // because successful OAuth will redirect away from this page
   };
 
-  // Step 6: Handle form submission (email-only for now)
   const onSubmit = async (_data: SignInFormData) => {
     if (!isLoaded) return;
 
     setIsLoading(true);
     try {
-      // For now, we'll show a message that this is email-only
-      // In a real implementation, this would trigger a password reset or magic link
       setError("email", {
         message:
           "Email-only sign-in coming soon. Please use Google sign-in for now.",
@@ -76,12 +63,9 @@ const CustomSignIn: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  // Step 7: Main sign-in form
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
-        {/* Reddit Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
             <img
@@ -92,14 +76,11 @@ const CustomSignIn: React.FC = () => {
           </Link>
         </div>
 
-        {/* Sign In Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-          {/* Title */}
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
             Log In
           </h1>
 
-          {/* Terms Text */}
           <p className="text-xs text-center text-gray-600 mb-6">
             By continuing, you agree to our{" "}
             <Link
@@ -117,7 +98,6 @@ const CustomSignIn: React.FC = () => {
             </Link>
             .
           </p>
-          {/* Google Sign In Button */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
@@ -145,7 +125,6 @@ const CustomSignIn: React.FC = () => {
             <span>Continue with Google</span>
           </button>
 
-          {/* Apple Sign In Button */}
           <button
             type="button"
             disabled={isLoading}
@@ -157,7 +136,6 @@ const CustomSignIn: React.FC = () => {
             <span>Continue With Apple</span>
           </button>
 
-          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -168,7 +146,6 @@ const CustomSignIn: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Email Input */}
             <div>
               <input
                 {...register("email")}
@@ -188,8 +165,6 @@ const CustomSignIn: React.FC = () => {
               )}
             </div>
 
-            {/* Log In Button */}
-
             <button
               type="submit"
               disabled={isLoading}
@@ -199,7 +174,6 @@ const CustomSignIn: React.FC = () => {
             </button>
           </form>
 
-          {/* Forgot Password */}
           <div className="text-center mt-4">
             <Link
               to="/reset-password"
@@ -210,7 +184,6 @@ const CustomSignIn: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
             New to Reddit?{" "}
