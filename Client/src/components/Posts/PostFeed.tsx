@@ -51,13 +51,10 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
         const apiSort = sort === "best" ? "hot" : sort;
 
-        const [response] = await Promise.all([
-          redditApiService.posts.getHomePosts(apiSort, {
-            limit: 25,
-            after: loadMore ? after : undefined,
-          }),
-          new Promise((resolve) => setTimeout(resolve, 300)),
-        ]);
+        const response = await redditApiService.posts.getHomePosts(apiSort, {
+          limit: 25,
+          after: loadMore ? after : undefined,
+        });
 
         let filteredPosts = response.data.children.map((child) => child.data);
 

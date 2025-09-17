@@ -44,7 +44,6 @@ const SSOCallback: React.FC = () => {
         </div>
       </div>
 
-      {/* Clerk handles the OAuth callback automatically */}
       <AuthenticateWithRedirectCallback />
     </div>
   );

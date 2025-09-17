@@ -7,16 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn } from "../lib/utils";
 
-// Step 1: Define validation schema
 const signUpSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-// Step 2: Create TypeScript type from schema
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
 const CustomSignUp: React.FC = () => {
-  // Step 3: Set up hooks and state
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const { signUp, isLoaded, setActive } = useSignUp();
@@ -24,7 +21,6 @@ const CustomSignUp: React.FC = () => {
   const [verificationStep, setVerificationStep] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
 
-  // Step 4: Set up form with react-hook-form and zod validation
   const {
     register,
     handleSubmit,
@@ -33,8 +29,6 @@ const CustomSignUp: React.FC = () => {
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
-
-  // Step 5: Handle Google sign-up
   const handleGoogleSignUp = async () => {
     if (!isLoaded) return;
 
@@ -52,14 +46,11 @@ const CustomSignUp: React.FC = () => {
     }
   };
 
-  // Step 6: Handle form submission
   const onSubmit = async (data: SignUpFormData) => {
     if (!isLoaded) return;
 
     setIsLoading(true);
     try {
-      // Generate a secure random password for the temporary account creation
-      // In a real Reddit-style flow, this would go to a second step for username/password
       const generateSecurePassword = () => {
         const chars =
           "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
@@ -77,19 +68,16 @@ const CustomSignUp: React.FC = () => {
         password: tempPassword,
       });
 
-      // Send verification email
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setVerificationStep(true);
     } catch (err: any) {
       console.error("Sign up error:", err);
 
-      // Handle specific errors
       if (err.errors) {
         err.errors.forEach((error: any) => {
           if (error.meta?.paramName === "email_address") {
             setError("email", { message: error.longMessage });
           } else if (error.code === "form_password_pwned") {
-            // This shouldn't happen with our random password, but just in case
             setError("email", { message: "Please try again." });
           } else if (error.code === "form_identifier_exists") {
             setError("email", {
@@ -111,8 +99,6 @@ const CustomSignUp: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  // Step 7: Handle email verification
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded) return;
@@ -134,7 +120,6 @@ const CustomSignUp: React.FC = () => {
     }
   };
 
-  // Step 8: Render verification step if needed
   if (verificationStep) {
     return (
       <div
@@ -203,7 +188,6 @@ const CustomSignUp: React.FC = () => {
     );
   }
 
-  // Step 9: Main sign-up form
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">

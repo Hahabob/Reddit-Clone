@@ -13,12 +13,9 @@ function App() {
         <Router>
           <div className="App">
             <Routes>
-              {/* Authentication routes */}
               <Route path="/sign-in/*" element={<SignInPage />} />
               <Route path="/sign-up/*" element={<SignUpPage />} />
               <Route path="/sso-callback" element={<SSOCallback />} />
-
-              {/* Main routes - accessible to all, but with different UX based on auth status */}
               <Route path="/" element={<MainLayout />} />
               <Route path="/r/:subreddit" element={<MainLayout />} />
               <Route
