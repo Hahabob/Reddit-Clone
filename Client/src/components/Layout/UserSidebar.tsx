@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
+import { useNavigate } from "react-router-dom";
 import EditAvatarIcon from "../../assets/EditAvatarIcon.svg";
 import DraftsIcon from "../../assets/drafts-icon.svg";
 import TrophyIcon from "../../assets/achievements-icon.svg";
@@ -12,6 +13,7 @@ import LogOutIcon from "../../assets/Log-In-out-icon.svg";
 import BarChartIcon from "../../assets/advertise-rightBar.svg";
 import LineChartIcon from "../../assets/reddit-pro-logo.svg";
 import SettingsIcon from "../../assets/settings-community-logo.svg";
+import DefaultAvatar from "../../assets/defaultAvatar.png";
 
 interface UserSidebarProps {
   isOpen: boolean;
@@ -25,7 +27,20 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   const { isDarkMode, toggleTheme } = useTheme();
   const { user } = useUser();
   const { signOut } = useClerk();
+  const navigate = useNavigate();
   const sidebarRef = useRef<HTMLDivElement>(null);
+
+  const handleViewProfile = () => {
+    if (user?.username) {
+      const profileUrl = `/user/${user.username}`;
+      navigate(profileUrl);
+      onClose();
+    } else if (user?.firstName) {
+      const profileUrl = `/user/${user.firstName}`;
+      navigate(profileUrl);
+      onClose();
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,61 +76,62 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
           isDarkMode ? "shadow-transparent" : "shadow-gray-500"
         )}
       >
-        <div className="p-3">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="relative">
-              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                {user?.firstName?.charAt(0) || user?.username?.charAt(0) || "U"}
+        <div className="p-4">
+          <button
+            onClick={handleViewProfile}
+            className="w-full flex items-center space-x-2 mb-4 py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+          >
+            <div className="relative z-10">
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img
+                  src={DefaultAvatar}
+                  alt="User Avatar"
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div
-                className="absolute -bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2
-               border-white dark:border-black"
-              ></div>
+              <div className="absolute -bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black"></div>
             </div>
-            <div>
-              <div className="text-sm text-gray-900 dark:text-white">
+            <div className="relative z-10">
+              <div className="text-sm text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
                 View Profile
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
                 u/{user?.username || user?.firstName}
               </div>
             </div>
-          </div>
+          </button>
           <div className="space-y-0.5">
             <button
               className={cn(
-                "mb-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 mb-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <EditAvatarIcon />
               </div>
-              <span>Edit Avatar</span>
+              <span className="relative z-10">Edit Avatar</span>
             </button>
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <DraftsIcon />
               </div>
-              <span>Drafts</span>
+              <span className="relative z-10">Drafts</span>
             </button>
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <TrophyIcon />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col relative z-10">
                 <span>Achievements</span>
                 <span className="text-xs">6 unlocked</span>
               </div>
@@ -123,14 +139,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <TrendingUpIcon />
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col relative z-10">
                 <span>Earn</span>
                 <span className="text-xs">Earn cash on Reddit</span>
               </div>
@@ -138,24 +153,22 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <GiftIcon />
               </div>
-              <span>Premium</span>
+              <span className="relative z-10">Premium</span>
             </button>
 
             <button
               onClick={toggleTheme}
               className={cn(
-                "w-full flex items-center justify-between py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center justify-between py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="flex items-center">
+              <div className="flex items-center relative z-10">
                 <div className="w-5 h-5 mr-3">
                   <MoonIcon />
                 </div>
@@ -193,14 +206,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             <button
               onClick={() => signOut()}
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <LogOutIcon />
               </div>
-              <span>Log Out</span>
+              <span className="relative z-10">Log Out</span>
             </button>
           </div>
 
@@ -208,26 +220,24 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
           <div className="space-y-0.5">
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <BarChartIcon />
               </div>
-              <span>Advertise on Reddit</span>
+              <span className="relative z-10">Advertise on Reddit</span>
             </button>
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <LineChartIcon />
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center relative z-10">
                 <span>Try Reddit Pro</span>
                 <span className="ml-2 text-sm font-semibold text-orange-600 dark:text-orange-700">
                   BETA
@@ -238,15 +248,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
-                isDarkMode ? "px-3" : "px-3"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
-              <div className="w-5 h-5 mr-3">
+              <div className="w-5 h-5 mr-3 relative z-10">
                 <SettingsIcon />
               </div>
-
-              <span>Settings</span>
+              <span className="relative z-10">Settings</span>
             </button>
           </div>
         </div>
