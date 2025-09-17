@@ -122,7 +122,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
       <button
         onClick={onToggle}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
+          "w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer",
           isDarkMode ? "text-white" : "text-black"
         )}
       >
@@ -390,7 +390,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   onClick={toggleShowMore}
                   className={cn(
-                    "text-sm px-3 py-1.5 rounded-full transition-colors",
+                    "text-sm px-3 py-1.5 rounded-full transition-colors cursor-pointer",
                     isDarkMode
                       ? "text-white hover:text-white hover:bg-gray-900/70"
                       : "text-black hover:text-black hover:bg-gray-200"
