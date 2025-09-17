@@ -16,7 +16,6 @@ function App() {
               <Route path="/sign-in/*" element={<SignInPage />} />
               <Route path="/sign-up/*" element={<MultiStepSignUp />} />
               <Route path="/sso-callback" element={<SSOCallback />} />
-              <Route path="/user/:username" element={<MainLayout />} />
               <Route path="/" element={<MainLayout />} />
               <Route path="/r/:subreddit" element={<MainLayout />} />
               <Route

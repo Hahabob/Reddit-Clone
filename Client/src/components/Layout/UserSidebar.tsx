@@ -71,18 +71,11 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
           isDarkMode ? "shadow-transparent" : "shadow-gray-500"
         )}
       >
-        <div className="p-4">
-          <button
-            onClick={handleViewProfile}
-            className="w-full flex items-center space-x-2 mb-4 py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
-          >
-            <div className="relative z-10">
-              <div className="w-8 h-8 rounded-full overflow-hidden">
-                <img
-                  src={DefaultAvatar}
-                  alt="User Avatar"
-                  className="w-full h-full object-cover"
-                />
+        <div className="p-3">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="relative">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                {user?.firstName?.charAt(0) || user?.username?.charAt(0) || "U"}
               </div>
               <div className="absolute -bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black"></div>
             </div>
@@ -94,7 +87,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
                 u/{user?.username || user?.firstName}
               </div>
             </div>
-          </button>
+          </div>
           <div className="space-y-0.5">
             <button
               className={cn(
