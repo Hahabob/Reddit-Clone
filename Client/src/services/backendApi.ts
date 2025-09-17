@@ -18,8 +18,8 @@ interface BackendUser {
     comment: number;
   };
   gender: string;
-  createdAt: string; // Date becomes string in JSON
-  updatedAt?: string; // Added by timestamps: true
+  createdAt: string;
+  updatedAt?: string;
 }
 
 const backendApi = axios.create({
