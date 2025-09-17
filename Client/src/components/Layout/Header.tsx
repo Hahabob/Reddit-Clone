@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser, SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { useUser, SignedIn, SignedOut } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import RedditLogoSvg from "../../assets/reddit-logo.svg";
 import RedditLogoName from "../../assets/reddit-logo-name-letters-together.svg";
 import { cn } from "../../lib/utils";
 import QRCodeIcon from "../../assets/QRCode-icon.svg";
 import RedditProBetaSvg from "../../assets/reddit-pro-logo.svg";
-import AdvertiseRightBarIconSvg from "../../assets/advertise-rightBar.svg";
+import AdvertiseIconSvg from "../../assets/AdvertiseIcon.svg";
 import LogInOutIcon from "../../assets/log-in-out-icon.svg";
 import { QRCodeModal } from "../ui/RedditQRPop";
+import { UserSidebar } from "./UserSidebar";
+import NotificationsIconSvg from "../../assets/notificationIcon.svg";
+import ChatIcon from "../../assets/ChatIcon.svg";
 
 interface IconWrapperProps {
   children: React.ReactNode;
@@ -61,17 +64,18 @@ const SearchIcon = () => (
   </svg>
 );
 
-const DarkModeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-  </svg>
-);
-
 const MoreIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" strokeWidth="2">
     <circle cx="12" cy="12" r="2" />
     <circle cx="19" cy="12" r="2" />
     <circle cx="5" cy="12" r="2" />
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
@@ -90,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSearch,
   onGoToHome,
 }) => {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode } = useTheme();
   const { user } = useUser();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -98,6 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showUserSidebar, setShowUserSidebar] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -146,7 +151,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header
       className={cn(
         "sticky top-0 z-50 border-b transition-colors",
-        isDarkMode ? "bg-black border-gray-800" : "bg-white border-gray-200"
+        isDarkMode ? "border-[#434546]" : "border-gray-200"
       )}
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -251,51 +256,93 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <SignedIn>
-              {/* Signed in user display */}
+              {/* Create button */}
               <button
-                onClick={toggleTheme}
                 className={cn(
-                  "p-2 rounded-md cursor-pointer",
-                  isDarkMode
-                    ? "text-gray-400 hover:text-white hover:bg-gray-900"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  "px-3 py-1.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
+                  "text-black bg-gray-200 hover:bg-gray-300"
                 )}
               >
-                <IconWrapper>
-                  <DarkModeIcon />
+                <IconWrapper size="sm">
+                  <PlusIcon />
                 </IconWrapper>
+                Create
               </button>
 
-              {/* User info and avatar */}
-              <div className="flex items-center space-x-3">
-                <div className="flex flex-col items-end">
-                  <span
-                    className={cn(
-                      "text-sm font-medium",
-                      isDarkMode ? "text-white" : "text-gray-900"
-                    )}
-                  >
-                    {user?.username || user?.firstName || "User"}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs",
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
-                    )}
-                  >
-                    {user?.primaryEmailAddress?.emailAddress}
-                  </span>
+              {/* Advertise on Reddit icon */}
+              <div className="relative">
+                <button
+                  className={cn(
+                    "p-2 rounded-md cursor-pointer",
+                    isDarkMode
+                      ? "text-gray-400 hover:text-white hover:bg-gray-900"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <AdvertiseIconSvg />
+                  </IconWrapper>
+                </button>
+              </div>
+
+              {/* Chat icon with notification badge */}
+              <div className="relative">
+                <button
+                  className={cn(
+                    "p-2 rounded-md cursor-pointer",
+                    isDarkMode
+                      ? "text-gray-400 hover:text-white hover:bg-gray-900"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <ChatIcon />
+                  </IconWrapper>
+                </button>
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  1
                 </div>
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-8 h-8",
-                    },
-                  }}
-                />
+              </div>
+
+              {/* Notifications icon with badge */}
+              <div className="relative">
+                <button
+                  className={cn(
+                    "p-2 rounded-md cursor-pointer",
+                    isDarkMode
+                      ? "text-gray-400 hover:text-white hover:bg-gray-900"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <IconWrapper size="md">
+                      <NotificationsIconSvg />
+                    </IconWrapper>
+                  </IconWrapper>
+                </button>
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  1
+                </div>
+              </div>
+
+              {/* User avatar with online status */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserSidebar(true)}
+                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+                >
+                  <div className="relative">
+                    <div className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {user?.firstName?.charAt(0) ||
+                        user?.username?.charAt(0) ||
+                        "U"}
+                    </div>
+                    {/* Online status indicator */}
+                    <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black"></div>
+                  </div>
+                </button>
               </div>
             </SignedIn>
 
@@ -341,7 +388,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="py-2">
                       <button
                         onClick={handleLoginMenuClick}
-                        className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                       >
                         <IconWrapper size="md" className="mr-3">
                           <LogInOutIcon />
@@ -350,15 +397,15 @@ export const Header: React.FC<HeaderProps> = ({
                           Log In / Sign Up
                         </span>
                       </button>
-                      <button className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                         <IconWrapper size="md" className="mr-3">
-                          <AdvertiseRightBarIconSvg />
+                          <AdvertiseIconSvg />
                         </IconWrapper>
                         <span className="text-sm font-medium">
                           Advertise on Reddit
                         </span>
                       </button>
-                      <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                         <div className="flex items-center">
                           <IconWrapper size="md" className="mr-3">
                             <RedditProBetaSvg />
@@ -380,6 +427,10 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
       <QRCodeModal isOpen={showQRModal} onClose={() => setShowQRModal(false)} />
+      <UserSidebar
+        isOpen={showUserSidebar}
+        onClose={() => setShowUserSidebar(false)}
+      />
     </header>
   );
 };
