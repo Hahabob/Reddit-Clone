@@ -52,7 +52,7 @@ export const RightSidebar: React.FC = () => {
       <SignedOut>
         <div className="p-4 flex flex-col h-full">
           <div className="flex-1">
-            <div className="mt-2">
+            <div className="mt-6">
               <div
                 className={cn(
                   "rounded-lg p-1 ml-2 mr-8",
