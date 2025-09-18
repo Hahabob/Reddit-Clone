@@ -93,6 +93,9 @@ export const Header: React.FC<HeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [showGetAppTooltip, setShowGetAppTooltip] = useState(false);
+  const [showLogInTooltip, setShowLogInTooltip] = useState(false);
+  const [showMoreTooltip, setShowMoreTooltip] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showUserSidebar, setShowUserSidebar] = useState(false);
@@ -332,31 +335,57 @@ export const Header: React.FC<HeaderProps> = ({
             </SignedIn>
 
             <SignedOut>
-              <button
-                onClick={() => setShowQRModal(true)}
-                className={cn(
-                  "px-3 py-2.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-2",
-                  "text-black bg-gray-200 hover:bg-gray-300",
-                  "hidden sm:flex"
+              <div className="relative">
+                <button
+                  onClick={() => setShowQRModal(true)}
+                  onMouseEnter={() => setShowGetAppTooltip(true)}
+                  onMouseLeave={() => setShowGetAppTooltip(false)}
+                  className={cn(
+                    "px-3 py-2.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-2",
+                    "text-black bg-gray-200 hover:bg-gray-300",
+                    "hidden sm:flex"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <QRCodeIcon />
+                  </IconWrapper>
+                  Get App
+                </button>
+                {showGetAppTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Get The Reddit App
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
                 )}
-              >
-                <IconWrapper size="md">
-                  <QRCodeIcon />
-                </IconWrapper>
-                Get App
-              </button>
-              <button
-                onClick={handleLoginClick}
-                className={cn(
-                  "px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer",
-                  "bg-orange-700 text-white hover:bg-orange-800"
+              </div>
+              <div className="relative">
+                <button
+                  onClick={handleLoginClick}
+                  onMouseEnter={() => setShowLogInTooltip(true)}
+                  onMouseLeave={() => setShowLogInTooltip(false)}
+                  className={cn(
+                    "px-4 py-2.5 rounded-full text-sm font-medium cursor-pointer",
+                    "bg-orange-700 text-white hover:bg-orange-800"
+                  )}
+                >
+                  Log In
+                </button>
+                {showLogInTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Log In To Reddit
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
                 )}
-              >
-                Log In
-              </button>
+              </div>
               <div className="relative" ref={moreMenuRef}>
                 <button
                   onClick={() => setShowMoreMenu(!showMoreMenu)}
+                  onMouseEnter={() => setShowMoreTooltip(true)}
+                  onMouseLeave={() => setShowMoreTooltip(false)}
                   className={cn(
                     "p-2 rounded-full cursor-pointer",
                     "text-gray-500 hover:text-gray-800 hover:bg-gray-300"
@@ -366,6 +395,14 @@ export const Header: React.FC<HeaderProps> = ({
                     <MoreIcon />
                   </IconWrapper>
                 </button>
+                {showMoreTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -ml-12 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Open Settings Menu
+                      <div className="absolute -top-0.5 right-1/15 transform -translate-x-1/2 w-3 h-3 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                )}
 
                 {showMoreMenu && (
                   <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
@@ -377,17 +414,13 @@ export const Header: React.FC<HeaderProps> = ({
                         <IconWrapper size="md" className="mr-3">
                           <LogInOutIcon />
                         </IconWrapper>
-                        <span className="text-sm font-medium">
-                          Log In / Sign Up
-                        </span>
+                        <span className="text-sm">Log In / Sign Up</span>
                       </button>
                       <button className="w-full flex items-center px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                         <IconWrapper size="md" className="mr-3">
                           <AdvertiseIconSvg />
                         </IconWrapper>
-                        <span className="text-sm font-medium">
-                          Advertise on Reddit
-                        </span>
+                        <span className="text-sm">Advertise on Reddit</span>
                       </button>
                       <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-normal rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
                         <div className="flex items-center">
