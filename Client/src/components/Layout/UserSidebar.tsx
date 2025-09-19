@@ -29,7 +29,6 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const sidebarRef = useRef<HTMLDivElement>(null);
-
   const handleViewProfile = () => {
     if (user?.username) {
       const profileUrl = `/user/${user.username}`;
@@ -41,7 +40,6 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
       onClose();
     }
   };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -51,18 +49,15 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
         onClose();
       }
     };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
   return (
     <>
       <div className="fixed inset-0 pointer-events-none" onClick={onClose} />
@@ -79,7 +74,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
         <div className="p-4">
           <button
             onClick={handleViewProfile}
-            className="w-full flex items-center space-x-2 mb-4 py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+            className="w-full flex items-center space-x-2 mb-4 py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
           >
             <div className="relative z-10">
               <div className="w-8 h-8 rounded-full overflow-hidden">
@@ -103,7 +98,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
           <div className="space-y-0.5">
             <button
               className={cn(
-                "px-2 mb-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 mb-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -114,7 +109,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -125,7 +120,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -139,7 +134,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -153,7 +148,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -165,7 +160,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             <button
               onClick={toggleTheme}
               className={cn(
-                "px-2 w-full flex items-center justify-between py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center justify-between py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="flex items-center relative z-10">
@@ -206,7 +201,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             <button
               onClick={() => signOut()}
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -220,7 +215,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
           <div className="space-y-0.5">
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -231,7 +226,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
@@ -248,7 +243,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 
             <button
               className={cn(
-                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
+                "px-2 w-full flex items-center py-2 text-sm font-normal cursor-pointer hover:bg-gray-100 dark:hover:bg-transparent transition-colors text-left text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white relative before:absolute before:inset-0 before:-left-4 before:-right-4 before:bg-gray-100 dark:before:bg-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none before:z-0"
               )}
             >
               <div className="w-5 h-5 mr-3 relative z-10">
