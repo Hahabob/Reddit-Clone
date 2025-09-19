@@ -60,13 +60,11 @@ const IconWrapper: React.FC<IconWrapperProps> = ({
   size = "md",
 }) => {
   const { isDarkMode } = useTheme();
-
   const sizeClasses = {
     sm: "w-4 h-4",
     md: "w-5 h-5",
     lg: "w-6 h-6",
   };
-
   return (
     <div
       className={cn(
@@ -88,25 +86,21 @@ const HomeIcon = () => (
     <HomeSvg />
   </div>
 );
-
 const PopularIcon = () => (
   <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
     <PopularSvg />
   </div>
 );
-
 const AllIcon = () => (
   <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
     <AllSvg />
   </div>
 );
-
 const AnswersIcon = () => (
   <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
     <AnswersSvg />
   </div>
 );
-
 const ExploreIcon = () => (
   <div className="w-5 h-5 [&>svg]:w-5 [&>svg]:h-5">
     <ExploreSvg />
@@ -118,7 +112,6 @@ const ChevronDownIcon = () => (
     <polyline points="6,9 12,15 18,9" />
   </svg>
 );
-
 const ChevronUpIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="18,15 12,9 6,15" />
@@ -143,7 +136,6 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
   children,
 }) => {
   const { isDarkMode } = useTheme();
-
   return (
     <div>
       <button
@@ -196,9 +188,9 @@ const SidebarContentLoggedIn: React.FC<{ onGoToHome?: () => void }> = ({
     popCulture: boolean;
     moviesTv: boolean;
   }>({
-    resources: false,
-    customFeeds: false,
-    communities: false,
+    resources: true,
+    customFeeds: true,
+    communities: true,
     legal: false,
     internetCulture: false,
     games: false,
@@ -207,7 +199,6 @@ const SidebarContentLoggedIn: React.FC<{ onGoToHome?: () => void }> = ({
     popCulture: false,
     moviesTv: false,
   });
-
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -491,8 +482,8 @@ const SidebarContentLoggedOut: React.FC<{ onGoToHome?: () => void }> = ({
     popCulture: boolean;
     moviesTv: boolean;
   }>({
-    resources: false,
-    topics: false,
+    resources: true,
+    topics: true,
     communities: false,
     legal: false,
     internetCulture: false,
@@ -502,16 +493,13 @@ const SidebarContentLoggedOut: React.FC<{ onGoToHome?: () => void }> = ({
     popCulture: false,
     moviesTv: false,
   });
-
   const [showMore, setShowMore] = useState(false);
-
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
       ...prev,
       [section]: !prev[section],
     }));
   };
-
   const toggleShowMore = () => {
     setShowMore((prev) => !prev);
   };
@@ -1025,7 +1013,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onGoToHome,
 }) => {
   const { isDarkMode } = useTheme();
-
   return (
     <>
       {isOpen && <div className="fixed inset-0" onClick={onClose} />}
