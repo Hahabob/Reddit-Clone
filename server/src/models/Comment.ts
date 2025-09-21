@@ -22,6 +22,7 @@ type ICommentWithoutDocument = Omit<IComment, keyof Document>;
 
 export interface EnrichedComment extends ICommentWithoutDocument, Voteable {
   _id: ObjectId;
+  replies?: any;
 }
 
 const commentSchema: Schema<IComment> = new Schema({
