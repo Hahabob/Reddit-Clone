@@ -3,7 +3,7 @@ import UserModel from "../models/User";
 import PostModel from "../models/Post";
 import CommentModel from "../models/Comment";
 import { getAuth } from "@clerk/express";
-
+//getbyid-change name
 const UserController = {
   async get(req: Request, res: Response) {
     try {

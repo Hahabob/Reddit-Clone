@@ -18,8 +18,8 @@ interface BackendUser {
     comment: number;
   };
   gender: string;
-  createdAt: string; // Date becomes string in JSON
-  updatedAt?: string; // Added by timestamps: true
+  createdAt: string;
+  updatedAt?: string;
 }
 
 const backendApi = axios.create({
@@ -29,10 +29,6 @@ const backendApi = axios.create({
 export const userApi = {
   getUser: async (userId: string) => {
     const response: AxiosResponse = await backendApi.get(`/users/${userId}`);
-    return response.data;
-  },
-  getAllUsers: async () => {
-    const response: AxiosResponse = await backendApi.get(`/users`);
     return response.data;
   },
 };
