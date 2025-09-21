@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { getAuth } from "@clerk/express";
-import SubredditModel from "../models/Subreddit";
+import SubredditModel, { CommunityTopic } from "../models/Subreddit";
 import PostModel, { EnrichedPost } from "../models/Post"; // long schema model
 import UserModel from "../models/User";
 import {
@@ -31,17 +31,25 @@ const SubredditController = {
       res.status(500).json({ message: "server error during get function" });
     }
   },
-  //todo implement get subreddits by topics.
   async getAll(req: Request, res: Response) {
     try {
-      const Subreddits =
-        //?check if the memebers thing is actually sorting by how many members there are.
-        (await SubredditModel.find({}).sort({ members: -1 })) || [];
+      const { topic } = req.query;
 
-      res.json({
-        data: Subreddits,
-        success: true,
-      });
+      const match: any = {};
+      if (
+        topic &&
+        Object.values(CommunityTopic).includes(topic as CommunityTopic)
+      ) {
+        match.topic = topic;
+      }
+
+      const subreddits = await SubredditModel.aggregate([
+        { $match: match },
+        { $addFields: { membersCount: { $size: "$members" } } },
+        { $sort: { membersCount: -1 } },
+      ]);
+
+      res.json({ data: subreddits, success: true });
     } catch (error) {
       console.error("cant get", error);
       res.status(500).json({ message: "server error during get function" });
