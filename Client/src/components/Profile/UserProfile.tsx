@@ -60,7 +60,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-4">
-              <div className="w-25 h-25 mx-auto flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto flex items-center justify-center">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -77,7 +77,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -94,7 +94,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -111,7 +111,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -128,7 +128,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -145,7 +145,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -162,7 +162,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -179,7 +179,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -196,7 +196,7 @@ export const UserProfile: React.FC = () => {
         return (
           <div className="text-center py-16">
             <div className="mb-8">
-              <div className="w-25 h-25 mx-auto">
+              <div className="w-20 h-20 mx-auto">
                 <img
                   src={wonderingSnoo}
                   alt="Snoo wondering"
@@ -225,7 +225,7 @@ export const UserProfile: React.FC = () => {
               />
             </div>
           </div>
-          <button className="w-7 h-7 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center -ml-9 mt-12 cursor-pointer">
+          <button className="w-8 h-7 bg-gray-200 dark:bg-gray-800 rounded-full flex items-center justify-center -ml-9 mt-12 cursor-pointer">
             <CameraIcon />
           </button>
           <div>
