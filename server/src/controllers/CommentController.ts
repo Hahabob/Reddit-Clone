@@ -11,39 +11,6 @@ import {
   sortRising,
 } from "../utils/sortUtils";
 
-interface CommentTreeNode extends EnrichedComment {
-  replies: CommentTreeNode[];
-}
-//! build tree function not working
-const buildCommentTree = (
-  comments: EnrichedComment[],
-  parentId: string | null = null,
-  sortFn?: (arr: EnrichedComment[]) => EnrichedComment[]
-): CommentTreeNode[] => {
-  // Find direct children of the current parent
-  let children = comments.filter(
-    (c) =>
-      (c.parentId ? String(c.parentId) : null) ===
-      (parentId !== null ? String(parentId) : null)
-  );
-
-  // At root level → apply custom sort
-  if (parentId === null && sortFn) {
-    children = sortFn(children);
-  } else {
-    // At reply level → sort by createdAt ascending
-    children = children.sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-    );
-  }
-
-  // Build the recursive tree
-  return children.map((c) => ({
-    ...c,
-    replies: buildCommentTree(comments, c._id.toString(), sortFn),
-  }));
-};
-
 const CommentController = {
   //create comment on post
   async create(req: Request, res: Response) {
@@ -116,16 +83,21 @@ const CommentController = {
   async getCommentsForPost(req: Request, res: Response) {
     try {
       const { postId } = req.params;
+      if (!postId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Post ID is required" });
+      }
 
       // Fetch all comments for this post
-      const comments = await CommentModel.find({ postId }).sort({
-        createdAt: 1,
-      });
+      const comments = await CommentModel.find({ postId })
+        .sort({ createdAt: 1 })
+        .lean();
       const commentIds = comments.map((c) => c._id);
 
       // Aggregate votes
       const votes = await VoteModel.aggregate([
-        { $match: { postId: { $in: commentIds } } },
+        { $match: { commentId: { $in: commentIds } } },
         {
           $group: {
             _id: "$commentId",
@@ -135,7 +107,7 @@ const CommentController = {
         },
       ]);
 
-      // Map for quick lookup
+      // Map votes for quick lookup
       const voteMap = new Map(
         votes.map((v) => [
           String(v._id),
@@ -143,48 +115,65 @@ const CommentController = {
         ])
       );
 
-      // Attach to comments
+      // Attach votes and initialize replies array
       const enrichedComments: EnrichedComment[] = comments.map((c) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(c._id)) || {};
         return {
           ...c,
           upvotes,
           downvotes,
+          replies: [],
         };
       });
 
-      let sortFn: (arr: EnrichedComment[]) => EnrichedComment[];
+      // Build non-recursive tree
+      const commentMap = new Map<string, EnrichedComment>();
+      const roots: EnrichedComment[] = [];
 
+      enrichedComments.forEach((c) => commentMap.set(String(c._id), c));
+      enrichedComments.forEach((c) => {
+        if (c.parentId) {
+          const parent = commentMap.get(String(c.parentId));
+          if (parent) parent.replies.push(c);
+        } else {
+          roots.push(c);
+        }
+      });
+
+      // Apply all sorts sequentially (or just fallback for now)
+      let sortedComments;
       switch (req.query.sort) {
         case "hot":
-          sortFn = sortHot;
+          sortedComments = sortHot([...roots]);
+          break;
         case "new":
-          sortFn = sortNew;
+          sortedComments = sortNew([...roots]);
           break;
         case "top":
-          sortFn = (arr) => sortTop(arr, req.query.t as string);
+          sortedComments = sortTop([...roots], req.query.t as string);
           break;
         case "rising":
-          sortFn = sortRising;
+          sortedComments = sortRising([...roots]);
           break;
         case "controversial":
-          sortFn = sortControversial;
+          sortedComments = sortControversial([...roots]);
           break;
         default:
-          sortFn = sortHot; // fallback
+          sortedComments = sortHot([...roots]); // fallback sorting
       }
 
-      const tree = buildCommentTree(enrichedComments, null, sortFn);
-
       res.json({
-        data: tree,
         success: true,
+        data: sortedComments,
       });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Error fetching comments" });
+      console.error("Error fetching comments for post:", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Server error fetching comments" });
     }
   },
+
   //update comment only body.
   async edit(req: Request, res: Response) {
     try {
@@ -271,7 +260,7 @@ const CommentController = {
 
       // Aggregate votes
       const votes = await VoteModel.aggregate([
-        { $match: { postId: { $in: userCommentIds } } },
+        { $match: { commentId: { $in: userCommentIds } } },
         {
           $group: {
             _id: "$commentId",
