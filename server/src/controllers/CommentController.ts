@@ -271,7 +271,7 @@ const CommentController = {
 
       // Aggregate votes
       const votes = await VoteModel.aggregate([
-        { $match: { postId: { $in: userCommentIds } } },
+        { $match: { commentId: { $in: userCommentIds } } },
         {
           $group: {
             _id: "$commentId",
