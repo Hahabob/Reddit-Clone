@@ -67,18 +67,6 @@ export const VoteController = {
         }
       }
 
-      //? Update Post or Comment score
-      //? Keeping this for the chance  that the vote aggregation isn't working
-      // if (postId) {
-      //   await PostModel.findByIdAndUpdate(postId, {
-      //     $inc: { score: scoreChange },
-      //   });
-      // } else if (commentId) {
-      //   await CommentModel.findByIdAndUpdate(commentId, {
-      //     $inc: { score: scoreChange },
-      //   });
-      // }
-
       if (postId) {
         const post = await PostModel.findById(postId);
         await UserModel.findByIdAndUpdate(post?.authorId, {
