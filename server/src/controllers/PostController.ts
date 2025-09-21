@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import PostModel, { EnrichedPost } from "../models/Post"; // long schema model
-import SubredditModel from "../models/Subreddit"; // long schema model
+import SubredditModel, { CommunityTopic } from "../models/Subreddit"; // long schema model
 import { getAuth } from "@clerk/express";
 import VoteModel from "../models/Vote";
 import {
@@ -54,6 +54,7 @@ const PostController = {
           type: content.type,
           value: content.value,
         },
+        topics: subreddit.topics,
         authorId: userId,
         subredditId,
         createdAt: new Date(),
@@ -64,8 +65,6 @@ const PostController = {
       return res.status(500).json({ message: "Server error" });
     }
   },
-  //todo implement get by topic
-  //?either all in the same function or different functions
   async getAll(req: Request, res: Response) {
     try {
       const Posts = (await PostModel.find({})) || "no posts yet";
@@ -102,24 +101,35 @@ const PostController = {
       });
 
       let sortedPosts;
-      switch (req.query.sort) {
-        case "hot":
-          sortedPosts = sortHot(enrichedPosts);
-          break;
-        case "new":
-          sortedPosts = sortNew(enrichedPosts);
-          break;
-        case "top":
-          sortedPosts = sortTop(enrichedPosts, req.query.t as string);
-          break;
-        case "rising":
-          sortedPosts = sortRising(enrichedPosts);
-          break;
-        case "controversial":
-          sortedPosts = sortControversial(enrichedPosts);
-          break;
-        default:
-          sortedPosts = sortHot(enrichedPosts); // fallback
+      const { topic, sort, t } = req.query;
+      // Enforce either filtering by topic or sorting by sort type
+      if (
+        topic &&
+        Object.values(CommunityTopic).includes(topic as CommunityTopic)
+      ) {
+        sortedPosts = enrichedPosts.filter((p) =>
+          p.topics?.includes(topic as CommunityTopic)
+        );
+      } else {
+        switch (sort) {
+          case "hot":
+            sortedPosts = sortHot(enrichedPosts);
+            break;
+          case "new":
+            sortedPosts = sortNew(enrichedPosts);
+            break;
+          case "top":
+            sortedPosts = sortTop(enrichedPosts, t as string);
+            break;
+          case "rising":
+            sortedPosts = sortRising(enrichedPosts);
+            break;
+          case "controversial":
+            sortedPosts = sortControversial(enrichedPosts);
+            break;
+          default:
+            sortedPosts = sortHot(enrichedPosts); // fallback
+        }
       }
       res.json({
         data: sortedPosts,
