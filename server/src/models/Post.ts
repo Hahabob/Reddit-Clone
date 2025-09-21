@@ -1,6 +1,6 @@
 import { Document, Schema, model, ObjectId } from "mongoose";
+import { CommunityTopic } from "./Subreddit";
 
-//todo make topics field, on post creation inherits topics from community.
 export type PostContent =
   | { type: "text"; text: string }
   | { type: "image"; url: string; altText?: string }
@@ -25,6 +25,7 @@ export interface IPost extends Document {
   authorId: ObjectId;
   title: string;
   content: PostContent;
+  topics: string[];
   score: number;
   isNSFW: boolean;
   isSpoiler: boolean;
@@ -93,6 +94,21 @@ const postSchema: Schema<IPost> = new Schema(
     authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     title: { type: String, required: true },
     content: { type: postContentSchema, required: true },
+    topics: {
+      type: [
+        {
+          type: String,
+          enum: Object.values(CommunityTopic),
+        },
+      ],
+      validate: [
+        {
+          validator: (arr: string[]) => arr.length <= 3,
+          message: "A subreddit can have at most 3 topics.",
+        },
+      ],
+      default: [],
+    },
     score: { type: Number, required: true, default: 0 },
     isNSFW: { type: Boolean, default: false },
     isSpoiler: { type: Boolean, default: false },
