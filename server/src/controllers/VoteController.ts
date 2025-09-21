@@ -10,7 +10,7 @@ interface IVoteQuery {
   postId?: string;
   commentId?: string;
 }
-
+//!vote aggregation not workings
 export const VoteController = {
   async vote(req: Request, res: Response) {
     try {
