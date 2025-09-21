@@ -11,39 +11,6 @@ import {
   sortRising,
 } from "../utils/sortUtils";
 
-interface CommentTreeNode extends EnrichedComment {
-  replies: CommentTreeNode[];
-}
-//! build tree function not working
-const buildCommentTree = (
-  comments: EnrichedComment[],
-  parentId: string | null = null,
-  sortFn?: (arr: EnrichedComment[]) => EnrichedComment[]
-): CommentTreeNode[] => {
-  // Find direct children of the current parent
-  let children = comments.filter(
-    (c) =>
-      (c.parentId ? String(c.parentId) : null) ===
-      (parentId !== null ? String(parentId) : null)
-  );
-
-  // At root level → apply custom sort
-  if (parentId === null && sortFn) {
-    children = sortFn(children);
-  } else {
-    // At reply level → sort by createdAt ascending
-    children = children.sort(
-      (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-    );
-  }
-
-  // Build the recursive tree
-  return children.map((c) => ({
-    ...c,
-    replies: buildCommentTree(comments, c._id.toString(), sortFn),
-  }));
-};
-
 const CommentController = {
   //create comment on post
   async create(req: Request, res: Response) {
