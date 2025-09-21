@@ -4,8 +4,7 @@ import PostModel from "../models/Post";
 import CommentModel from "../models/Comment";
 import VoteModel from "../models/Vote";
 import { getAuth } from "@clerk/express";
-import { sortHot, sortNew, sortTop } from "../utils/sortUtils";
-
+//getbyid-change name
 const UserController = {
   async get(req: Request, res: Response) {
     try {
