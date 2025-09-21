@@ -15,7 +15,7 @@ interface ISubreddit extends Document {
   updatedAt: Date;
 }
 
-enum CommunityTopic {
+export enum CommunityTopic {
   Anime = "Anime",
   Arts = "Arts",
   Business = "Business",
