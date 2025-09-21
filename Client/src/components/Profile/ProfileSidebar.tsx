@@ -1,6 +1,7 @@
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import CameraIcon from "../../assets/cameraIcon.svg";
+import ShareIcon from "../../assets/share-icon.svg";
 
 interface ProfileSidebarProps {
   username: string;
@@ -32,7 +33,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
         } rounded-lg shadow-sm overflow-hidden`}
       >
         <div className="h-30 bg-gradient-to-b from-blue-900 to-black relative">
-          <button className="absolute bottom-4 right-2 p-2 bg-gray-800 rounded-full">
+          <button className="absolute bottom-4 right-2 p-2 bg-gray-300 dark:bg-gray-800 rounded-full">
             <CameraIcon />
           </button>
         </div>
@@ -42,28 +43,50 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
             {username}
           </h2>
           <button
-            className={`px-4 py-1 rounded-full text-sm mb-4 font-medium ${
+            className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs mb-4 font-medium cursor-pointer ${
               isDarkMode
                 ? "bg-gray-800 hover:bg-gray-700 text-white"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700"
             }`}
           >
+            <span className="w-3 h-3 flex items-center justify-center">
+              <ShareIcon />
+            </span>
             Share
           </button>
-          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
-            <div className="flex justify-between">
-              <span>0 followers</span>
+          <div className="flex font-bold text-xs text-gray-600 dark:text-gray-400 mb-2">
+            <span>0 followers</span>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-xs text-gray-600 dark:text-gray-400 mb-4">
+            <div className="flex flex-col">
+              <span className="font-semibold dark:text-white text-black">
+                1
+              </span>
+              <span>Karma</span>
             </div>
-            <div className="flex justify-between">
-              <span>1 Karma</span>
-              <span>0 Contributions</span>
+            <div className="flex flex-col">
+              <span className="font-semibold dark:text-white text-black">
+                0
+              </span>
+              <span>Contributions</span>
             </div>
-            <div className="flex justify-between">
-              <span>2m Reddit Age</span>
-              <span>0 Active in &gt;</span>
+            <div className="flex flex-col">
+              <span className="font-semibold dark:text-white text-black">
+                2 m
+              </span>
+              <span>Reddit Age</span>
             </div>
-            <div className="flex justify-between">
-              <span>0 Gold earned</span>
+            <div className="flex flex-col">
+              <span className="font-semibold dark:text-white text-black">
+                0
+              </span>
+              <span>Active in &gt;</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="font-semibold dark:text-white text-black">
+                0
+              </span>
+              <span>Gold earned</span>
             </div>
           </div>
         </div>
