@@ -10,6 +10,7 @@ import {
   sortControversial,
   sortRising,
 } from "../utils/sortUtils";
+import mongoose from "mongoose";
 
 const PostController = {
   async create(req: Request, res: Response) {
@@ -150,7 +151,7 @@ const PostController = {
         return;
       }
       const votes = await VoteModel.aggregate([
-        { $match: { postId: postId } },
+        { $match: { postId: new mongoose.Types.ObjectId(postId) } },
         {
           $group: {
             _id: "$postId",
