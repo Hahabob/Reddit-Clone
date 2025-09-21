@@ -14,7 +14,7 @@ import {
 interface CommentTreeNode extends EnrichedComment {
   replies: CommentTreeNode[];
 }
-
+//! build tree function not working
 const buildCommentTree = (
   comments: EnrichedComment[],
   parentId: string | null = null,
