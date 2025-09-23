@@ -8,6 +8,7 @@ import postRoutes from "./routes/post";
 import commentRoutes from "./routes/comment";
 import userRoutes from "./routes/user";
 import subredditRoutes from "./routes/subreddit";
+import searchRoutes from "./routes/search";
 import clerkWebhookRoutes from "./routes/clerkWebhook";
 import mongoose from "mongoose";
 import { clerkMiddleware } from "@clerk/express";
@@ -79,6 +80,7 @@ app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
 app.use("/subreddits", subredditRoutes);
+app.use("/search", searchRoutes);
 
 app.get("/", (req, res) => {
   res.json({ message: "Reddit Clone API Server" });
