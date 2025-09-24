@@ -254,18 +254,6 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex items-center space-x-2">
             <SignedIn>
-              <button
-                className={cn(
-                  "px-3 py-1.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
-                  "text-black bg-gray-200 hover:bg-gray-300"
-                )}
-              >
-                <IconWrapper size="sm">
-                  <PlusIcon />
-                </IconWrapper>
-                Create
-              </button>
-
               <div className="relative">
                 <button
                   className={cn(
@@ -347,12 +335,29 @@ export const Header: React.FC<HeaderProps> = ({
             </SignedIn>
 
             <SignedOut>
-              <button
-                onClick={() => setShowQRModal(true)}
-                className={cn(
-                  "px-3 py-2.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-2",
-                  "text-black bg-gray-200 hover:bg-gray-300",
-                  "hidden sm:flex"
+              <div className="relative">
+                <button
+                  onClick={() => setShowQRModal(true)}
+                  onMouseEnter={() => setShowGetAppTooltip(true)}
+                  onMouseLeave={() => setShowGetAppTooltip(false)}
+                  className={cn(
+                    "px-3 py-2.5 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-2",
+                    "text-black bg-gray-200 hover:bg-gray-300",
+                    "hidden sm:flex"
+                  )}
+                >
+                  <IconWrapper size="md">
+                    <QRCodeIcon />
+                  </IconWrapper>
+                  Get App
+                </button>
+                {showGetAppTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Get The Reddit App
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="relative">
