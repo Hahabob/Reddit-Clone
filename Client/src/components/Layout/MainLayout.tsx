@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { RightSidebar } from "./RightSidebar";
@@ -9,11 +10,23 @@ import { useTheme } from "../../contexts/ThemeContext";
 
 export const MainLayout: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const { user, isLoaded } = useUser();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const postFeedRef = useRef<PostFeedRef>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const isUserProfile = location.pathname.startsWith("/user/");
+
+  // Debug logging for authentication state
+  useEffect(() => {
+    if (isLoaded) {
+      console.log("MainLayout - User loaded:", !!user);
+      console.log(
+        "MainLayout - User details:",
+        user?.username || user?.firstName || "No username"
+      );
+    }
+  }, [isLoaded, user]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -43,6 +56,7 @@ export const MainLayout: React.FC = () => {
         onSearch={handleSearch}
         onGoToHome={handleGoToHome}
       />
+
       <div className="flex max-w-7xl mx-auto">
         <Sidebar
           isOpen={isSidebarOpen}

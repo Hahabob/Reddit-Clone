@@ -4,6 +4,7 @@ interface IUser extends Document {
   _id: ObjectId;
   clerkId: string;
   username: string; // unique cant ve changed
+  email?: string; // email from Clerk
   displayName?: string;
   about?: string;
   socialLinks?: string[];
@@ -30,6 +31,11 @@ const userSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows null/undefined values while maintaining uniqueness for existing emails
     },
     displayName: {
       type: String,

@@ -3,7 +3,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { SocketProvider } from "./contexts/SocketContext";
 import { MainLayout } from "./components/Layout/MainLayout";
 import SignInPage from "./pages/SignIn";
-import SignUpPage from "./pages/SignUp";
+import MultiStepSignUp from "./pages/MultiStepSignUp";
 import SSOCallback from "./pages/SSOCallback";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
           <div className="App">
             <Routes>
               <Route path="/sign-in/*" element={<SignInPage />} />
-              <Route path="/sign-up/*" element={<SignUpPage />} />
+              <Route path="/sign-up/*" element={<MultiStepSignUp />} />
               <Route path="/sso-callback" element={<SSOCallback />} />
               <Route path="/user/:username" element={<MainLayout />} />
               <Route path="/" element={<MainLayout />} />
