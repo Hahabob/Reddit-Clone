@@ -1,8 +1,10 @@
-import axios, { type AxiosResponse } from "axios";
+import axios, { type AxiosInstance } from "axios";
+import { useAuth } from "@clerk/clerk-react";
 
 const BACKEND_API_BASE = "http://localhost:3001";
 
-interface BackendUser {
+// User interface for type safety
+export interface BackendUser {
   _id: string;
   clerkId: string;
   username: string;
@@ -22,19 +24,51 @@ interface BackendUser {
   updatedAt?: string;
 }
 
-const backendApi = axios.create({
-  baseURL: BACKEND_API_BASE,
-});
-
-export const userApi = {
-  getUser: async (userId: string) => {
-    const response: AxiosResponse = await backendApi.get(`/users/${userId}`);
-    return response.data;
-  },
-  getAllUsers: async () => {
-    const response: AxiosResponse = await backendApi.get(`/users`);
-    return response.data;
-  },
+// Create base API instance
+const createApiInstance = (): AxiosInstance => {
+  return axios.create({
+    baseURL: BACKEND_API_BASE,
+    timeout: 10000, // 10 second timeout
+  });
 };
 
-export default backendApi;
+// Hook to get authenticated API instance
+export const useAuthenticatedApi = () => {
+  const { getToken, isSignedIn } = useAuth();
+
+  const getApi = async (): Promise<AxiosInstance> => {
+    const api = createApiInstance();
+
+    // Add authentication interceptor
+    api.interceptors.request.use(async (config) => {
+      if (isSignedIn) {
+        try {
+          const token = await getToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error("Failed to get auth token:", error);
+        }
+      }
+      return config;
+    });
+
+    // Add error response interceptor
+    api.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          console.error(
+            "Authentication failed - user may need to sign in again"
+          );
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return api;
+  };
+
+  return getApi;
+};
