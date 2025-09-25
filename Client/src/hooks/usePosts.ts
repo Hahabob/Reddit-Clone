@@ -207,3 +207,43 @@ export const useVotePost = () => {
     },
   });
 };
+
+export const useTagPostNsfw = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const api = await getApi();
+      const response = await api.patch(`/posts/${postId}/nsfw`);
+      return response.data;
+    },
+    onSuccess: (_, postId) => {
+      // Invalidate the specific post to refresh its NSFW status
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.posts.detail(postId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+    },
+  });
+};
+
+export const useTagPostSpoiler = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const api = await getApi();
+      const response = await api.patch(`/posts/${postId}/spoiler`);
+      return response.data;
+    },
+    onSuccess: (_, postId) => {
+      // Invalidate the specific post to refresh its spoiler status
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.posts.detail(postId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
+    },
+  });
+};

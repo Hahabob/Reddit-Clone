@@ -13,6 +13,8 @@ export {
   useUpdatePost,
   useDeletePost,
   useVotePost,
+  useTagPostNsfw,
+  useTagPostSpoiler,
 } from "./usePosts";
 
 // Comment hooks
@@ -24,6 +26,8 @@ export {
   useUpdateComment,
   useDeleteComment,
   useVoteComment,
+  useCreateCommentReply,
+  useRemoveComment,
 } from "./useComments";
 
 // User hooks
@@ -34,6 +38,10 @@ export {
   useUpdateUser,
   useFollowUser,
   useUnfollowUser,
+  useUsers,
+  useUserPosts,
+  useUserComments,
+  useUserOverview,
 } from "./useUsers";
 
 // Subreddit hooks
@@ -46,6 +54,7 @@ export {
   useUpdateSubreddit,
   useJoinSubreddit,
   useLeaveSubreddit,
+  useSubredditPosts,
 } from "./useSubreddits";
 
 // Search hooks

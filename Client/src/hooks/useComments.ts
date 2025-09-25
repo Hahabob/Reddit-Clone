@@ -208,3 +208,56 @@ export const useVoteComment = () => {
     },
   });
 };
+
+// Comment Reply Hook
+export const useCreateCommentReply = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async ({
+      commentId,
+      replyData,
+    }: {
+      commentId: string;
+      replyData: CreateCommentData;
+    }) => {
+      const api = await getApi();
+      const response = await api.post(
+        `/comments/${commentId}/replies`,
+        replyData
+      );
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate replies for the parent comment
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.comments.replies(variables.commentId),
+      });
+
+      // Invalidate all comments to refresh counts
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+    },
+  });
+};
+
+// Moderator Remove Comment Hook
+export const useRemoveComment = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      const api = await getApi();
+      const response = await api.patch(`/comments/${commentId}/remove`);
+      return response.data;
+    },
+    onSuccess: (_, commentId) => {
+      // Invalidate the specific comment and lists
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.comments.detail(commentId),
+      });
+      queryClient.invalidateQueries({ queryKey: ["comments"] });
+    },
+  });
+};

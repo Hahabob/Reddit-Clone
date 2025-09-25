@@ -133,3 +133,59 @@ export const useUnfollowUser = () => {
     },
   });
 };
+
+// Additional User Data Hooks
+export const useUsers = () => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: queryKeys.users.all,
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get("/users");
+      return response.data;
+    },
+  });
+};
+
+export const useUserPosts = (userId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: queryKeys.posts.byUser(userId),
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/users/${userId}/posts`);
+      return response.data;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useUserComments = (userId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ["users", userId, "comments"],
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/users/${userId}/comments`);
+      return response.data;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useUserOverview = (userId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ["users", userId, "overview"],
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/users/${userId}/overview`);
+      return response.data;
+    },
+    enabled: !!userId,
+  });
+};

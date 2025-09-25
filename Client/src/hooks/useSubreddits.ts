@@ -204,3 +204,18 @@ export const useLeaveSubreddit = () => {
     },
   });
 };
+
+// Get posts for a specific subreddit
+export const useSubredditPosts = (subredditId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ["subreddits", subredditId, "posts"],
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/subreddits/${subredditId}/posts`);
+      return response.data;
+    },
+    enabled: !!subredditId,
+  });
+};
