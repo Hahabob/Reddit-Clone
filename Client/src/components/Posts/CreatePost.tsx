@@ -14,7 +14,6 @@ const CreatePost: React.FC = () => {
   const [bodyText, setBodyText] = useState("");
 
   const handlePost = () => {
-    // TODO: Implement post creation logic
     console.log("Creating post:", {
       title,
       linkUrl,
@@ -24,7 +23,6 @@ const CreatePost: React.FC = () => {
   };
 
   const handleSaveDraft = () => {
-    // TODO: Implement draft saving logic
     console.log("Saving draft:", {
       title,
       linkUrl,
@@ -46,9 +44,7 @@ const CreatePost: React.FC = () => {
         isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
       }`}
     >
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h1
@@ -69,7 +65,6 @@ const CreatePost: React.FC = () => {
             </button>
           </div>
 
-          {/* Community/User Selector */}
           <div className="mb-6">
             <div
               className={`inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-pointer ${
@@ -109,7 +104,6 @@ const CreatePost: React.FC = () => {
           </div>
         </div>
 
-        {/* Post Type Tabs */}
         <div className="mb-6">
           {tabs.map((tab) => (
             <button
@@ -129,7 +123,6 @@ const CreatePost: React.FC = () => {
           ))}
         </div>
 
-        {/* Poll Tab - Special Message */}
         {activeTab === "poll" && (
           <div
             className={`border rounded-lg p-4 mb-6 ${
@@ -170,10 +163,8 @@ const CreatePost: React.FC = () => {
           </div>
         )}
 
-        {/* Form Content */}
         {activeTab !== "poll" && (
           <div className="space-y-6">
-            {/* Title Field */}
             <div>
               <div className="relative">
                 <input
@@ -201,7 +192,6 @@ const CreatePost: React.FC = () => {
               </div>
             </div>
 
-            {/* Tags Field */}
             <div>
               <button
                 className={`px-4 py-2 rounded-full text-sm font-semibold cursor-pointer ${
@@ -214,7 +204,6 @@ const CreatePost: React.FC = () => {
               </button>
             </div>
 
-            {/* Link URL Field - Only for Link tab */}
             {activeTab === "link" && (
               <div>
                 <div className="relative">
@@ -239,7 +228,6 @@ const CreatePost: React.FC = () => {
               </div>
             )}
 
-            {/* Media Upload Area - Only for Images tab */}
             {activeTab === "images" && (
               <div
                 className={`border-2 border-dashed rounded-lg p-15 text-center  ${
@@ -261,9 +249,7 @@ const CreatePost: React.FC = () => {
               </div>
             )}
 
-            {/* Body Text Editor */}
             <div>
-              {/* Rich Text Editor Toolbar */}
               <div
                 className={`border rounded-t-lg border-b-0 p-2 flex items-center gap-2 ${
                   isDarkMode
@@ -314,7 +300,6 @@ const CreatePost: React.FC = () => {
               />
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-end gap-3 pt-4">
               <button
                 onClick={handleSaveDraft}
@@ -349,7 +334,6 @@ const CreatePost: React.FC = () => {
         )}
       </div>
 
-      {/* Footer */}
       <footer className="mt-auto pt-8 mb-8">
         <div className="flex flex-wrap gap-2 text-sm">
           <a
