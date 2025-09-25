@@ -28,7 +28,7 @@ Built as a final project in a fullstack development course.
 - **Frontend**
 
   - Reddit-style layout with feeds, sidebars, and navigation
-  - Built with React/Next.js and styled with TailwindCSS
+  - Built with React and styled with TailwindCSS
   - API requests managed with Axios
 
 - **Backend**
@@ -48,7 +48,7 @@ Built as a final project in a fullstack development course.
 
 **Frontend**
 
-- React / Next.js
+- React
 - TailwindCSS
 - Axios
 
@@ -86,3 +86,20 @@ reddit-clone/
 │ └── utils/ # Axios API calls
 │
 └── README.md
+
+---
+
+## 📸 Image uploads (Cloudinary)
+
+Server requires these environment variables in `server/.env`:
+
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+Client can set `VITE_SERVER_URL` to the server origin (defaults to `http://localhost:3001`).
+
+Upload endpoint:
+
+- `POST /upload/image` with `multipart/form-data`, field `file`
+- Response JSON: `{ url, public_id, width, height, format }`
