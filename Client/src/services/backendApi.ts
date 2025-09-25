@@ -3,7 +3,6 @@ import { useAuth } from "@clerk/clerk-react";
 
 const BACKEND_API_BASE = "http://localhost:3001";
 
-// User interface for type safety
 export interface BackendUser {
   _id: string;
   clerkId: string;
@@ -24,22 +23,19 @@ export interface BackendUser {
   updatedAt?: string;
 }
 
-// Create base API instance
 const createApiInstance = (): AxiosInstance => {
   return axios.create({
     baseURL: BACKEND_API_BASE,
-    timeout: 10000, // 10 second timeout
+    timeout: 10000,
   });
 };
 
-// Hook to get authenticated API instance
 export const useAuthenticatedApi = () => {
   const { getToken, isSignedIn } = useAuth();
 
   const getApi = async (): Promise<AxiosInstance> => {
     const api = createApiInstance();
 
-    // Add authentication interceptor
     api.interceptors.request.use(async (config) => {
       if (isSignedIn) {
         try {
@@ -54,7 +50,6 @@ export const useAuthenticatedApi = () => {
       return config;
     });
 
-    // Add error response interceptor
     api.interceptors.response.use(
       (response) => response,
       (error) => {
