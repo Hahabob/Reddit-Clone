@@ -232,7 +232,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             <span
               className={cn(
                 "text-sm",
-                isDarkMode ? "text-gray-500" : "text-gray-400"
+                isDarkMode ? "text-gray-400" : "text-gray-500"
               )}
             >
               • {formatTimeAgo(post.created_utc)}

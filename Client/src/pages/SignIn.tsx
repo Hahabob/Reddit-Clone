@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { cn } from "../lib/utils";
+import { useTheme } from "../contexts/ThemeContext";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -13,6 +14,7 @@ const signInSchema = z.object({
 type SignInFormData = z.infer<typeof signInSchema>;
 
 const CustomSignIn: React.FC = () => {
+  const { isDarkMode } = useTheme();
   const { signIn, isLoaded } = useSignIn();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,20 +36,48 @@ const CustomSignIn: React.FC = () => {
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Google sign-in error:", err);
 
-      if (err.errors) {
-        err.errors.forEach((error: any) => {
+      if (err && typeof err === "object" && "errors" in err) {
+        const errorObj = err as {
+          errors: Array<{ longMessage?: string; message?: string }>;
+        };
+        errorObj.errors.forEach((error) => {
           console.error("OAuth error:", error.longMessage || error.message);
         });
       }
-
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const onSubmit = async (_data: SignInFormData) => {
+  const handleAppleSignIn = async () => {
+    if (!isLoaded) return;
+
+    try {
+      setIsLoading(true);
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_apple",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/",
+      });
+    } catch (err: unknown) {
+      console.error("Apple sign-in error:", err);
+
+      if (err && typeof err === "object" && "errors" in err) {
+        const errorObj = err as {
+          errors: Array<{ longMessage?: string; message?: string }>;
+        };
+        errorObj.errors.forEach((error) => {
+          console.error("OAuth error:", error.longMessage || error.message);
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const onSubmit = async () => {
     if (!isLoaded) return;
 
     setIsLoading(true);
@@ -56,7 +86,7 @@ const CustomSignIn: React.FC = () => {
         message:
           "Email-only sign-in coming soon. Please use Google sign-in for now.",
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Sign-in error:", err);
       setError("email", { message: "Something went wrong. Please try again." });
     } finally {
@@ -64,7 +94,11 @@ const CustomSignIn: React.FC = () => {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-12">
+    <div
+      className={`min-h-screen flex items-center justify-center px-4 py-12 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-100"
+      }`}
+    >
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
@@ -75,13 +109,25 @@ const CustomSignIn: React.FC = () => {
             />
           </Link>
         </div>
-
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+        <div
+          className={`rounded-2xl shadow-lg border p-8 ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <h1
+            className={`text-2xl font-bold text-center mb-2 ${
+              isDarkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
             Log In
           </h1>
-
-          <p className="text-xs text-center text-gray-600 mb-6">
+          <p
+            className={`text-xs text-center mb-6 ${
+              isDarkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             By continuing, you agree to our{" "}
             <Link
               to="/user-agreement"
@@ -102,7 +148,12 @@ const CustomSignIn: React.FC = () => {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full py-3 px-4 mb-4 border border-gray-300 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3"
+            aria-label="Sign in with Google"
+            className={`w-full py-3 px-4 mb-4 border rounded-full font-medium transition-colors flex items-center justify-center space-x-3 cursor-pointer ${
+              isDarkMode
+                ? "border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600"
+                : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+            }`}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -127,8 +178,14 @@ const CustomSignIn: React.FC = () => {
 
           <button
             type="button"
+            onClick={handleAppleSignIn}
             disabled={isLoading}
-            className="w-full py-3 px-4 mb-6 border border-gray-300 rounded-full font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center space-x-3"
+            aria-label="Sign in with Apple"
+            className={`w-full py-3 px-4 mb-6 border rounded-full font-medium transition-colors flex items-center justify-center space-x-3 cursor-pointer ${
+              isDarkMode
+                ? "border-gray-600 text-gray-300 bg-gray-700 hover:bg-gray-600"
+                : "border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+            }`}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
@@ -138,10 +195,22 @@ const CustomSignIn: React.FC = () => {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
+              <div
+                className={`w-full border-t ${
+                  isDarkMode ? "border-gray-600" : "border-gray-300"
+                }`}
+              ></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">OR</span>
+              <span
+                className={`px-2 ${
+                  isDarkMode
+                    ? "bg-gray-800 text-gray-400"
+                    : "bg-white text-gray-500"
+                }`}
+              >
+                OR
+              </span>
             </div>
           </div>
 
@@ -152,10 +221,15 @@ const CustomSignIn: React.FC = () => {
                 type="email"
                 placeholder="Email or username *"
                 className={cn(
-                  "w-full px-4 py-3 rounded-full border bg-gray-100 text-gray-900 placeholder-gray-500 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent",
+                  "w-full px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent",
+                  isDarkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-gray-100 border-transparent text-gray-900 placeholder-gray-500",
                   errors.email
-                    ? "border-red-500 bg-red-50"
-                    : "border-transparent"
+                    ? isDarkMode
+                      ? "border-red-500 bg-red-900/20"
+                      : "border-red-500 bg-red-50"
+                    : ""
                 )}
               />
               {errors.email && (
@@ -168,7 +242,7 @@ const CustomSignIn: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold rounded-full transition-colors"
+              className="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold rounded-full transition-colors cursor-pointer"
             >
               {isLoading ? "Signing In..." : "Log In"}
             </button>
@@ -185,7 +259,11 @@ const CustomSignIn: React.FC = () => {
         </div>
 
         <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+          <p
+            className={`text-sm ${
+              isDarkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             New to Reddit?{" "}
             <Link
               to="/sign-up"

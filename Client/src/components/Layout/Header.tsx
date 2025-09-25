@@ -110,11 +110,9 @@ export const Header: React.FC<HeaderProps> = ({
         setShowMoreMenu(false);
       }
     };
-
     if (showMoreMenu) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -268,7 +266,6 @@ export const Header: React.FC<HeaderProps> = ({
                   </IconWrapper>
                 </button>
               </div>
-
               <div className="relative">
                 <button
                   className={cn(
