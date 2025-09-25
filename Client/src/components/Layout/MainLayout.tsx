@@ -4,6 +4,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { RightSidebar } from "./RightSidebar";
 import { PostFeed, type PostFeedRef } from "../Posts/PostFeed";
+import CreatePost from "../Posts/CreatePost";
 import { ProfilePage } from "../../pages/ProfilePage";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -14,6 +15,7 @@ export const MainLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isUserProfile = location.pathname.startsWith("/user/");
+  const isCreatePost = location.pathname === "/create-post";
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -51,6 +53,12 @@ export const MainLayout: React.FC = () => {
         />
         {isUserProfile ? (
           <ProfilePage />
+        ) : isCreatePost ? (
+          <div className="flex-1 flex justify-center">
+            <main className="w-full max-w-2xl p-4 mr-50">
+              <CreatePost />
+            </main>
+          </div>
         ) : (
           <div className="flex-1 flex ml-50">
             <main className="flex-1 min-h-screen max-w-2xl p-4">
