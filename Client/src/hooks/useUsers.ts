@@ -1,0 +1,135 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthenticatedApi, type BackendUser } from "../services/backendApi";
+import { queryKeys } from "../services/queryKeys";
+
+// Types
+export interface UpdateUserData {
+  displayName?: string;
+  about?: string;
+  socialLinks?: string[];
+  avatarUrl?: string;
+  bannerUrl?: string;
+  gender?: string;
+}
+
+// QUERY HOOKS
+export const useUser = (userId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: queryKeys.users.detail(userId),
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/users/${userId}`);
+      return response.data as BackendUser;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useUserProfile = (userId: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: queryKeys.users.profile(userId),
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/users/${userId}/profile`);
+      return response.data;
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useCurrentUser = () => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ["users", "current"],
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get("/users/me");
+      return response.data as BackendUser;
+    },
+  });
+};
+
+// MUTATION HOOKS
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      data,
+    }: {
+      userId: string;
+      data: UpdateUserData;
+    }) => {
+      const api = await getApi();
+      const response = await api.patch(`/users/${userId}`, data);
+      return response.data as BackendUser;
+    },
+    onSuccess: (updatedUser, variables) => {
+      // Update the specific user in cache
+      queryClient.setQueryData(
+        queryKeys.users.detail(variables.userId),
+        updatedUser
+      );
+
+      // Update profile cache if it exists
+      queryClient.setQueryData(
+        queryKeys.users.profile(variables.userId),
+        updatedUser
+      );
+
+      // If updating current user, update that cache too
+      queryClient.invalidateQueries({ queryKey: ["users", "current"] });
+    },
+  });
+};
+
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const api = await getApi();
+      const response = await api.post(`/users/${userId}/follow`);
+      return response.data;
+    },
+    onSuccess: (_, userId) => {
+      // Invalidate user data to refresh follow status
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.detail(userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.profile(userId),
+      });
+    },
+  });
+};
+
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient();
+  const getApi = useAuthenticatedApi();
+
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const api = await getApi();
+      const response = await api.delete(`/users/${userId}/follow`);
+      return response.data;
+    },
+    onSuccess: (_, userId) => {
+      // Invalidate user data to refresh follow status
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.detail(userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.users.profile(userId),
+      });
+    },
+  });
+};
