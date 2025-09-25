@@ -58,7 +58,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
 
   return (
     <div>
-      <div className="w-70 bg-gray-100 dark:bg-gray-900 rounded-b-2xl overflow-hidden">
+      <div className="w-70 bg-gray-100 dark:bg-black rounded-b-2xl overflow-hidden">
         <div className={`${isDarkMode ? "bg-transparent" : "bg-gray-100"}`}>
           <div className="h-25 bg-gradient-to-b from-blue-900 to-black rounded-t-lg relative">
             <button className="absolute bottom-4 right-2 p-2 bg-gray-300 dark:bg-gray-800 rounded-full hover:bg-gray-400 dark:hover:bg-gray-700 cursor-pointer">
@@ -156,7 +156,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
             <button
               className={`px-3 py-2 rounded-full text-xs font-medium cursor-pointer ${
                 isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-white hover:underline"
+                  ? "bg-gray-800 hover:bg-gray-700 text-white hover:underline"
                   : "bg-gray-200 hover:bg-gray-300 text-black hover:underline"
               }`}
             >
@@ -187,7 +187,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
                 <button
                   className={`px-3 py-2 rounded-full text-xs font-medium cursor-pointer ${
                     isDarkMode
-                      ? "bg-gray-700 hover:bg-gray-600 text-white"
+                      ? "bg-gray-800 hover:bg-gray-700 text-white"
                       : "bg-gray-200 hover:bg-gray-300 text-black hover:underline"
                   }`}
                 >
@@ -208,13 +208,13 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
             SOCIAL LINKS
           </h3>
           <button
-            className={`flex items-center justify-center px-3 rounded-full cursor-pointer ${
+            className={`flex items-center justify-center px-3 rounded-full cursor-pointer mb-3 ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
+                ? "bg-gray-800 hover:bg-gray-700 text-white"
                 : "bg-gray-200 hover:bg-gray-300 text-black"
             }`}
           >
-            <span className="text-xl font-normal mr-1.5">+</span>
+            <span className="text-2xl font-thin mr-1.5 mb-1">+</span>
             <span className="hover:underline text-xs font-medium">
               Add Social Link
             </span>

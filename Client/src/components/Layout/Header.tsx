@@ -279,11 +279,12 @@ export const Header: React.FC<HeaderProps> = ({
                     <ChatIcon />
                   </IconWrapper>
                 </button>
-                <div className="absolute top-1 -right-1 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-top justify-center">
+                <div className="absolute top-1 -right-1 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                   1
                 </div>
               </div>
               <button
+                onClick={() => navigate("/create-post")}
                 className={cn(
                   "px-3 py-1 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
                   isDarkMode
@@ -307,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <NotificationsIconSvg />
                   </IconWrapper>
                 </button>
-                <div className="absolute top-1 -right-0.5 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-top justify-center">
+                <div className="absolute top-1 -right-0.5 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                   1
                 </div>
               </div>
@@ -396,7 +397,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 -ml-12 mt-2 z-50">
                     <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
                       Open Settings Menu
-                      <div className="absolute -top-0.5 right-1/15 transform -translate-x-1/2 w-3 h-3 bg-black rotate-45"></div>
+                      <div className="absolute -top-0.5 right-1/15 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
                     </div>
                   </div>
                 )}
