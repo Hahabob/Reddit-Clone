@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
-// Types
 export interface CreatePostData {
   title: string;
   content?: string;
@@ -17,7 +16,6 @@ export interface UpdatePostData {
   content?: string;
 }
 
-// QUERY HOOKS
 export const usePosts = () => {
   const getApi = useAuthenticatedApi();
 
@@ -72,7 +70,6 @@ export const usePostsFeed = (feedType: "home" | "popular" | "new" = "home") => {
   });
 };
 
-// MUTATION HOOKS
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();

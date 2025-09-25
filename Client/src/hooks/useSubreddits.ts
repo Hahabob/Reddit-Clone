@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
-// Types
 export interface CreateSubredditData {
   name: string;
   displayName: string;
@@ -22,7 +21,6 @@ export interface UpdateSubredditData {
   allowPolls?: boolean;
 }
 
-// QUERY HOOKS
 export const useSubreddits = () => {
   const getApi = useAuthenticatedApi();
 
@@ -77,7 +75,6 @@ export const useJoinedSubreddits = (userId: string) => {
   });
 };
 
-// MUTATION HOOKS
 export const useCreateSubreddit = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();
@@ -142,9 +139,7 @@ export const useJoinSubreddit = () => {
       // Invalidate joined subreddits for current user
       queryClient.invalidateQueries({ queryKey: ["subreddits", "joined"] });
     },
-    // Optimistic update
     onMutate: async (subredditId) => {
-      // Find subreddit in cache and optimistically update join status
       const subredditQueries = queryClient.getQueriesData({
         queryKey: ["subreddits"],
       });
@@ -181,7 +176,6 @@ export const useLeaveSubreddit = () => {
       // Invalidate all subreddit-related queries
       queryClient.invalidateQueries({ queryKey: ["subreddits"] });
     },
-    // Optimistic update
     onMutate: async (subredditId) => {
       const subredditQueries = queryClient.getQueriesData({
         queryKey: ["subreddits"],
@@ -205,7 +199,6 @@ export const useLeaveSubreddit = () => {
   });
 };
 
-// Get posts for a specific subreddit
 export const useSubredditPosts = (subredditId: string) => {
   const getApi = useAuthenticatedApi();
 
