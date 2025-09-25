@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import wonderingSnoo from "../../assets/wonderingSnoo.png";
 import defaultAvatar from "../../assets/defaultAvatar.png";
@@ -16,6 +16,7 @@ interface ProfileTab {
 export const UserProfile: React.FC = () => {
   const { isDarkMode } = useTheme();
   const { username } = useParams<{ username: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState("New");
@@ -270,6 +271,7 @@ export const UserProfile: React.FC = () => {
 
       <div className="flex items-center space-x-2 ml-8">
         <button
+          onClick={() => navigate("/create-post")}
           className={`px-2 h-7 rounded-full cursor-pointer flex items-center ${
             isDarkMode
               ? "bg-black border-1 border-gray-400 text-gray-300 hover:border-white hover:text-white"
