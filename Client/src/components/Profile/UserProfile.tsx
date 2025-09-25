@@ -273,8 +273,8 @@ export const UserProfile: React.FC = () => {
         <button
           className={`px-2 h-7 rounded-full cursor-pointer flex items-center ${
             isDarkMode
-              ? "bg-black border-4 border-gray-400 text-gray-300 hover:border-white hover:text-white"
-              : "bg-white border-4 border-gray-500 hover:border-black text-black"
+              ? "bg-black border-1 border-gray-400 text-gray-300 hover:border-white hover:text-white"
+              : "bg-white border-1 border-gray-500 hover:border-black text-black"
           }`}
         >
           <span className="text-2xl font-thin mr-1 mb-1">+</span>
