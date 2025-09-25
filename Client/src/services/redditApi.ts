@@ -21,13 +21,11 @@ const buildQueryString = (
   params: Record<string, string | number | boolean | undefined>
 ): string => {
   const searchParams = new URLSearchParams();
-
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       searchParams.append(key, value.toString());
     }
   });
-
   return searchParams.toString();
 };
 
@@ -47,7 +45,6 @@ export const postsApi = {
     const url = `/r/${subreddit}/${sort}${
       queryString ? `?${queryString}` : ""
     }`;
-
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       url
     );
@@ -66,7 +63,6 @@ export const postsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/posts/${sort}${queryString ? `?${queryString}` : ""}`;
-
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       url
     );
@@ -77,11 +73,9 @@ export const postsApi = {
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       `/by_id/${postId}`
     );
-
     if (response.data.data.children.length === 0) {
       throw new Error("Post not found");
     }
-
     return response.data.data.children[0].data;
   },
 
@@ -101,7 +95,6 @@ export const postsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/search?${queryString}`;
-
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       url
     );
@@ -125,7 +118,6 @@ export const commentsApi = {
     const url = `/r/${subreddit}/comments/${postId}${
       queryString ? `?${queryString}` : ""
     }`;
-
     const response: AxiosResponse<RedditCommentsResponse> = await redditApi.get(
       url
     );
@@ -153,7 +145,6 @@ export const commentsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/api/morechildren.json?${queryString}`;
-
     const response: AxiosResponse<RedditCommentsResponse> = await redditApi.get(
       url
     );
@@ -173,7 +164,6 @@ export const subredditsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/subreddits/popular${queryString ? `?${queryString}` : ""}`;
-
     const response: AxiosResponse<RedditSubredditsResponse> =
       await redditApi.get(url);
     return response.data;
@@ -190,7 +180,6 @@ export const subredditsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/subreddits/new.json${queryString ? `?${queryString}` : ""}`;
-
     const response: AxiosResponse<RedditSubredditsResponse> =
       await redditApi.get(url);
     return response.data;
@@ -209,7 +198,6 @@ export const subredditsApi = {
     const url = `/subreddits/default.json${
       queryString ? `?${queryString}` : ""
     }`;
-
     const response: AxiosResponse<RedditSubredditsResponse> =
       await redditApi.get(url);
     return response.data;
@@ -218,7 +206,6 @@ export const subredditsApi = {
   getSubreddit: async (subredditName: string): Promise<RedditSubreddit> => {
     const response: AxiosResponse<{ data: RedditSubreddit }> =
       await redditApi.get(`/r/${subredditName}/about.json?raw_json=1`);
-
     return response.data.data;
   },
 
@@ -234,7 +221,6 @@ export const subredditsApi = {
 
     const queryString = buildQueryString(params);
     const url = `/subreddits/search.json?${queryString}`;
-
     const response: AxiosResponse<RedditSubredditsResponse> =
       await redditApi.get(url);
     return response.data;
@@ -254,7 +240,6 @@ export const usersApi = {
     const response: AxiosResponse<{ data: RedditUser }> = await redditApi.get(
       `/user/${username}/about.json?raw_json=1`
     );
-
     return response.data.data;
   },
 
@@ -273,7 +258,6 @@ export const usersApi = {
 
     const queryString = buildQueryString(params);
     const url = `/user/${username}/submitted.json?${queryString}`;
-
     const response: AxiosResponse<RedditPostsResponse> = await redditApi.get(
       url
     );
@@ -295,7 +279,6 @@ export const usersApi = {
 
     const queryString = buildQueryString(params);
     const url = `/user/${username}/comments.json?${queryString}`;
-
     const response: AxiosResponse<RedditCommentsResponse> = await redditApi.get(
       url
     );

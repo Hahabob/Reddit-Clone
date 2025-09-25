@@ -59,9 +59,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
   return (
     <div>
       <div className="w-70 bg-gray-100 dark:bg-gray-900 rounded-b-2xl overflow-hidden">
-        {/* Profile Banner */}
         <div className={`${isDarkMode ? "bg-transparent" : "bg-gray-100"}`}>
-          <div className="h-25 bg-gradient-to-b from-blue-900 to-black  rounded-t-lg relative">
+          <div className="h-25 bg-gradient-to-b from-blue-900 to-black rounded-t-lg relative">
             <button className="absolute bottom-4 right-2 p-2 bg-gray-300 dark:bg-gray-800 rounded-full hover:bg-gray-400 dark:hover:bg-gray-700 cursor-pointer">
               <CameraIcon />
             </button>
@@ -167,9 +166,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
         </div>
 
         <hr className="-mt-1 my-3 mx-3 border-gray-200 dark:border-[#ffffff19]" />
-        <div
-          className={`${isDarkMode ? "bg-transparent" : "bg-gray-100 "} p-4`}
-        >
+        <div className={`${isDarkMode ? "bg-transparent" : "bg-gray-100"} p-4`}>
           <h3 className="text-sm font-semibold text-gray-500 dark:text-white mb-4 -mt-3">
             SETTINGS
           </h3>
@@ -204,20 +201,19 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
         <hr className="-mt-1 my-3 mx-3 border-gray-200 dark:border-[#ffffff19]" />
         <div
           className={`${
-            isDarkMode ? "bg-transparent" : "bg-gray-100 "
+            isDarkMode ? "bg-transparent" : "bg-gray-100"
           } p-4 -mt-3`}
         >
           <h3 className="text-sm font-semibold text-gray-500 dark:text-white mb-4">
             SOCIAL LINKS
           </h3>
           <button
-            className={`flex items-center justify-center  px-3 rounded-full cursor-pointer ${
+            className={`flex items-center justify-center px-3 rounded-full cursor-pointer ${
               isDarkMode
                 ? "bg-gray-700 hover:bg-gray-600 text-white"
                 : "bg-gray-200 hover:bg-gray-300 text-black"
             }`}
           >
-            {" "}
             <span className="text-xl font-normal mr-1.5">+</span>
             <span className="hover:underline text-xs font-medium">
               Add Social Link
@@ -226,18 +222,18 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
         </div>
       </div>
 
-      <div className=" p-4 text-xs text-gray-500 font-normal dark:text-gray-400 space-y-1">
+      <div className="p-4 text-xs text-gray-500 font-normal dark:text-gray-400 space-y-1">
         <div className="flex flex-wrap gap-x-2 gap-y-2">
-          <a href="#" className=" hover:text-black dark:hover:text-white">
+          <a href="#" className="hover:text-black dark:hover:text-white">
             Reddit Rules
           </a>
-          <a href="#" className=" hover:text-black dark:hover:text-white">
+          <a href="#" className="hover:text-black dark:hover:text-white">
             Privacy Policy
           </a>
-          <a href="#" className=" hover:text-black dark:hover:text-white">
+          <a href="#" className="hover:text-black dark:hover:text-white">
             User Agreement
           </a>
-          <a href="#" className=" hover:text-black dark:hover:text-white">
+          <a href="#" className="hover:text-black dark:hover:text-white">
             Accessibility
           </a>
         </div>
