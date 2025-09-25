@@ -3,14 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
-// Types
 export interface SearchOptions {
   sort?: "relevance" | "new" | "top";
   time?: "hour" | "day" | "week" | "month" | "year" | "all";
   subreddit?: string;
 }
 
-// QUERY HOOKS
 export const useSearchPosts = (query: string, options: SearchOptions = {}) => {
   const getApi = useAuthenticatedApi();
 
@@ -27,7 +25,7 @@ export const useSearchPosts = (query: string, options: SearchOptions = {}) => {
       return response.data;
     },
     enabled: !!query && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5, // 5 minutes - search results don't change often
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -81,7 +79,6 @@ export const useSearchAll = (query: string, options: SearchOptions = {}) => {
   });
 };
 
-// Debounced search hook for instant search
 export const useDebounceSearch = (query: string, delay: number = 300) => {
   const [debouncedQuery, setDebouncedQuery] = React.useState(query);
 

@@ -2,17 +2,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
-// Types
 export interface CreateCommentData {
   content: string;
-  parentId?: string; // For nested comments
+  parentId?: string;
 }
 
 export interface UpdateCommentData {
   content: string;
 }
 
-// QUERY HOOKS
 export const useComments = (postId: string) => {
   const getApi = useAuthenticatedApi();
 
@@ -55,7 +53,6 @@ export const useCommentReplies = (commentId: string) => {
   });
 };
 
-// MUTATION HOOKS
 export const useCreateComment = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();
@@ -209,7 +206,6 @@ export const useVoteComment = () => {
   });
 };
 
-// Comment Reply Hook
 export const useCreateCommentReply = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();
@@ -241,7 +237,6 @@ export const useCreateCommentReply = () => {
   });
 };
 
-// Moderator Remove Comment Hook
 export const useRemoveComment = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();

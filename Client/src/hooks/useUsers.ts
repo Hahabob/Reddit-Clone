@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthenticatedApi, type BackendUser } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
-// Types
 export interface UpdateUserData {
   displayName?: string;
   about?: string;
@@ -12,7 +11,6 @@ export interface UpdateUserData {
   gender?: string;
 }
 
-// QUERY HOOKS
 export const useUser = (userId: string) => {
   const getApi = useAuthenticatedApi();
 
@@ -54,7 +52,6 @@ export const useCurrentUser = () => {
   });
 };
 
-// MUTATION HOOKS
 export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();
@@ -134,7 +131,6 @@ export const useUnfollowUser = () => {
   });
 };
 
-// Additional User Data Hooks
 export const useUsers = () => {
   const getApi = useAuthenticatedApi();
 

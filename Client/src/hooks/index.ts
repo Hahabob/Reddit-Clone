@@ -1,9 +1,3 @@
-/**
- * Centralized export for all API hooks
- * This provides clean imports: import { usePosts, useCreatePost } from '@/hooks'
- */
-
-// Post hooks
 export {
   usePosts,
   usePost,
@@ -17,7 +11,6 @@ export {
   useTagPostSpoiler,
 } from "./usePosts";
 
-// Comment hooks
 export {
   useComments,
   useComment,
@@ -30,7 +23,6 @@ export {
   useRemoveComment,
 } from "./useComments";
 
-// User hooks
 export {
   useUser,
   useUserProfile,
@@ -44,7 +36,6 @@ export {
   useUserOverview,
 } from "./useUsers";
 
-// Subreddit hooks
 export {
   useSubreddits,
   useSubreddit,
@@ -57,7 +48,6 @@ export {
   useSubredditPosts,
 } from "./useSubreddits";
 
-// Search hooks
 export {
   useSearchPosts,
   useSearchSubreddits,
@@ -66,11 +56,9 @@ export {
   useDebounceSearch,
 } from "./useSearch";
 
-// Core services (for advanced usage)
 export { useAuthenticatedApi } from "../services/backendApi";
 export { queryKeys } from "../services/queryKeys";
 
-// Types (re-export for convenience)
 export type { BackendUser } from "../services/backendApi";
 export type { CreatePostData, UpdatePostData } from "./usePosts";
 export type { CreateCommentData, UpdateCommentData } from "./useComments";
