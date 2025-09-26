@@ -3,6 +3,13 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
 import defaultAvatar from "../../assets/defaultAvatar.png";
 import UploadPicIcon from "../../assets/uploadPicIcon.svg";
+import LinkIcon from "../../assets/link-icon.svg";
+import ImageAddIcon from "../../assets/image-add-icon.svg";
+import VideoIcon from "../../assets/videoIcon.svg";
+import BulletListIcon from "../../assets/bulletListIcon.svg";
+import NumberListIcon from "../../assets/numberListIcon.svg";
+import SpoilerAlertIcon from "../../assets/spoilerAlertIcon.svg";
+import QuoteBlockIcon from "../../assets/quoteBlockIcon.svg";
 
 const CreatePost: React.FC = () => {
   const { isDarkMode } = useTheme();
@@ -251,7 +258,7 @@ const CreatePost: React.FC = () => {
 
             <div>
               <div
-                className={`border rounded-t-2xl border-b-0 p-1  flex items-center gap-1 ${
+                className={`border rounded-t-2xl border-b-0 p-1  flex items-center gap-0.5 ${
                   isDarkMode
                     ? "border-gray-600 bg-black"
                     : "border-gray-300 bg-white"
@@ -277,24 +284,37 @@ const CreatePost: React.FC = () => {
                     <span className="text-[20px] leading-none">T</span>
                   </div>
                 </button>
-
                 <div
                   className={`w-1 h-4 ${
                     isDarkMode ? "bg-gray-600" : "bg-gray-200"
                   }`}
                 ></div>
-
-                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
-                  🔗
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  <LinkIcon />
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
-                  📷
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  <ImageAddIcon />
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
-                  ▶️
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  <VideoIcon />
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded">•</button>
-                <button className="p-1 hover:bg-gray-200 rounded">•</button>
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer ">
+                  <BulletListIcon />
+                </button>
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer">
+                  <NumberListIcon />
+                </button>
+                <div
+                  className={`w-1 h-4 ${
+                    isDarkMode ? "bg-gray-600" : "bg-gray-200"
+                  }`}
+                ></div>
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer">
+                  <SpoilerAlertIcon />
+                </button>
+                <button className="p-2 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer">
+                  <QuoteBlockIcon />
+                </button>
                 <button className="p-1 hover:bg-gray-200 rounded-full px-2 text-gray-600 dark:text-gray-400 cursor-pointer font-bold text-md">
                   ⋯
                 </button>
