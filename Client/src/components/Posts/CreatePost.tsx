@@ -67,7 +67,7 @@ const CreatePost: React.FC = () => {
 
           <div className="mb-6">
             <div
-              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full cursor-pointer ${
                 isDarkMode
                   ? "bg-gray-800 hover:bg-gray-700"
                   : "bg-gray-200 hover:bg-gray-300"
@@ -77,18 +77,18 @@ const CreatePost: React.FC = () => {
                 <img
                   src={defaultAvatar}
                   alt="User Avatar"
-                  className="w-8 h-8 rounded-full overflow-hidden"
+                  className="w-6 h-6 rounded-full overflow-hidden"
                 />
               </div>
               <span
-                className={`font-medium ${
+                className={`font-medium text-sm ${
                   isDarkMode ? "text-white" : "text-black"
                 }`}
               >
                 u/Commissioninside5439
               </span>
               <svg
-                className="w-5 h-5 ml-2"
+                className="w-4 h-4 ml-1"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -251,35 +251,55 @@ const CreatePost: React.FC = () => {
 
             <div>
               <div
-                className={`border rounded-t-lg border-b-0 p-2 flex items-center gap-2 ${
+                className={`border rounded-t-2xl border-b-0 p-1  flex items-center gap-1 ${
                   isDarkMode
                     ? "border-gray-600 bg-black"
-                    : "border-gray-300 bg-gray-50"
+                    : "border-gray-300 bg-white"
                 }`}
               >
-                <button className="p-1 hover:bg-gray-200 rounded">B</button>
-                <button className="p-1 hover:bg-gray-200 rounded italic">
-                  I
+                <button className="p-1 hover:bg-gray-200 rounded-full px-2 py-1 text-gray-500 dark:text-gray-400 font-bold cursor-pointer">
+                  B
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded line-through">
+                <button className="p-1 hover:bg-gray-200 rounded-full px-3 py-1 text-gray-500 dark:text-gray-400 font-normal italic cursor-pointer">
+                  i
+                </button>
+                <button className="p-1 hover:bg-gray-200 rounded-full px-3 py-1 text-gray-500 dark:text-gray-400 font-normal line-through cursor-pointer">
                   S
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded">X²</button>
-                <button className="p-1 hover:bg-gray-200 rounded">X₂</button>
-                <button className="p-1 hover:bg-gray-200 rounded">
-                  &lt;/&gt;
+                <button className="p-1 hover:bg-gray-200 rounded-full px-2 py-1 text-gray-500 dark:text-gray-400 font-normal cursor-pointer">
+                  X²
                 </button>
-                <button className="p-1 hover:bg-gray-200 rounded">🔗</button>
-                <button className="p-1 hover:bg-gray-200 rounded">📷</button>
-                <button className="p-1 hover:bg-gray-200 rounded">▶️</button>
+                <button className="p-1 hover:bg-gray-200 rounded-full px-3 py-1 text-gray-500 dark:text-gray-400 cursor-pointer">
+                  <div className="flex items-end gap-1/4">
+                    <span className="text-[10px] font-bold leading-none">
+                      T
+                    </span>
+                    <span className="text-[20px] leading-none">T</span>
+                  </div>
+                </button>
+
+                <div
+                  className={`w-1 h-4 ${
+                    isDarkMode ? "bg-gray-600" : "bg-gray-200"
+                  }`}
+                ></div>
+
+                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  🔗
+                </button>
+                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  📷
+                </button>
+                <button className="p-1 hover:bg-gray-200 rounded-full text-gray-500 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  ▶️
+                </button>
                 <button className="p-1 hover:bg-gray-200 rounded">•</button>
-                <button className="p-1 hover:bg-gray-200 rounded">1.</button>
-                <button className="p-1 hover:bg-gray-200 rounded">"</button>
-                <button className="p-1 hover:bg-gray-200 rounded">⎯</button>
-                <button className="p-1 hover:bg-gray-200 rounded">⊞</button>
-                <button className="p-1 hover:bg-gray-200 rounded">⋯</button>
+                <button className="p-1 hover:bg-gray-200 rounded">•</button>
+                <button className="p-1 hover:bg-gray-200 rounded-full px-2 text-gray-600 dark:text-gray-400 cursor-pointer font-bold text-md">
+                  ⋯
+                </button>
                 <div className="ml-auto">
-                  <button className="text-sm text-blue-500 hover:underline">
+                  <button className="text-xs font-semibold text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-800 rounded-full px-2 py-2 cursor-pointer">
                     Switch to Markdown Editor
                   </button>
                 </div>
@@ -290,17 +310,17 @@ const CreatePost: React.FC = () => {
                 onChange={(e) => setBodyText(e.target.value)}
                 placeholder="Body text (optional)
 "
-                rows={8}
+                rows={5}
                 className={cn(
-                  "w-full px-3 py-2 border border-t-0 rounded-b-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y",
+                  "w-full text-xs px-3 py-2 border border-t-0 rounded-b-2xl focus:outline-none",
                   isDarkMode
                     ? "bg-black border-gray-600 text-white placeholder-gray-400"
-                    : "bg-white border-gray-300 text-black placeholder-gray-500"
+                    : "bg-white border-gray-300 text-gray-700 placeholder-gray-500"
                 )}
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="flex justify-end gap-3 -mt-6">
               <button
                 onClick={handleSaveDraft}
                 className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer ${
