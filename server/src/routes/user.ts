@@ -2,6 +2,7 @@ import express from "express";
 import UserController from "../controllers/UserController";
 import PostController from "../controllers/PostController";
 import CommentController from "../controllers/CommentController";
+import SubredditController from "../controllers/SubredditController";
 
 const router = express.Router();
 //Get user profile
@@ -16,5 +17,7 @@ router.get("/:userId/posts", PostController.getPostsByUser);
 router.get("/:userId/comments", CommentController.getCommentsByUser);
 //get overview (posts and comments combined)
 router.get("/:userId/overview", UserController.getOverview);
+//get subreddits by user in order to list them in post creation screen
+router.get("/:userId/subreddits", SubredditController.getSubredditsByUser);
 
 export default router;

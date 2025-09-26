@@ -11,6 +11,7 @@ import {
   sortRising,
 } from "../utils/sortUtils";
 import VoteModel from "../models/Vote";
+import mongoose from "mongoose";
 
 const SubredditController = {
   async get(req: Request, res: Response) {
@@ -155,6 +156,10 @@ const SubredditController = {
       }
 
       await subreddit.save();
+      res.json({
+        data: subreddit.members,
+        sucess: true,
+      });
     } catch (error) {
       console.error("Error joining subreddit:", error);
       return res.status(500).json({ message: "Something went wrong" });
@@ -256,6 +261,40 @@ const SubredditController = {
     } catch (error) {
       console.error("cant get", error);
       res.status(500).json({ message: "server error during get function" });
+    }
+  },
+  async getSubredditsByUser(req: Request, res: Response) {
+    try {
+      const { userId } = req.params;
+      if (!userId) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User ID is required" });
+      }
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid userId" });
+      }
+
+      const subreddits = await SubredditModel.find({
+        members: new mongoose.Types.ObjectId(userId),
+      }).select("name iconUrl");
+
+      if (!subreddits || subreddits.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "User is not a member of any subreddit",
+        });
+      }
+
+      return res.json({ success: true, data: subreddits });
+    } catch (error) {
+      console.error("Error fetching subreddits by user:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Server error while fetching user subreddits",
+      });
     }
   },
   //todo implement mod promotion and demotion
