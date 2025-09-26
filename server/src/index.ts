@@ -45,10 +45,16 @@ const connectDB = async () => {
 connectDB();
 
 app.use(cors());
-app.use(express.json());
 
-// Webhook routes MUST be before clerkMiddleware to remain public
-app.use("/webhooks", clerkWebhookRoutes);
+// Webhook routes MUST be before clerkMiddleware to remain public and with raw body
+app.use(
+  "/webhooks",
+  express.raw({ type: "application/json" }),
+  clerkWebhookRoutes
+);
+
+// Use JSON parser for other routes
+app.use(express.json());
 
 // Now apply Clerk middleware to protect other routes
 app.use(clerkMiddleware());
