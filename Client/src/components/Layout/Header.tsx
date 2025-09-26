@@ -96,6 +96,12 @@ export const Header: React.FC<HeaderProps> = ({
   const [showGetAppTooltip, setShowGetAppTooltip] = useState(false);
   const [showLogInTooltip, setShowLogInTooltip] = useState(false);
   const [showMoreTooltip, setShowMoreTooltip] = useState(false);
+  const [showAdvertiseTooltip, setShowAdvertiseTooltip] = useState(false);
+  const [showChatTooltip, setShowChatTooltip] = useState(false);
+  const [showCreateTooltip, setShowCreateTooltip] = useState(false);
+  const [showNotificationsTooltip, setShowNotificationsTooltip] =
+    useState(false);
+  const [showProfileTooltip, setShowProfileTooltip] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showUserSidebar, setShowUserSidebar] = useState(false);
@@ -254,6 +260,8 @@ export const Header: React.FC<HeaderProps> = ({
             <SignedIn>
               <div className="relative">
                 <button
+                  onMouseEnter={() => setShowAdvertiseTooltip(true)}
+                  onMouseLeave={() => setShowAdvertiseTooltip(false)}
                   className={cn(
                     "p-2 rounded-full cursor-pointer",
                     isDarkMode
@@ -265,9 +273,19 @@ export const Header: React.FC<HeaderProps> = ({
                     <AdvertiseIconSvg />
                   </IconWrapper>
                 </button>
+                {showAdvertiseTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Advertise on Reddit
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="relative">
                 <button
+                  onMouseEnter={() => setShowChatTooltip(true)}
+                  onMouseLeave={() => setShowChatTooltip(false)}
                   className={cn(
                     "p-2 rounded-full cursor-pointer",
                     isDarkMode
@@ -282,21 +300,43 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute top-1 -right-1 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                   1
                 </div>
-              </div>
-              <button
-                onClick={() => navigate("/create-post")}
-                className={cn(
-                  "px-3 py-1 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
-                  isDarkMode
-                    ? "text-white hover:text-white hover:bg-gray-800"
-                    : "text-black hover:text-black hover:bg-gray-200"
+                {showChatTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Open chat
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
                 )}
-              >
-                <span className="text-4xl font-thin -mt-1">+</span> Create
-              </button>
+              </div>
+              <div className="relative">
+                <button
+                  onClick={() => navigate("/create-post")}
+                  onMouseEnter={() => setShowCreateTooltip(true)}
+                  onMouseLeave={() => setShowCreateTooltip(false)}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-sm font-semibold cursor-pointer flex items-center gap-1",
+                    isDarkMode
+                      ? "text-white hover:text-white hover:bg-gray-800"
+                      : "text-black hover:text-black hover:bg-gray-200"
+                  )}
+                >
+                  <span className="text-4xl font-thin -mt-1">+</span> Create
+                </button>
+                {showCreateTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Create post
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="relative">
                 <button
+                  onMouseEnter={() => setShowNotificationsTooltip(true)}
+                  onMouseLeave={() => setShowNotificationsTooltip(false)}
                   className={cn(
                     "p-2 rounded-full cursor-pointer",
                     isDarkMode
@@ -311,11 +351,21 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute top-1 -right-0.5 bg-red-600 text-white font-semibold text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                   1
                 </div>
+                {showNotificationsTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Open inbox
+                      <div className="absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="relative">
                 <button
                   onClick={() => setShowUserSidebar(true)}
+                  onMouseEnter={() => setShowProfileTooltip(true)}
+                  onMouseLeave={() => setShowProfileTooltip(false)}
                   className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer"
                 >
                   <div className="relative">
@@ -329,6 +379,14 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="absolute bottom-0.5 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-black"></div>
                   </div>
                 </button>
+                {showProfileTooltip && (
+                  <div className="absolute top-full left-1/2 transform -translate-x-25 mt-2 z-50">
+                    <div className="bg-black text-white text-xs font-bold px-3 py-2 rounded-md shadow-lg whitespace-nowrap font-sans">
+                      Open profile menu
+                      <div className="absolute -top-0.5 left-1/2 transform translate-x-8 w-2 h-2 bg-black rotate-45"></div>
+                    </div>
+                  </div>
+                )}
               </div>
             </SignedIn>
 

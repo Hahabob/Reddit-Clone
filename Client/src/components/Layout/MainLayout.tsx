@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
@@ -37,6 +37,10 @@ export const MainLayout: React.FC = () => {
       postFeedRef.current.goToHome();
     }
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-[#0d0d0f]" : "bg-white"}`}>
