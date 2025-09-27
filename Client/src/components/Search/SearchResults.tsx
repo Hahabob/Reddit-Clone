@@ -1,11 +1,11 @@
 import React from "react";
 import { PostCard } from "../Posts/PostCard";
 import { useTheme } from "../../contexts/ThemeContext";
-import type { RedditPost } from "../../types/reddit";
+import type { BackendPost } from "../../types/backend";
 import { cn } from "../../lib/utils";
 
 interface SearchResultsProps {
-  posts: RedditPost[];
+  posts: BackendPost[];
   loading: boolean;
   error: string | null;
   query: string;
@@ -188,7 +188,7 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       </div>
       <div className="space-y-4">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post._id} post={post} />
         ))}
       </div>
     </div>
