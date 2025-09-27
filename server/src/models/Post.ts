@@ -21,7 +21,7 @@ export type PostContent =
 
 export interface IPost extends Document {
   _id: ObjectId;
-  subredditId: ObjectId;
+  subredditId: ObjectId | { _id: ObjectId; name: string };
   authorId: ObjectId;
   title: string;
   content: PostContent;
