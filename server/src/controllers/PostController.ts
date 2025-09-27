@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PostModel, { EnrichedPost } from "../models/Post"; // long schema model
 import SubredditModel, { CommunityTopic } from "../models/Subreddit"; // long schema model
+import UserModel from "../models/User";
 import { getAuth } from "@clerk/express";
 import VoteModel from "../models/Vote";
 import {
@@ -17,25 +18,43 @@ const PostController = {
     try {
       const { title, content, subredditId } = req.body;
 
-      let { userId } = getAuth(req) || {};
+      let { userId: clerkUserId } = getAuth(req) || {};
 
-      if (!userId) {
-        userId = req.body.userId;
+      if (!clerkUserId) {
+        clerkUserId = req.body.userId;
       }
-      if (!userId) {
+      if (!clerkUserId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const subreddit = await SubredditModel.findById(subredditId);
+      // Find the user in our database to get their MongoDB ObjectId
+      const user = await UserModel.findOne({ clerkId: clerkUserId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-      if (
-        !subreddit?.members
-          .map((member) => member.toString())
-          .includes(userId.toString())
-      ) {
+      const subreddit = await SubredditModel.findById(subredditId);
+      if (!subreddit) {
+        return res.status(404).json({ message: "Subreddit not found" });
+      }
+
+      // Check if user is a member using their MongoDB ObjectId
+      const isMember = subreddit.members
+        .map((member) => member.toString())
+        .includes(user._id.toString());
+
+      // For now, allow posting to any public subreddit to help new users
+      // In a full Reddit implementation, you'd want to enforce membership
+      if (!isMember && subreddit.isPrivate) {
         return res
           .status(403)
-          .json({ message: "User is not a member of this subreddit" });
+          .json({ message: "User is not a member of this private subreddit" });
+      }
+
+      // If user is not a member of a public subreddit, auto-join them
+      if (!isMember && !subreddit.isPrivate) {
+        subreddit.members.push(user._id);
+        await subreddit.save();
       }
 
       if (!title || !content?.type || !content?.value || !subredditId) {
@@ -56,7 +75,7 @@ const PostController = {
           value: content.value,
         },
         topics: subreddit.topics,
-        authorId: userId,
+        authorId: user._id,
         subredditId,
         createdAt: new Date(),
       });
@@ -347,7 +366,7 @@ const PostController = {
       const enrichedPosts: EnrichedPost[] = userPosts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
         return {
-          ...p,
+          ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
         };

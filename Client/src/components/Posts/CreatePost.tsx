@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
+import {
+  useCreatePost,
+  useJoinedSubreddits,
+  usePopularSubreddits,
+  useCurrentUser,
+} from "../../hooks";
+import type { BackendSubreddit } from "../../types/backend";
 import defaultAvatar from "../../assets/defaultAvatar.png";
 import UploadPicIcon from "../../assets/uploadPicIcon.svg";
 import LinkIcon from "../../assets/link-icon.svg";
@@ -13,16 +22,105 @@ import QuoteBlockIcon from "../../assets/quoteBlockIcon.svg";
 
 const CreatePost: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+  const { user } = useUser();
+
+  // State
   const [activeTab, setActiveTab] = useState<
     "text" | "images" | "link" | "poll"
   >("text");
   const [title, setTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [bodyText, setBodyText] = useState("");
+  const [selectedSubreddit, setSelectedSubreddit] = useState<string>("");
+  const [subredditDropdownOpen, setSubredditDropdownOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
+
+  // Hooks
+  const createPostMutation = useCreatePost();
+
+  // Get current user's backend data to get MongoDB _id
+  const { data: currentUserData } = useCurrentUser();
+
+  // Get user's joined subreddits using their MongoDB _id, fallback to popular if none
+  const { data: joinedSubreddits = [] } = useJoinedSubreddits(
+    currentUserData?.data?._id || ""
+  );
+  const { data: popularSubreddits = [] } = usePopularSubreddits();
+
+  // Combine subreddits for selection (prioritize joined ones)
+  const availableSubreddits =
+    joinedSubreddits.length > 0 ? joinedSubreddits : popularSubreddits;
+
+  // Set default subreddit when subreddits load
+  useEffect(() => {
+    if (availableSubreddits.length > 0 && !selectedSubreddit) {
+      setSelectedSubreddit(availableSubreddits[0]._id);
+    }
+  }, [availableSubreddits, selectedSubreddit]);
+
+  // Show message if no subreddits available
+  if (!currentUserData?.data?._id) {
+    return (
+      <div
+        className={`flex items-center justify-center min-h-screen ${
+          isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
+        }`}
+      >
+        <div className="text-center">
+          <p className={`text-lg ${isDarkMode ? "text-white" : "text-black"}`}>
+            Loading user data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (availableSubreddits.length === 0) {
+    return (
+      <div
+        className={`flex items-center justify-center min-h-screen ${
+          isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
+        }`}
+      >
+        <div className="text-center">
+          <p
+            className={`text-lg mb-4 ${
+              isDarkMode ? "text-white" : "text-black"
+            }`}
+          >
+            You need to join a community before creating posts.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Browse Communities
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (subredditDropdownOpen) {
+        setSubredditDropdownOpen(false);
+      }
+    };
+
+    if (subredditDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [subredditDropdownOpen]);
 
   // Cleanup timeout on component unmount
   useEffect(() => {
@@ -90,13 +188,66 @@ const CreatePost: React.FC = () => {
     );
   };
 
-  const handlePost = () => {
-    console.log("Creating post:", {
-      title,
-      linkUrl,
-      bodyText,
-      type: activeTab,
-    });
+  const handlePost = async () => {
+    if (!title.trim()) {
+      alert("Please enter a title for your post");
+      return;
+    }
+
+    if (!selectedSubreddit) {
+      alert("Please select a subreddit");
+      return;
+    }
+
+    // Prepare content based on active tab
+    let contentValue = "";
+    let contentType: "text" | "image" | "video" | "link" = "text";
+
+    switch (activeTab) {
+      case "text":
+        contentValue = bodyText;
+        contentType = "text";
+        break;
+      case "link":
+        if (!linkUrl.trim()) {
+          alert("Please enter a link URL");
+          return;
+        }
+        contentValue = linkUrl;
+        contentType = "link";
+        break;
+      case "images":
+        // For now, just show alert. You'll need file upload functionality
+        alert("Image uploads not yet implemented");
+        return;
+      default:
+        contentValue = bodyText;
+        contentType = "text";
+    }
+
+    try {
+      const postData = {
+        title: title.trim(),
+        content: {
+          type: contentType,
+          value: contentValue,
+        },
+        subredditId: selectedSubreddit,
+      };
+
+      await createPostMutation.mutateAsync(postData);
+
+      // Reset form
+      setTitle("");
+      setBodyText("");
+      setLinkUrl("");
+
+      // Navigate to home or show success message
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      alert("Failed to create post. Please try again.");
+    }
   };
 
   const handleSaveDraft = () => {
@@ -106,6 +257,7 @@ const CreatePost: React.FC = () => {
       bodyText,
       type: activeTab,
     });
+    alert("Draft saving not yet implemented");
   };
 
   const tabs = [
@@ -162,7 +314,7 @@ const CreatePost: React.FC = () => {
                   isDarkMode ? "text-white" : "text-black"
                 }`}
               >
-                u/Commissioninside5439
+                {user?.username || "Anonymous"}
               </span>
               <svg
                 className="w-4 h-4 ml-1"
@@ -177,6 +329,98 @@ const CreatePost: React.FC = () => {
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
+            </div>
+          </div>
+
+          {/* Subreddit Selection */}
+          <div className="mb-6">
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Choose a community
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setSubredditDropdownOpen(!subredditDropdownOpen)}
+                className={cn(
+                  "w-full px-3 py-2 border rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500",
+                  isDarkMode
+                    ? "bg-black border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-black"
+                )}
+              >
+                {selectedSubreddit && availableSubreddits.length > 0 ? (
+                  <span>
+                    r/
+                    {availableSubreddits.find(
+                      (s: BackendSubreddit) => s._id === selectedSubreddit
+                    )?.name || "Select community"}
+                  </span>
+                ) : (
+                  <span
+                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  >
+                    Select a community
+                  </span>
+                )}
+                <svg
+                  className="w-4 h-4 ml-2 float-right mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {subredditDropdownOpen && (
+                <div
+                  className={cn(
+                    "absolute z-10 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-y-auto",
+                    isDarkMode
+                      ? "bg-black border-gray-600"
+                      : "bg-white border-gray-300"
+                  )}
+                >
+                  {availableSubreddits.length > 0 ? (
+                    availableSubreddits.map((subreddit: BackendSubreddit) => (
+                      <button
+                        key={subreddit._id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedSubreddit(subreddit._id);
+                          setSubredditDropdownOpen(false);
+                        }}
+                        className={cn(
+                          "w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg",
+                          selectedSubreddit === subreddit._id
+                            ? "bg-blue-50 dark:bg-blue-900"
+                            : ""
+                        )}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-2">
+                            r
+                          </div>
+                          <span>r/{subreddit.name}</span>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-gray-500">
+                      No communities available
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -237,6 +481,15 @@ const CreatePost: React.FC = () => {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {createPostMutation.isError && (
+          <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg">
+            <p className="text-sm">
+              {createPostMutation.error?.message ||
+                "Failed to create post. Please try again."}
+            </p>
           </div>
         )}
 
@@ -472,17 +725,30 @@ const CreatePost: React.FC = () => {
               </button>
               <button
                 onClick={handlePost}
-                className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer ${
-                  title.length > 0 || bodyText.length > 0 || linkUrl.length > 0
+                disabled={
+                  createPostMutation.isPending ||
+                  !title.trim() ||
+                  !selectedSubreddit
+                }
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  createPostMutation.isPending ||
+                  !title.trim() ||
+                  !selectedSubreddit
                     ? isDarkMode
-                      ? "bg-blue-800 text-white hover:bg-blue-700"
-                      : "bg-blue-800 text-white hover:bg-blue-900"
+                      ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                    : title.length > 0 ||
+                      bodyText.length > 0 ||
+                      linkUrl.length > 0
+                    ? isDarkMode
+                      ? "bg-blue-800 text-white hover:bg-blue-700 cursor-pointer"
+                      : "bg-blue-800 text-white hover:bg-blue-900 cursor-pointer"
                     : isDarkMode
-                    ? "bg-gray-900 text-gray-600"
-                    : "bg-gray-100 text-gray-300 "
+                    ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
                 }`}
               >
-                Post
+                {createPostMutation.isPending ? "Posting..." : "Post"}
               </button>
             </div>
           </div>
