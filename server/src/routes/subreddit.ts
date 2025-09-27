@@ -5,6 +5,8 @@ const router = experss.Router();
 
 //List all communities
 router.get("/", SubredditController.getAll);
+//Get popular communities
+router.get("/popular", SubredditController.getPopular);
 //Get single community
 router.get("/:subredditId", SubredditController.get);
 //Create community
@@ -19,6 +21,5 @@ router.post("/:subredditId/leave", SubredditController.leave);
 router.get("/:subredditId/posts", SubredditController.getPosts);
 //Add/remove moderators
 // router.post("/:subredditId/mods");
-
 
 export default router;
