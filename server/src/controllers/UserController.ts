@@ -9,26 +9,37 @@ import { sortHot, sortNew, sortTop } from "../utils/sortUtils";
 const UserController = {
   async getCurrentUser(req: Request, res: Response) {
     try {
+      console.log("=== getCurrentUser called ===");
       const auth = getAuth(req);
+      console.log("Auth result:", {
+        userId: auth?.userId,
+        isAuthenticated: auth?.isAuthenticated,
+      });
 
       let clerkId = auth?.userId;
 
       // Allow fallback to body param for development/testing
-      if (!clerkId) {
+      if (!clerkId && req.body && req.body.clerkId) {
         clerkId = req.body.clerkId;
       }
+
       if (!clerkId) {
-        return res.status(401).json({ message: "Not authenticated", auth });
+        console.log("No clerkId found, returning 401");
+        return res.status(401).json({ message: "Not authenticated" });
       }
+
+      console.log("Looking for user with clerkId:", clerkId);
 
       const user = await UserModel.findOne({ clerkId });
 
       if (!user) {
+        console.log("User not found in database for clerkId:", clerkId);
         return res
           .status(404)
           .json({ success: false, message: "User not found" });
       }
 
+      console.log("User found:", { id: user._id, username: user.username });
       res.json({
         data: user,
         success: true,
@@ -60,7 +71,16 @@ const UserController = {
   },
   async getAll(req: Request, res: Response) {
     try {
+      console.log("=== Getting all users ===");
       const Users = (await UserModel.find({})) || [];
+      console.log(
+        "Found users:",
+        Users.map((u) => ({
+          id: u._id,
+          clerkId: u.clerkId,
+          username: u.username,
+        }))
+      );
       res.json({
         data: Users,
         success: true,
