@@ -50,7 +50,7 @@ const CreatePost: React.FC = () => {
       // Set new timeout for 2 seconds
       const timeout = setTimeout(() => {
         setShowTooltip(buttonId);
-      }, 1500);
+      }, 1000);
       setTooltipTimeout(timeout);
     };
 
