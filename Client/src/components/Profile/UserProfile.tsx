@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
+import {
+  useUser,
+  useUserPosts,
+  useUserComments,
+  useUserOverview,
+} from "../../hooks/useUsers";
 import wonderingSnoo from "../../assets/wonderingSnoo.png";
 import defaultAvatar from "../../assets/defaultAvatar.png";
 import CameraIcon from "../../assets/cameraIcon.svg";
@@ -15,10 +21,21 @@ interface ProfileTab {
 
 export const UserProfile: React.FC = () => {
   const { isDarkMode } = useTheme();
-  const { username } = useParams<{ username: string }>();
+  const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // Fetch user data
+  const {
+    data: user,
+    isLoading: userLoading,
+    error: userError,
+  } = useUser(userId || "");
+  const { data: posts } = useUserPosts(userId || "");
+  const { data: comments } = useUserComments(userId || "");
+  const { data: overview } = useUserOverview(userId || "");
+
   const [selectedSort, setSelectedSort] = useState("New");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const tabs: ProfileTab[] = [
@@ -54,6 +71,49 @@ export const UserProfile: React.FC = () => {
     };
   }, [isDropdownOpen]);
 
+  // Add loading and error states
+  if (userLoading) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center py-16">
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+            Loading user profile...
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (userError) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center py-16">
+          <h3 className="text-xl font-medium text-red-600 dark:text-red-400 mb-3">
+            Error loading profile: {userError?.message || "Unknown error"}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            User ID: {userId}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="text-center py-16">
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+            User not found
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            User ID: {userId}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
@@ -68,7 +128,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't posted yet
+                u/{user?.username || "user"} hasn't posted yet
               </h3>
             </div>
           </div>
@@ -85,7 +145,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't posted yet
+                u/{user?.username || "user"} hasn't posted yet
               </h3>
             </div>
           </div>
@@ -102,7 +162,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't commented yet
+                u/{user?.username || "user"} hasn't commented yet
               </h3>
             </div>
           </div>
@@ -119,7 +179,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't saved anything yet
+                u/{user?.username || "user"} hasn't saved anything yet
               </h3>
             </div>
           </div>
@@ -136,7 +196,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't viewed anything yet
+                u/{user?.username || "user"} hasn't viewed anything yet
               </h3>
             </div>
           </div>
@@ -153,7 +213,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't hidden anything yet
+                u/{user?.username || "user"} hasn't hidden anything yet
               </h3>
             </div>
           </div>
@@ -170,7 +230,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't upvoted anything yet
+                u/{user?.username || "user"} hasn't upvoted anything yet
               </h3>
             </div>
           </div>
@@ -187,7 +247,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't downvoted anything yet
+                u/{user?.username || "user"} hasn't downvoted anything yet
               </h3>
             </div>
           </div>
@@ -204,7 +264,7 @@ export const UserProfile: React.FC = () => {
                 />
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{username} hasn't {activeTab} yet
+                u/{user?.username || "user"} hasn't {activeTab} yet
               </h3>
             </div>
           </div>
@@ -230,10 +290,10 @@ export const UserProfile: React.FC = () => {
           </button>
           <div>
             <h1 className="text-2xl font-bold dark:text-gray-300">
-              {username}
+              {user?.displayName || user?.username || "user"}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              u/{username}
+              u/{user?.username || "user"}
             </p>
           </div>
         </div>
