@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/clerk-react";
 import { useAuthenticatedApi, type BackendUser } from "../services/backendApi";
 import { queryKeys } from "../services/queryKeys";
 
@@ -41,6 +42,7 @@ export const useUserProfile = (userId: string) => {
 
 export const useCurrentUser = () => {
   const getApi = useAuthenticatedApi();
+  const { isSignedIn, isLoaded } = useAuth();
 
   return useQuery({
     queryKey: ["users", "current"],
@@ -49,6 +51,7 @@ export const useCurrentUser = () => {
       const response = await api.get("/users/me");
       return response.data;
     },
+    enabled: isLoaded && isSignedIn, // Only run when Clerk is loaded and user is signed in
   });
 };
 
