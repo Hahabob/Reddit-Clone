@@ -17,7 +17,7 @@ function App() {
               <Route path="/sign-up/*" element={<SignUpPage />} />
               <Route path="/sso-callback" element={<SSOCallback />} />
               <Route path="/create-post" element={<MainLayout />} />
-              <Route path="/user/:username" element={<MainLayout />} />
+              <Route path="/user/:userId" element={<MainLayout />} />
               <Route path="/" element={<MainLayout />} />
               <Route path="/r/:subreddit" element={<MainLayout />} />
               <Route
