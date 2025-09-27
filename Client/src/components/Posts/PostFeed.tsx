@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-  useCallback,
-} from "react";
+import { useState, useEffect, forwardRef, useImperativeHandle } from "react";
 import { PostCard } from "./PostCard";
 import { SearchResults } from "../Search/SearchResults";
 import { SortDropdown } from "./SortDropdown";
@@ -12,8 +6,8 @@ import { ViewDropdown } from "./ViewDropdown";
 import { LocationDropdown } from "./LocationDropdown";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useSocket } from "../../contexts/SocketContext";
-import { redditApiService } from "../../services/redditApi";
-import type { RedditPost } from "../../types/reddit";
+import { usePostsFeed, useSearchPosts } from "../../hooks";
+import type { BackendPost } from "../../types/backend";
 import { cn } from "../../lib/utils";
 
 export interface PostFeedRef {
@@ -28,402 +22,39 @@ export interface PostFeedRef {
 export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const { isDarkMode } = useTheme();
   const { socket, isConnected } = useSocket();
-  const [posts, setPosts] = useState<RedditPost[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<
     "best" | "hot" | "new" | "top" | "rising"
   >("best");
   const [viewMode, setViewMode] = useState<"card" | "compact">("card");
   const [location, setLocation] = useState<string>("everywhere");
-  const [after, setAfter] = useState<string | undefined>();
-  const [hasMore, setHasMore] = useState(true);
-  const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<RedditPost[]>([]);
-  const [searchError, setSearchError] = useState<string | null>(null);
 
-  const loadPosts = useCallback(
-    async (sort: typeof sortBy, loadMore: boolean = false) => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Use backend hooks for data fetching
+  const apiSort =
+    sortBy === "best" ? "home" : sortBy === "hot" ? "popular" : "new";
+  const {
+    data: postsResponse,
+    isLoading: loading,
+    error,
+  } = usePostsFeed(apiSort as "home" | "popular" | "new");
+  const {
+    data: searchResponse,
+    isLoading: isSearching,
+    error: searchError,
+  } = useSearchPosts(searchQuery);
 
-        const apiSort = sort === "best" ? "hot" : sort;
+  // Extract data array from response object and ensure it's always an array
+  const posts = Array.isArray(postsResponse?.data) ? postsResponse.data : [];
+  const searchResults = Array.isArray(searchResponse?.data)
+    ? searchResponse.data
+    : [];
 
-        const response = await redditApiService.posts.getHomePosts(apiSort, {
-          limit: 25,
-          after: loadMore ? after : undefined,
-        });
+  // TODO: Implement location filtering with backend data if needed
 
-        let filteredPosts = response.data.children.map((child) => child.data);
-
-        if (location !== "everywhere") {
-          const locationSubreddits = {
-            "united-states": [
-              "AskAnAmerican",
-              "mildlyinfuriating",
-              "WhitePeopleTwitter",
-              "PublicFreakout",
-              "unpopularopinion",
-              "AmItheAsshole",
-              "tifu",
-              "LifeProTips",
-              "Showerthoughts",
-              "memes",
-              "funny",
-              "gaming",
-              "pics",
-              "videos",
-              "worldnews",
-              "news",
-              "politics",
-              "AskReddit",
-              "explainlikeimfive",
-              "todayilearned",
-            ],
-            israel: [
-              "Israel",
-              "israel",
-              "hebrew",
-              "Judaism",
-              "Jewish",
-              "TelAviv",
-              "Jerusalem",
-              "IsraelPalestine",
-              "IsraelConflict",
-              "IsraelNews",
-              "IsraelPolitics",
-            ],
-            germany: [
-              "de",
-              "germany",
-              "berlin",
-              "munich",
-              "hamburg",
-              "cologne",
-              "frankfurt",
-              "AskAGerman",
-              "Germany",
-              "deutschland",
-              "German",
-              "Bavaria",
-            ],
-            france: [
-              "france",
-              "paris",
-              "lyon",
-              "marseille",
-              "AskFrance",
-              "France",
-              "french",
-              "Rance",
-              "frenchmemes",
-              "FranceLibre",
-            ],
-            "united-kingdom": [
-              "unitedkingdom",
-              "AskUK",
-              "london",
-              "manchester",
-              "birmingham",
-              "glasgow",
-              "liverpool",
-              "leeds",
-              "sheffield",
-              "bristol",
-              "edinburgh",
-              "scotland",
-              "wales",
-              "northernireland",
-              "britishproblems",
-              "casualuk",
-            ],
-            canada: [
-              "canada",
-              "AskACanadian",
-              "toronto",
-              "montreal",
-              "vancouver",
-              "calgary",
-              "ottawa",
-              "edmonton",
-              "winnipeg",
-              "quebec",
-              "hamilton",
-              "kitchener",
-              "canadian",
-              "onguardforthee",
-              "metacanada",
-            ],
-            australia: [
-              "australia",
-              "AskAnAustralian",
-              "sydney",
-              "melbourne",
-              "brisbane",
-              "perth",
-              "adelaide",
-              "goldcoast",
-              "newcastle",
-              "wollongong",
-              "hobart",
-              "darwin",
-              "australian",
-              "straya",
-              "AussieMemes",
-            ],
-            argentina: [
-              "argentina",
-              "AskArgentina",
-              "buenosaires",
-              "cordoba",
-              "rosario",
-              "mendoza",
-              "laplata",
-              "tucuman",
-              "mardelplata",
-              "salta",
-              "santafe",
-              "argentine",
-            ],
-            bulgaria: [
-              "bulgaria",
-              "AskBulgaria",
-              "sofia",
-              "plovdiv",
-              "varna",
-              "burgas",
-              "ruse",
-              "starazagora",
-              "pleven",
-              "sliven",
-              "dobrich",
-              "shumen",
-              "bulgarian",
-            ],
-          };
-
-          const targetSubreddits =
-            locationSubreddits[location as keyof typeof locationSubreddits] ||
-            [];
-
-          filteredPosts = filteredPosts.filter((post) => {
-            const subredditLower = post.subreddit.toLowerCase();
-            const titleLower = post.title.toLowerCase();
-            const selftextLower = (post.selftext || "").toLowerCase();
-
-            const isFromLocationSubreddit = targetSubreddits.some((sub) =>
-              subredditLower.includes(sub.toLowerCase())
-            );
-
-            const locationKeywords = {
-              "united-states": [
-                "usa",
-                "america",
-                "united states",
-                "us",
-                "texas",
-                "california",
-                "new york",
-                "florida",
-                "chicago",
-                "miami",
-                "los angeles",
-                "washington",
-                "boston",
-                "seattle",
-                "trump",
-                "biden",
-                "congress",
-                "senate",
-                "house",
-                "democrat",
-                "republican",
-              ],
-              israel: [
-                "israel",
-                "israeli",
-                "hebrew",
-                "ישראל",
-                "tel aviv",
-                "jerusalem",
-                "haifa",
-                "beer sheva",
-                "netanyahu",
-                "gaza",
-                "west bank",
-                "palestine",
-                "jewish",
-                "judaism",
-                "orthodox",
-                "haredi",
-              ],
-              germany: [
-                "germany",
-                "german",
-                "deutschland",
-                "berlin",
-                "munich",
-                "hamburg",
-                "cologne",
-                "frankfurt",
-                "stuttgart",
-                "merkel",
-                "bundestag",
-                "bavaria",
-                "ruhr",
-                "hamburg",
-              ],
-              france: [
-                "france",
-                "french",
-                "français",
-                "paris",
-                "lyon",
-                "marseille",
-                "toulouse",
-                "nice",
-                "macron",
-                "le pen",
-                "champs elysees",
-                "eiffel",
-                "louvre",
-              ],
-              "united-kingdom": [
-                "uk",
-                "britain",
-                "england",
-                "scotland",
-                "wales",
-                "london",
-                "manchester",
-                "birmingham",
-                "glasgow",
-                "liverpool",
-                "leeds",
-                "sheffield",
-                "bristol",
-                "edinburgh",
-                "boris",
-                "johnson",
-                "tory",
-                "labour",
-                "brexit",
-              ],
-              canada: [
-                "canada",
-                "canadian",
-                "toronto",
-                "montreal",
-                "vancouver",
-                "calgary",
-                "ottawa",
-                "edmonton",
-                "winnipeg",
-                "quebec",
-                "trudeau",
-                "ontario",
-                "british columbia",
-                "alberta",
-              ],
-              australia: [
-                "australia",
-                "australian",
-                "sydney",
-                "melbourne",
-                "brisbane",
-                "perth",
-                "adelaide",
-                "gold coast",
-                "newcastle",
-                "wollongong",
-                "hobart",
-                "darwin",
-                "scomo",
-                "morrison",
-                "queensland",
-                "victoria",
-              ],
-              argentina: [
-                "argentina",
-                "argentine",
-                "buenos aires",
-                "córdoba",
-                "rosario",
-                "mendoza",
-                "la plata",
-                "tucumán",
-                "mar del plata",
-                "salta",
-                "santa fe",
-                "fernandez",
-                "peron",
-                "kirchner",
-              ],
-              bulgaria: [
-                "bulgaria",
-                "bulgarian",
-                "sofia",
-                "plovdiv",
-                "varna",
-                "burgas",
-                "ruse",
-                "stara zagora",
-                "pleven",
-                "sliven",
-                "dobrich",
-                "shumen",
-                "borisov",
-                "rusev",
-              ],
-            };
-
-            const keywords =
-              locationKeywords[location as keyof typeof locationKeywords] || [];
-            const searchText = `${subredditLower} ${titleLower} ${selftextLower}`;
-
-            const hasLocationKeywords = keywords.some((keyword) =>
-              searchText.includes(keyword.toLowerCase())
-            );
-
-            return isFromLocationSubreddit || hasLocationKeywords;
-          });
-        }
-
-        if (loadMore) {
-          setPosts((prev) => [...prev, ...filteredPosts]);
-        } else {
-          setPosts(filteredPosts);
-        }
-
-        setAfter(response.data.after);
-        setHasMore(!!response.data.after);
-      } catch {
-        setError("Failed to load posts. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [location, after]
-  );
-
-  useEffect(() => {
-    loadPosts(sortBy);
-  }, [sortBy, location, loadPosts]);
-
+  // Socket functionality can be added back later if needed
   useEffect(() => {
     if (socket) {
-      socket.on("newPost", (newPost) => {
-        setPosts((prev) => [newPost, ...prev]);
-      });
-
-      socket.on("postUpdate", (updatedPost) => {
-        setPosts((prev) =>
-          prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
-        );
-      });
-
+      // TODO: Implement socket listeners for real-time updates if needed
       return () => {
         socket.off("newPost");
         socket.off("postUpdate");
@@ -433,8 +64,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   const handleSortChange = (newSort: typeof sortBy) => {
     setSortBy(newSort);
-    setAfter(undefined);
-    setHasMore(true);
   };
 
   const handleViewChange = (newView: typeof viewMode) => {
@@ -443,41 +72,14 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   const handleLocationChange = (newLocation: string) => {
     setLocation(newLocation);
-    setAfter(undefined);
-    setHasMore(true);
-    loadPosts(sortBy);
   };
 
-  const handleLoadMore = () => {
-    if (hasMore && !loading) {
-      loadPosts(sortBy, true);
-    }
-  };
-
-  const handleSearch = async (
+  const handleSearch = (
     query: string,
-    sort: "relevance" | "hot" | "top" | "new" | "comments" = "relevance",
-    time: "hour" | "day" | "week" | "month" | "year" | "all" = "all"
+    _sort?: "relevance" | "hot" | "top" | "new" | "comments",
+    _time?: "hour" | "day" | "week" | "month" | "year" | "all"
   ) => {
-    try {
-      setIsSearching(true);
-      setSearchError(null);
-      setSearchQuery(query);
-
-      const response = await redditApiService.posts.searchPosts(
-        query,
-        sort,
-        time,
-        25
-      );
-
-      const searchPosts = response.data.children.map((child) => child.data);
-      setSearchResults(searchPosts);
-    } catch {
-      setSearchError("Failed to search posts. Please try again.");
-    } finally {
-      setIsSearching(false);
-    }
+    setSearchQuery(query);
   };
 
   const handleRetrySearch = () => {
@@ -488,10 +90,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
 
   const goToHome = () => {
     setSearchQuery("");
-    setSearchResults([]);
-    setSearchError(null);
-    setIsSearching(false);
-    loadPosts(sortBy);
   };
 
   useImperativeHandle(ref, () => ({
@@ -507,9 +105,9 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
           isDarkMode ? "text-red-400" : "text-red-600"
         )}
       >
-        <p className="text-lg font-medium">Error loading posts: {error}</p>
+        <p className="text-lg font-medium">Error loading posts</p>
         <button
-          onClick={() => loadPosts(sortBy)}
+          onClick={() => window.location.reload()}
           className={cn(
             "mt-4 px-4 py-2 rounded-full",
             "bg-orange-500 text-white hover:bg-orange-600"
@@ -527,7 +125,7 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
         <SearchResults
           posts={searchResults}
           loading={isSearching}
-          error={searchError}
+          error={searchError?.message || null}
           query={searchQuery}
           onRetry={handleRetrySearch}
         />
@@ -566,23 +164,11 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
               <div
                 className={viewMode === "compact" ? "space-y-1" : "space-y-4"}
               >
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} viewMode={viewMode} />
-                ))}
-                {hasMore && !loading && (
-                  <div className="flex justify-center py-4">
-                    <button
-                      onClick={handleLoadMore}
-                      className={cn(
-                        "px-6 py-2 rounded-full font-medium",
-                        "bg-orange-500 text-white hover:bg-orange-600"
-                      )}
-                    >
-                      Load More
-                    </button>
-                  </div>
-                )}
-                {loading && posts.length > 0 && (
+                {Array.isArray(posts) &&
+                  posts.map((post: BackendPost) => (
+                    <PostCard key={post._id} post={post} viewMode={viewMode} />
+                  ))}
+                {loading && (
                   <div className="flex justify-center py-4">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
                   </div>

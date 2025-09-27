@@ -56,6 +56,24 @@ const SubredditController = {
       res.status(500).json({ message: "server error during get function" });
     }
   },
+  async getPopular(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const subreddits = await SubredditModel.aggregate([
+        { $addFields: { memberCount: { $size: "$members" } } },
+        { $sort: { memberCount: -1 } },
+        { $limit: limit },
+      ]);
+
+      res.json(subreddits);
+    } catch (error) {
+      console.error("Error getting popular subreddits:", error);
+      res
+        .status(500)
+        .json({ message: "Server error getting popular subreddits" });
+    }
+  },
   async create(req: Request, res: Response) {
     try {
       let { userId } = getAuth(req) || {};

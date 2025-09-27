@@ -91,20 +91,35 @@ const PostController = {
         ])
       );
 
-      // Attach to posts
+      // Attach to posts and convert to plain objects
       const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
         return {
-          ...p,
+          ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
         };
       });
 
       let sortedPosts;
-      const { topic, sort, t } = req.query;
+      const { topic, sort, t, feed } = req.query;
+
+      // Handle feed parameter (used by usePostsFeed hook)
+      if (feed) {
+        switch (feed) {
+          case "home":
+          case "popular":
+            sortedPosts = sortHot(enrichedPosts);
+            break;
+          case "new":
+            sortedPosts = sortNew(enrichedPosts);
+            break;
+          default:
+            sortedPosts = sortHot(enrichedPosts);
+        }
+      }
       // Enforce either filtering by topic or sorting by sort type
-      if (
+      else if (
         topic &&
         Object.values(CommunityTopic).includes(topic as CommunityTopic)
       ) {
