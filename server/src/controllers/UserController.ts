@@ -7,6 +7,39 @@ import { getAuth } from "@clerk/express";
 import { sortHot, sortNew, sortTop } from "../utils/sortUtils";
 
 const UserController = {
+  async getCurrentUser(req: Request, res: Response) {
+    try {
+      const auth = getAuth(req);
+
+      let clerkId = auth?.userId;
+
+      // Allow fallback to body param for development/testing
+      if (!clerkId) {
+        clerkId = req.body.clerkId;
+      }
+      if (!clerkId) {
+        return res.status(401).json({ message: "Not authenticated", auth });
+      }
+
+      const user = await UserModel.findOne({ clerkId });
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
+
+      res.json({
+        data: user,
+        success: true,
+      });
+    } catch (error) {
+      console.error("cant get current user", error);
+      res
+        .status(500)
+        .json({ message: "server error during get current user function" });
+    }
+  },
   async get(req: Request, res: Response) {
     try {
       const user = await UserModel.findById(req.params.userId);
@@ -21,7 +54,7 @@ const UserController = {
         success: true,
       });
     } catch (error) {
-      console.error("cant get", error);
+      console.error("cant get user by id", error);
       res.status(500).json({ message: "server error during get function" });
     }
   },
