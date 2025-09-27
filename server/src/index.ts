@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import redditRoutes from "./routes/reddit";
 import postRoutes from "./routes/post";
 import commentRoutes from "./routes/comment";
 import userRoutes from "./routes/user";
@@ -82,7 +81,6 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/api/reddit", redditRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
 app.use("/comments", commentRoutes);
