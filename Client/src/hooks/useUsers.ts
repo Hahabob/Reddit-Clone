@@ -19,7 +19,7 @@ export const useUser = (userId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/users/${userId}`);
-      return response.data as BackendUser;
+      return response.data.data as BackendUser; // Backend returns { data: user, success: true }
     },
     enabled: !!userId,
   });
@@ -47,7 +47,7 @@ export const useCurrentUser = () => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get("/users/me");
-      return response.data as BackendUser;
+      return response.data;
     },
   });
 };

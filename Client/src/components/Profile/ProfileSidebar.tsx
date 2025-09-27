@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useUser } from "../../hooks/useUsers";
 import CameraIcon from "../../assets/cameraIcon.svg";
 import ShareIcon from "../../assets/share-icon.svg";
 import bananaMedal from "../../assets/BananaAchivement.webp";
@@ -9,11 +10,12 @@ import EyeIcon from "../../assets/eyeIcon.svg";
 import ShieldIcon from "../../assets/shieldIcon.svg";
 
 interface ProfileSidebarProps {
-  username: string;
+  userId: string;
 }
 
-export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
+export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ userId }) => {
   const { isDarkMode } = useTheme();
+  const { data: user, isLoading, error } = useUser(userId);
 
   const settings = [
     {
@@ -68,7 +70,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ username }) => {
           <div className="p-4 -mt-10 relative">
             <div className="flex items-end justify-between mb-8"></div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-              {username}
+              {user?.username || "Loading..."}
             </h2>
             <button
               className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[9px] mb-4 font-medium cursor-pointer ${
