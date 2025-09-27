@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/clerk-react";
+import { useCurrentUser } from "../../hooks/useUsers";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -26,16 +27,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
 }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const { user } = useUser();
+  const { data: currentBackendUser } = useCurrentUser();
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const sidebarRef = useRef<HTMLDivElement>(null);
   const handleViewProfile = () => {
-    if (user?.username) {
-      const profileUrl = `/user/${user.username}`;
-      navigate(profileUrl);
-      onClose();
-    } else if (user?.firstName) {
-      const profileUrl = `/user/${user.firstName}`;
+    if (currentBackendUser?.data?._id) {
+      const profileUrl = `/user/${currentBackendUser.data._id}`;
       navigate(profileUrl);
       onClose();
     }
@@ -88,10 +86,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             </div>
             <div className="relative z-10">
               <div className="text-sm text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
-                View Profile
+                {currentBackendUser?.data?.username || "View Profile"}
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                u/{user?.username || user?.firstName}
+                u/
+                {currentBackendUser?.data?.username ||
+                  user?.username ||
+                  user?.firstName}
               </div>
             </div>
           </button>

@@ -5,6 +5,8 @@ import CommentController from "../controllers/CommentController";
 import SubredditController from "../controllers/SubredditController";
 
 const router = express.Router();
+//Get current user profile
+router.get("/me", UserController.getCurrentUser);
 //Get user profile
 router.get("/:userId", UserController.get);
 //List users
