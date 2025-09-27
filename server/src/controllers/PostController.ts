@@ -68,12 +68,29 @@ const PostController = {
           .json({ message: `Invalid content type: ${content.type}` });
       }
 
+      // Map content based on type
+      let contentData: any = { type: content.type };
+
+      switch (content.type) {
+        case "text":
+          contentData.text = content.value;
+          break;
+        case "image":
+          contentData.url = content.value;
+          break;
+        case "video":
+          contentData.url = content.value;
+          break;
+        case "link":
+          contentData.url = content.value;
+          break;
+        default:
+          contentData.text = content.value;
+      }
+
       const newPost = await PostModel.create({
         title,
-        content: {
-          type: content.type,
-          value: content.value,
-        },
+        content: contentData,
         topics: subreddit.topics,
         authorId: user._id,
         subredditId,
@@ -87,7 +104,7 @@ const PostController = {
   },
   async getAll(req: Request, res: Response) {
     try {
-      const Posts = (await PostModel.find({})) || "no posts yet";
+      const Posts = (await PostModel.find({}).populate('subredditId', 'name')) || "no posts yet";
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
@@ -178,7 +195,7 @@ const PostController = {
   async get(req: Request, res: Response) {
     try {
       const { postId } = req.params;
-      const post = await PostModel.findById(postId);
+      const post = await PostModel.findById(postId).populate('subredditId', 'name');
 
       if (!post) {
         res.status(400).json({ success: false, message: "post not found" });
@@ -337,7 +354,7 @@ const PostController = {
           .status(400)
           .json({ success: false, message: "User ID is required" });
       }
-      const userPosts = await PostModel.find({ authorId: userId }).sort({
+      const userPosts = await PostModel.find({ authorId: userId }).populate('subredditId', 'name').sort({
         createdAt: -1,
       });
       const userPostIds = userPosts.map((p) => p._id);

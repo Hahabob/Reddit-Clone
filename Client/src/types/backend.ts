@@ -20,7 +20,7 @@ export type PostContent =
 
 export interface BackendPost {
   _id: string;
-  subredditId: string;
+  subredditId: string | { _id: string; name: string };
   authorId: string;
   title: string;
   content: PostContent;

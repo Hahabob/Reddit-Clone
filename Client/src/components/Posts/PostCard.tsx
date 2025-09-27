@@ -92,6 +92,13 @@ export const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
+  const getSubredditName = (): string => {
+    if (typeof post.subredditId === 'object' && post.subredditId.name) {
+      return post.subredditId.name;
+    }
+    return 'unknown';
+  };
+
   const formatTimeAgo = (dateString: string): string => {
     const now = Date.now();
     const postDate = new Date(dateString).getTime();
@@ -177,7 +184,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-1 text-xs text-gray-500">
-              <span>r/subreddit</span>
+              <span>r/{getSubredditName()}</span>
               <span>•</span>
               <span>u/author</span>
               <span>•</span>
@@ -224,7 +231,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 isDarkMode ? "text-gray-300" : "text-gray-600"
               )}
             >
-              r/subreddit
+              r/{getSubredditName()}
             </span>
             <span
               className={cn(

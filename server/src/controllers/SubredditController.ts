@@ -252,7 +252,7 @@ const SubredditController = {
   async getPosts(req: Request, res: Response) {
     try {
       const Posts =
-        (await PostModel.find({ subredditId: req.params.subredditId })) || [];
+        (await PostModel.find({ subredditId: req.params.subredditId }).populate('subredditId', 'name')) || [];
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
