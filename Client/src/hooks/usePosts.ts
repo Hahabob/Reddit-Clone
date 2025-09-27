@@ -4,11 +4,11 @@ import { queryKeys } from "../services/queryKeys";
 
 export interface CreatePostData {
   title: string;
-  content?: string;
+  content: {
+    type: "text" | "image" | "video" | "link";
+    value: string;
+  };
   subredditId: string;
-  type: "text" | "image" | "link";
-  imageUrl?: string;
-  linkUrl?: string;
 }
 
 export interface UpdatePostData {
