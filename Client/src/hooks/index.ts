@@ -39,6 +39,7 @@ export {
 export {
   useSubreddits,
   useSubreddit,
+  useSubredditByName,
   usePopularSubreddits,
   useJoinedSubreddits,
   useCreateSubreddit,

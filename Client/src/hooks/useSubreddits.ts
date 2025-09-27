@@ -48,6 +48,20 @@ export const useSubreddit = (subredditId: string) => {
   });
 };
 
+export const useSubredditByName = (subredditName: string) => {
+  const getApi = useAuthenticatedApi();
+
+  return useQuery({
+    queryKey: ["subreddits", "name", subredditName],
+    queryFn: async () => {
+      const api = await getApi();
+      const response = await api.get(`/subreddits/name/${subredditName}`);
+      return response.data;
+    },
+    enabled: !!subredditName,
+  });
+};
+
 export const usePopularSubreddits = () => {
   const getApi = useAuthenticatedApi();
 
@@ -69,9 +83,10 @@ export const useJoinedSubreddits = (userId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/users/${userId}/subreddits`);
-      return response.data;
+      return response.data.data || []; // Extract data field from { success: true, data: [...] }
     },
     enabled: !!userId,
+    retry: false, // Don't retry if user has no subreddits
   });
 };
 
@@ -132,7 +147,7 @@ export const useJoinSubreddit = () => {
       const response = await api.post(`/subreddits/${subredditId}/join`);
       return response.data;
     },
-    onSuccess: (_, subredditId) => {
+    onSuccess: () => {
       // Invalidate subreddit data to refresh membership status
       queryClient.invalidateQueries({ queryKey: ["subreddits"] });
 
@@ -169,7 +184,7 @@ export const useLeaveSubreddit = () => {
   return useMutation({
     mutationFn: async (subredditId: string) => {
       const api = await getApi();
-      const response = await api.delete(`/subreddits/${subredditId}/join`);
+      const response = await api.post(`/subreddits/${subredditId}/leave`);
       return response.data;
     },
     onSuccess: () => {

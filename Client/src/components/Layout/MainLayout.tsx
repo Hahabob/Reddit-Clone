@@ -6,6 +6,7 @@ import { RightSidebar } from "./RightSidebar";
 import { PostFeed, type PostFeedRef } from "../Posts/PostFeed";
 import CreatePost from "../Posts/CreatePost";
 import { ProfilePage } from "../../pages/ProfilePage";
+import { SubredditPage } from "../../pages/SubredditPage";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export const MainLayout: React.FC = () => {
@@ -16,6 +17,9 @@ export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const isUserProfile = location.pathname.startsWith("/user/");
   const isCreatePost = location.pathname === "/create-post";
+  const isSubredditPage =
+    location.pathname.startsWith("/r/") &&
+    !location.pathname.includes("/comments/");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -66,6 +70,10 @@ export const MainLayout: React.FC = () => {
             <main className="w-full max-w-2xl p-4 mr-50">
               <CreatePost />
             </main>
+          </div>
+        ) : isSubredditPage ? (
+          <div className="flex-1">
+            <SubredditPage />
           </div>
         ) : (
           <div className="flex-1 flex ml-30">

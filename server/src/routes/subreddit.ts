@@ -7,6 +7,8 @@ const router = experss.Router();
 router.get("/", SubredditController.getAll);
 //Get popular communities
 router.get("/popular", SubredditController.getPopular);
+//Get subreddit by name (for /r/subredditName URLs)
+router.get("/name/:name", SubredditController.getByName);
 //Get single community
 router.get("/:subredditId", SubredditController.get);
 //Create community
