@@ -43,7 +43,11 @@ export const MainLayout: React.FC = () => {
   }, [location.pathname]);
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-[#0d0d0f]" : "bg-white"}`}>
+    <div
+      className={`min-h-screen overflow-x-hidden ${
+        isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
+      }`}
+    >
       <Header
         onToggleSidebar={toggleSidebar}
         onSearch={handleSearch}
@@ -64,8 +68,8 @@ export const MainLayout: React.FC = () => {
             </main>
           </div>
         ) : (
-          <div className="flex-1 flex ml-50">
-            <main className="flex-1 min-h-screen max-w-2xl p-4">
+          <div className="flex-1 flex ml-30">
+            <main className="flex-1 min-h-screen max-w-3xl p-4">
               <PostFeed ref={postFeedRef} />
             </main>
             <aside className="hidden xl:block w-80 p-4">
