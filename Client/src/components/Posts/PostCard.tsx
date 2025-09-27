@@ -109,17 +109,17 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const getImageUrl = (): string | undefined => {
-    if (post.content.type === "image") {
+    if (post.content?.type === "image") {
       return post.content.url;
     }
-    if (post.content.type === "mixed" && post.content.images?.[0]) {
+    if (post.content?.type === "mixed" && post.content.images?.[0]) {
       return post.content.images[0].url;
     }
     return undefined;
   };
 
   const getVideoUrl = (): string | undefined => {
-    if (post.content.type === "video") {
+    if (post.content?.type === "video") {
       return post.content.url;
     }
     return undefined;
@@ -283,7 +283,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         </h2>
       </div>
 
-      {post.content.type === "text" && post.content.text && (
+      {post.content?.type === "text" && post.content?.text && (
         <div className="pb-4">
           <p
             className={cn(
@@ -321,13 +321,13 @@ export const PostCard: React.FC<PostCardProps> = ({
         </div>
       ) : null}
 
-      {post.content.type === "link" &&
-        post.content.url &&
+      {post.content?.type === "link" &&
+        post.content?.url &&
         !getImageUrl() &&
         !getVideoUrl() && (
           <div className="pb-4">
             <a
-              href={post.content.type === "link" ? post.content.url : "#"}
+              href={post.content?.type === "link" ? post.content.url : "#"}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
@@ -345,7 +345,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                       isDarkMode ? "text-white" : "text-gray-900"
                     )}
                   >
-                    {post.content.type === "link" && post.content.title
+                    {post.content?.type === "link" && post.content?.title
                       ? post.content.title
                       : "External Link"}
                   </p>
@@ -355,7 +355,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     )}
                   >
-                    {post.content.type === "link" ? post.content.url : ""}
+                    {post.content?.type === "link" ? post.content.url : ""}
                   </p>
                 </div>
                 <div className="text-gray-400">
