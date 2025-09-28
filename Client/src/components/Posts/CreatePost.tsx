@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -8,6 +8,7 @@ import {
   useJoinedSubreddits,
   usePopularSubreddits,
   useCurrentUser,
+  useUploadMultipleImages,
 } from "../../hooks";
 import type { BackendSubreddit } from "../../types/backend";
 import defaultAvatar from "../../assets/defaultAvatar.png";
@@ -38,9 +39,17 @@ const CreatePost: React.FC = () => {
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
+  // File upload state
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // Refs
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hooks
   const createPostMutation = useCreatePost();
+  const uploadMultipleImagesMutation = useUploadMultipleImages();
 
   // Get current user's backend data to get MongoDB _id
   const { data: currentUserData } = useCurrentUser();
@@ -107,8 +116,12 @@ const CreatePost: React.FC = () => {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = () => {
-      if (subredditDropdownOpen) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        subredditDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setSubredditDropdownOpen(false);
       }
     };
@@ -217,9 +230,20 @@ const CreatePost: React.FC = () => {
         contentType = "link";
         break;
       case "images":
-        // For now, just show alert. You'll need file upload functionality
-        alert("Image uploads not yet implemented");
-        return;
+        if (selectedFiles.length === 0) {
+          alert("Please select at least one image");
+          return;
+        }
+        // Upload files and get URLs
+        const uploadedUrls = await uploadFiles();
+        if (uploadedUrls.length === 0) {
+          return; // Upload failed, error already shown
+        }
+        // For multiple images, we'll use the first one as the main content
+        // In a full implementation, you might want to handle multiple images differently
+        contentValue = uploadedUrls[0];
+        contentType = "image";
+        break;
       default:
         contentValue = bodyText;
         contentType = "text";
@@ -241,6 +265,7 @@ const CreatePost: React.FC = () => {
       setTitle("");
       setBodyText("");
       setLinkUrl("");
+      setSelectedFiles([]);
 
       // Navigate to home or show success message
       navigate("/");
@@ -258,6 +283,70 @@ const CreatePost: React.FC = () => {
       type: activeTab,
     });
     alert("Draft saving not yet implemented");
+  };
+
+  // File upload handlers
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    if (imageFiles.length !== files.length) {
+      alert("Only image files are currently supported");
+    }
+
+    if (imageFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+
+    const files = Array.from(event.dataTransfer.files);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    if (imageFiles.length !== files.length) {
+      alert("Only image files are currently supported");
+    }
+
+    if (imageFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async () => {
+    if (selectedFiles.length === 0) return [];
+
+    try {
+      const uploadResult = await uploadMultipleImagesMutation.mutateAsync(
+        selectedFiles
+      );
+      const urls = uploadResult.map((result) => result.url);
+      return urls;
+    } catch (error) {
+      console.error("Failed to upload files:", error);
+      alert("Failed to upload images. Please try again.");
+      return [];
+    }
   };
 
   const tabs = [
@@ -341,7 +430,7 @@ const CreatePost: React.FC = () => {
             >
               Choose a community
             </label>
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setSubredditDropdownOpen(!subredditDropdownOpen)}
@@ -559,23 +648,130 @@ const CreatePost: React.FC = () => {
             )}
 
             {activeTab === "images" && (
-              <div
-                className={`border-2 border-dashed rounded-lg p-15 text-center  ${
-                  isDarkMode ? "border-gray-600" : "border-gray-300"
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <p
-                    className={`text-sm ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Drag and Drop or upload media
-                  </p>
-                  <div className="cursor-pointer bg-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-full p-2 flex items-center justify-center">
-                    <UploadPicIcon />
+              <div className="space-y-4">
+                {/* File Upload Area */}
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragOver
+                      ? isDarkMode
+                        ? "border-blue-400 bg-blue-900/20"
+                        : "border-blue-400 bg-blue-50"
+                      : isDarkMode
+                      ? "border-gray-600 hover:border-gray-500"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div
+                      className="cursor-pointer bg-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-full p-3 flex items-center justify-center"
+                      onClick={handleUploadClick}
+                    >
+                      <UploadPicIcon />
+                    </div>
+                    <div className="text-center">
+                      <p
+                        className={`text-sm font-medium ${
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                        }`}
+                      >
+                        Drag and drop images here, or{" "}
+                        <button
+                          type="button"
+                          onClick={handleUploadClick}
+                          className="text-blue-500 hover:text-blue-600 underline"
+                        >
+                          browse files
+                        </button>
+                      </p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        Supports: JPG, PNG, GIF (Max 10MB each)
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
                 </div>
+
+                {/* Selected Files Preview */}
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <h4
+                      className={`text-sm font-medium ${
+                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Selected Images ({selectedFiles.length})
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {selectedFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className={`relative rounded-lg overflow-hidden border ${
+                            isDarkMode ? "border-gray-600" : "border-gray-300"
+                          }`}
+                        >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                          <div
+                            className={`absolute bottom-0 left-0 right-0 px-2 py-1 text-xs truncate ${
+                              isDarkMode
+                                ? "bg-black/70 text-white"
+                                : "bg-white/70 text-black"
+                            }`}
+                          >
+                            {file.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Status */}
+                {uploadMultipleImagesMutation.isPending && (
+                  <div className="text-center py-4">
+                    <p
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Uploading images...
+                    </p>
+                  </div>
+                )}
+
+                {uploadMultipleImagesMutation.isError && (
+                  <div className="p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg">
+                    <p className="text-sm">
+                      Failed to upload images. Please try again.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

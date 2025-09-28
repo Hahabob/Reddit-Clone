@@ -37,7 +37,7 @@ export const usePost = (postId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/posts/${postId}`);
-      return response.data;
+      return response.data.data; // Extract the actual post data
     },
     enabled: !!postId,
   });
