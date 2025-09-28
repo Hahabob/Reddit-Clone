@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { cn } from "../lib/utils";
 import {
@@ -84,6 +84,7 @@ const SaveIcon = () => (
 const PostPage: React.FC = () => {
   const { isDarkMode } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Extract postId from URL pattern /r/{subreddit}/comments/{postId}
   const postId = location.pathname.split("/comments/")[1]?.split("/")[0];
@@ -303,9 +304,12 @@ const PostPage: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <span
                     className={cn(
-                      "text-sm font-medium",
-                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                      "text-sm font-medium cursor-pointer hover:underline",
+                      isDarkMode
+                        ? "text-gray-300 hover:text-white"
+                        : "text-gray-600 hover:text-blue-600"
                     )}
+                    onClick={() => navigate(`/r/${getSubredditName()}`)}
                   >
                     r/{getSubredditName()}
                   </span>

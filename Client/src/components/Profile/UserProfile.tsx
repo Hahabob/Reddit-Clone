@@ -6,7 +6,10 @@ import {
   useUserPosts,
   useUserComments,
   useUserOverview,
+  useCurrentUser,
 } from "../../hooks/useUsers";
+import { PostCard } from "../Posts/PostCard";
+import type { BackendPost } from "../../types/backend";
 import wonderingSnoo from "../../assets/wonderingSnoo.png";
 import defaultAvatar from "../../assets/defaultAvatar.png";
 import CameraIcon from "../../assets/cameraIcon.svg";
@@ -32,9 +35,17 @@ export const UserProfile: React.FC = () => {
     isLoading: userLoading,
     error: userError,
   } = useUser(userId || "");
-  const { data: posts } = useUserPosts(userId || "");
+  const { data: currentUser } = useCurrentUser();
+  const {
+    data: posts,
+    isLoading: postsLoading,
+    error: postsError,
+  } = useUserPosts(userId || "");
   const { data: comments } = useUserComments(userId || "");
   const { data: overview } = useUserOverview(userId || "");
+
+  // Check if the current user is viewing their own profile
+  const isOwnProfile = currentUser?.data?._id === userId;
 
   const [selectedSort, setSelectedSort] = useState("New");
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -117,37 +128,163 @@ export const UserProfile: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        return (
-          <div className="text-center py-16">
-            <div className="mb-4">
-              <div className="w-20 h-20 mx-auto flex items-center justify-center">
-                <img
-                  src={wonderingSnoo}
-                  alt="Snoo wondering"
-                  className="w-full h-full object-contain"
-                />
+        // Only show posts if user is viewing their own profile
+        if (!isOwnProfile) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-8">
+                <div className="w-20 h-20 mx-auto">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+                  You can only view your own overview
+                </h3>
               </div>
+            </div>
+          );
+        }
+
+        if (postsLoading) {
+          return (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{user?.username || "user"} hasn't posted yet
+                Loading your overview...
               </h3>
             </div>
+          );
+        }
+
+        if (postsError) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-8">
+                <div className="w-20 h-20 mx-auto">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-red-600 dark:text-red-400 mb-3">
+                  Error loading overview
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {postsError?.message || "Failed to load overview"}
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        if (!posts?.data || posts.data.length === 0) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-4">
+                <div className="w-20 h-20 mx-auto flex items-center justify-center">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+                  u/{user?.username || "user"} hasn't posted yet
+                </h3>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-4 mt-16 ml-8">
+            {posts.data.map((post: BackendPost) => (
+              <PostCard key={post._id} post={post} viewMode="card" />
+            ))}
           </div>
         );
       case "posts":
-        return (
-          <div className="text-center py-16">
-            <div className="mb-8">
-              <div className="w-20 h-20 mx-auto">
-                <img
-                  src={wonderingSnoo}
-                  alt="Snoo wondering"
-                  className="w-full h-full object-contain"
-                />
+        // Only show posts if user is viewing their own profile
+        if (!isOwnProfile) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-8">
+                <div className="w-20 h-20 mx-auto">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+                  You can only view your own posts
+                </h3>
               </div>
+            </div>
+          );
+        }
+
+        if (postsLoading) {
+          return (
+            <div className="text-center py-16">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
-                u/{user?.username || "user"} hasn't posted yet
+                Loading your posts...
               </h3>
             </div>
+          );
+        }
+
+        if (postsError) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-8">
+                <div className="w-20 h-20 mx-auto">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-red-600 dark:text-red-400 mb-3">
+                  Error loading posts
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {postsError?.message || "Failed to load posts"}
+                </p>
+              </div>
+            </div>
+          );
+        }
+
+        if (!posts?.data || posts.data.length === 0) {
+          return (
+            <div className="text-center py-16">
+              <div className="mb-8">
+                <div className="w-20 h-20 mx-auto">
+                  <img
+                    src={wonderingSnoo}
+                    alt="Snoo wondering"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-3">
+                  u/{user?.username || "user"} hasn't posted yet
+                </h3>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="space-y-4 mt-16 ml-8">
+            {posts.data.map((post: BackendPost) => (
+              <PostCard key={post._id} post={post} viewMode="card" />
+            ))}
           </div>
         );
       case "comments":
