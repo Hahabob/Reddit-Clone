@@ -3,6 +3,7 @@ import { getAuth } from "@clerk/express";
 import { EnrichedComment, IComment } from "../models/Comment";
 import CommentModel from "../models/Comment";
 import VoteModel from "../models/Vote";
+import UserModel from "../models/User";
 import {
   sortHot,
   sortNew,
@@ -24,6 +25,12 @@ const CommentController = {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
+      // Convert Clerk ID to MongoDB User ID
+      const user = await UserModel.findOne({ clerkId: userId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const { postId } = req.params;
       if (!postId) {
         return res
@@ -35,14 +42,22 @@ const CommentController = {
         return res.status(400).json({ message: "Missing content" });
       }
 
+      console.log("Creating comment with:", {
+        postId,
+        authorId: user._id,
+        content,
+        clerkId: userId,
+      });
+
       const newComment = await CommentModel.create({
         postId: postId,
-        authorId: userId,
+        authorId: user._id, // Use MongoDB User ID, not Clerk ID
         content,
         createdAt: new Date(),
       });
       return res.status(201).json(newComment);
     } catch (error) {
+      console.error("Comment creation error:", error);
       return res.status(500).json({ message: "Server error" });
     }
   },
@@ -58,6 +73,12 @@ const CommentController = {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
+      // Convert Clerk ID to MongoDB User ID
+      const user = await UserModel.findOne({ clerkId: userId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const parentComment = await CommentModel.findById(req.params.commentId);
       if (!parentComment)
         return res.status(404).json({ message: "Comment not found" });
@@ -69,13 +90,14 @@ const CommentController = {
 
       const newReply = await CommentModel.create({
         postId: parentComment.postId,
-        authorId: userId,
+        authorId: user._id, // Use MongoDB User ID, not Clerk ID
         content,
         parentId: parentComment._id,
         createdAt: new Date(),
       });
       return res.status(201).json(newReply);
     } catch (error) {
+      console.error("Reply creation error:", error);
       return res.status(500).json({ message: "Server error" });
     }
   },
@@ -186,11 +208,17 @@ const CommentController = {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
+      // Convert Clerk ID to MongoDB User ID
+      const user = await UserModel.findOne({ clerkId: userId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const comment = await CommentModel.findById(req.params.commentId);
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" });
       }
-      if (comment.authorId.toString() !== userId) {
+      if (comment.authorId.toString() !== user._id.toString()) {
         return res.status(401).json({ message: "Unauthorized" });
       }
       if (comment.isDeleted || comment.isRemoved) {
@@ -217,13 +245,19 @@ const CommentController = {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
+      // Convert Clerk ID to MongoDB User ID
+      const user = await UserModel.findOne({ clerkId: userId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       const comment = await CommentModel.findById(req.params.commentId);
       if (!comment) {
         return res.status(404).json({ message: "Comment not found" });
       }
 
       // Only the author can delete their comment
-      if (comment.authorId.toString() !== userId) {
+      if (comment.authorId.toString() !== user._id.toString()) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 

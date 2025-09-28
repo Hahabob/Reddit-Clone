@@ -7,6 +7,7 @@ import { PostFeed, type PostFeedRef } from "../Posts/PostFeed";
 import CreatePost from "../Posts/CreatePost";
 import { ProfilePage } from "../../pages/ProfilePage";
 import { SubredditPage } from "../../pages/SubredditPage";
+import PostPage from "../../pages/PostPage";
 import { useTheme } from "../../contexts/ThemeContext";
 
 export const MainLayout: React.FC = () => {
@@ -20,6 +21,7 @@ export const MainLayout: React.FC = () => {
   const isSubredditPage =
     location.pathname.startsWith("/r/") &&
     !location.pathname.includes("/comments/");
+  const isPostPage = location.pathname.includes("/comments/");
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -74,6 +76,15 @@ export const MainLayout: React.FC = () => {
         ) : isSubredditPage ? (
           <div className="flex-1">
             <SubredditPage />
+          </div>
+        ) : isPostPage ? (
+          <div className="flex-1 flex ml-30">
+            <main className="flex-1 min-h-screen max-w-4xl p-4">
+              <PostPage />
+            </main>
+            <aside className="hidden xl:block w-80 p-4">
+              <RightSidebar />
+            </aside>
           </div>
         ) : (
           <div className="flex-1 flex ml-30">
