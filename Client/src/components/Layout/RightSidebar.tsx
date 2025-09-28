@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
 import { usePopularSubreddits } from "../../hooks";
@@ -7,6 +8,7 @@ import type { BackendSubreddit } from "../../types/backend";
 
 export const RightSidebar: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
 
   const {
@@ -94,9 +96,14 @@ export const RightSidebar: React.FC = () => {
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={cn(
-                                    "text-xs",
-                                    isDarkMode ? "text-white" : "text-gray-800"
+                                    "text-xs cursor-pointer hover:underline",
+                                    isDarkMode
+                                      ? "text-white hover:text-gray-300"
+                                      : "text-gray-800 hover:text-blue-600"
                                   )}
+                                  onClick={() =>
+                                    navigate(`/r/${community.name}`)
+                                  }
                                 >
                                   r/{community.name}
                                 </p>
