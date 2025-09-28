@@ -198,7 +198,18 @@ export const PostCard: React.FC<PostCardProps> = ({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-1 text-xs text-gray-500">
-              <span>r/{getSubredditName()}</span>
+              <span
+                className={cn(
+                  "cursor-pointer hover:underline",
+                  isDarkMode ? "hover:text-white" : "hover:text-blue-600"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/r/${getSubredditName()}`);
+                }}
+              >
+                r/{getSubredditName()}
+              </span>
               <span>•</span>
               <span>u/{postAuthor?.username || "loading..."}</span>
               <span>•</span>
@@ -244,9 +255,15 @@ export const PostCard: React.FC<PostCardProps> = ({
             ></div>
             <span
               className={cn(
-                "text-sm font-medium",
-                isDarkMode ? "text-gray-300" : "text-gray-600"
+                "text-sm font-medium cursor-pointer hover:underline",
+                isDarkMode
+                  ? "text-gray-300 hover:text-white"
+                  : "text-gray-600 hover:text-blue-600"
               )}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/r/${getSubredditName()}`);
+              }}
             >
               r/{getSubredditName()}
             </span>
