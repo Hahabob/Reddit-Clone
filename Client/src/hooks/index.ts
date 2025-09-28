@@ -21,6 +21,7 @@ export {
   useVoteComment,
   useCreateCommentReply,
   useRemoveComment,
+  usePostCommentCount,
 } from "./useComments";
 
 export {

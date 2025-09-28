@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
-import { useUser, useVotePost } from "../../hooks";
+import { useUser, useVotePost, usePostCommentCount } from "../../hooks";
 import type { BackendPost } from "../../types/backend";
 import { cn } from "../../lib/utils";
 
@@ -90,6 +90,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   // Get post author data
   const { data: postAuthor } = useUser(post.authorId);
   const votePostMutation = useVotePost();
+
+  // Get comment count for this specific post
+  const commentCount = usePostCommentCount(post._id);
 
   const handleVote = async (dir: 1 | -1) => {
     const newVote = voteState === dir ? 0 : dir;
@@ -182,7 +185,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                 isDarkMode ? "text-gray-300" : "text-gray-600"
               )}
             >
-              {formatScore(post.score)}
+              {formatScore(
+                (post.upvotes || 0) - (post.downvotes || 0) + voteState
+              )}
             </span>
             <button
               onClick={() => handleVote(-1)}
@@ -227,7 +232,9 @@ export const PostCard: React.FC<PostCardProps> = ({
               {post.title}
             </h3>
             <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
-              <span>0 comments</span>
+              <span>
+                {commentCount} comment{commentCount !== 1 ? "s" : ""}
+              </span>
               <span>Share</span>
               <span>Save</span>
             </div>
@@ -477,7 +484,9 @@ export const PostCard: React.FC<PostCardProps> = ({
             <IconWrapper size="sm">
               <CommentIcon />
             </IconWrapper>
-            <span className="text-sm font-medium">{formatScore(0)}</span>
+            <span className="text-sm font-medium">
+              {formatScore(commentCount)}
+            </span>
           </button>
           <button
             className={cn(
