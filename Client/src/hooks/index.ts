@@ -57,6 +57,8 @@ export {
   useDebounceSearch,
 } from "./useSearch";
 
+export { useUploadImage, useUploadMultipleImages } from "./useUpload";
+
 export { useAuthenticatedApi } from "../services/backendApi";
 export { queryKeys } from "../services/queryKeys";
 
@@ -66,3 +68,4 @@ export type { CreateCommentData, UpdateCommentData } from "./useComments";
 export type { UpdateUserData } from "./useUsers";
 export type { CreateSubredditData, UpdateSubredditData } from "./useSubreddits";
 export type { SearchOptions } from "./useSearch";
+export type { UploadResponse, UploadError } from "./useUpload";

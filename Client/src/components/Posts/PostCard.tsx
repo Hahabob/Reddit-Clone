@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useUser, useVotePost } from "../../hooks";
 import type { BackendPost } from "../../types/backend";
 import { cn } from "../../lib/utils";
 
@@ -82,21 +84,33 @@ export const PostCard: React.FC<PostCardProps> = ({
   viewMode = "card",
 }) => {
   const { isDarkMode } = useTheme();
-  const [voteState, setVoteState] = useState<"up" | "down" | null>(null);
+  const navigate = useNavigate();
+  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
 
-  const handleVote = (type: "up" | "down") => {
-    if (voteState === type) {
-      setVoteState(null);
-    } else {
-      setVoteState(type);
+  // Get post author data
+  const { data: postAuthor } = useUser(post.authorId);
+  const votePostMutation = useVotePost();
+
+  const handleVote = async (dir: 1 | -1) => {
+    const newVote = voteState === dir ? 0 : dir;
+    setVoteState(newVote);
+
+    try {
+      await votePostMutation.mutateAsync({
+        postId: post._id,
+        dir: newVote,
+      });
+    } catch (error) {
+      console.error("Failed to vote on post:", error);
+      setVoteState(voteState);
     }
   };
 
   const getSubredditName = (): string => {
-    if (typeof post.subredditId === 'object' && post.subredditId.name) {
+    if (typeof post.subredditId === "object" && post.subredditId.name) {
       return post.subredditId.name;
     }
-    return 'unknown';
+    return "unknown";
   };
 
   const formatTimeAgo = (dateString: string): string => {
@@ -152,10 +166,10 @@ export const PostCard: React.FC<PostCardProps> = ({
         <div className="flex items-center space-x-2">
           <div className="flex flex-col items-center space-y-1">
             <button
-              onClick={() => handleVote("up")}
+              onClick={() => handleVote(1)}
               className={cn(
                 "p-1 rounded",
-                voteState === "up"
+                voteState === 1
                   ? "text-orange-500"
                   : "text-gray-400 hover:text-orange-500"
               )}
@@ -171,10 +185,10 @@ export const PostCard: React.FC<PostCardProps> = ({
               {formatScore(post.score)}
             </span>
             <button
-              onClick={() => handleVote("down")}
+              onClick={() => handleVote(-1)}
               className={cn(
                 "p-1 rounded",
-                voteState === "down"
+                voteState === -1
                   ? "text-blue-500"
                   : "text-gray-400 hover:text-blue-500"
               )}
@@ -186,15 +200,18 @@ export const PostCard: React.FC<PostCardProps> = ({
             <div className="flex items-center space-x-1 text-xs text-gray-500">
               <span>r/{getSubredditName()}</span>
               <span>•</span>
-              <span>u/author</span>
+              <span>u/{postAuthor?.username || "loading..."}</span>
               <span>•</span>
               <span>{formatTimeAgo(post.createdAt)}</span>
             </div>
             <h3
               className={cn(
-                "text-sm font-medium mt-1 line-clamp-2",
+                "text-sm font-medium mt-1 line-clamp-2 cursor-pointer hover:underline",
                 isDarkMode ? "text-white" : "text-gray-900"
               )}
+              onClick={() =>
+                navigate(`/r/${getSubredditName()}/comments/${post._id}`)
+              }
             >
               {post.title}
             </h3>
@@ -239,7 +256,8 @@ export const PostCard: React.FC<PostCardProps> = ({
                 isDarkMode ? "text-gray-400" : "text-gray-500"
               )}
             >
-              • {formatTimeAgo(post.createdAt)}
+              • Posted by u/{postAuthor?.username || "loading..."} •{" "}
+              {formatTimeAgo(post.createdAt)}
             </span>
             {post.isPinned && (
               <span
@@ -282,9 +300,12 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="pb-2">
         <h2
           className={cn(
-            "text-lg font-medium",
+            "text-lg font-medium cursor-pointer hover:underline",
             isDarkMode ? "text-white" : "text-gray-900"
           )}
+          onClick={() =>
+            navigate(`/r/${getSubredditName()}/comments/${post._id}`)
+          }
         >
           {post.title}
         </h2>
@@ -393,11 +414,11 @@ export const PostCard: React.FC<PostCardProps> = ({
       >
         <div className="flex items-center space-x-4">
           <button
-            onClick={() => handleVote("up")}
+            onClick={() => handleVote(1)}
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
-              voteState === "up"
-                ? "bg-orange-100 text-orange-600"
+              voteState === 1
+                ? "bg-orange-100 text-orange-600 dark:bg-orange-900 dark:text-orange-400"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
@@ -407,15 +428,15 @@ export const PostCard: React.FC<PostCardProps> = ({
               <UpvoteIcon />
             </IconWrapper>
             <span className="text-sm font-medium">
-              {formatScore(post.score)}
+              {formatScore(post.upvotes - post.downvotes + voteState)}
             </span>
           </button>
           <button
-            onClick={() => handleVote("down")}
+            onClick={() => handleVote(-1)}
             className={cn(
               "flex items-center space-x-1 px-2 py-1 rounded-full transition-colors",
-              voteState === "down"
-                ? "bg-blue-100 text-blue-600"
+              voteState === -1
+                ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
                 : isDarkMode
                 ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
@@ -432,6 +453,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                 ? "text-gray-400 hover:bg-gray-900"
                 : "text-gray-500 hover:bg-gray-100"
             )}
+            onClick={() =>
+              navigate(`/r/${getSubredditName()}/comments/${post._id}`)
+            }
           >
             <IconWrapper size="sm">
               <CommentIcon />
