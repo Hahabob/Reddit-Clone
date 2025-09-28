@@ -94,12 +94,9 @@ export const SubredditPage: React.FC = () => {
       className={cn("min-h-screen", isDarkMode ? "bg-[#0d0d0f]" : "bg-white")}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Subreddit Header */}
         <SubredditHeader subreddit={subreddit} isJoined={isJoined} />
 
-        {/* Main Content */}
         <div className="flex">
-          {/* Posts Feed */}
           <main className="flex-1 min-h-screen max-w-3xl">
             <SubredditPostFeed
               subredditId={subreddit._id}
@@ -107,10 +104,8 @@ export const SubredditPage: React.FC = () => {
             />
           </main>
 
-          {/* Right Sidebar */}
           <aside className="hidden xl:block w-80 p-4">
             <div className="sticky top-4">
-              {/* Subreddit Info Card */}
               <div
                 className={cn(
                   "rounded-lg border p-4 mb-4",
@@ -176,7 +171,6 @@ export const SubredditPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Regular Right Sidebar */}
               <RightSidebar />
             </div>
           </aside>

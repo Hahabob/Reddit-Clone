@@ -83,10 +83,10 @@ export const useJoinedSubreddits = (userId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/users/${userId}/subreddits`);
-      return response.data.data || []; // Extract data field from { success: true, data: [...] }
+      return response.data.data || [];
     },
     enabled: !!userId,
-    retry: false, // Don't retry if user has no subreddits
+    retry: false,
   });
 };
 
@@ -101,7 +101,6 @@ export const useCreateSubreddit = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate subreddits list
       queryClient.invalidateQueries({ queryKey: queryKeys.subreddits.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.subreddits.popular });
     },
@@ -125,13 +124,11 @@ export const useUpdateSubreddit = () => {
       return response.data;
     },
     onSuccess: (updatedSubreddit, variables) => {
-      // Update the specific subreddit in cache
       queryClient.setQueryData(
         queryKeys.subreddits.detail(variables.subredditId),
         updatedSubreddit
       );
 
-      // Invalidate lists
       queryClient.invalidateQueries({ queryKey: queryKeys.subreddits.all });
     },
   });
@@ -148,10 +145,8 @@ export const useJoinSubreddit = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate subreddit data to refresh membership status
       queryClient.invalidateQueries({ queryKey: ["subreddits"] });
 
-      // Invalidate joined subreddits for current user
       queryClient.invalidateQueries({ queryKey: ["subreddits", "joined"] });
     },
     onMutate: async (subredditId) => {
@@ -188,7 +183,6 @@ export const useLeaveSubreddit = () => {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate all subreddit-related queries
       queryClient.invalidateQueries({ queryKey: ["subreddits"] });
     },
     onMutate: async (subredditId) => {

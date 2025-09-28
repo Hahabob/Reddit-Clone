@@ -26,7 +26,6 @@ const CreatePost: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // State
   const [activeTab, setActiveTab] = useState<
     "text" | "images" | "link" | "poll"
   >("text");
@@ -39,39 +38,56 @@ const CreatePost: React.FC = () => {
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
-  // File upload state
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
 
-  // Refs
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Hooks
   const createPostMutation = useCreatePost();
   const uploadMultipleImagesMutation = useUploadMultipleImages();
 
-  // Get current user's backend data to get MongoDB _id
   const { data: currentUserData } = useCurrentUser();
 
-  // Get user's joined subreddits using their MongoDB _id, fallback to popular if none
   const { data: joinedSubreddits = [] } = useJoinedSubreddits(
     currentUserData?.data?._id || ""
   );
   const { data: popularSubreddits = [] } = usePopularSubreddits();
 
-  // Combine subreddits for selection (prioritize joined ones)
   const availableSubreddits =
     joinedSubreddits.length > 0 ? joinedSubreddits : popularSubreddits;
 
-  // Set default subreddit when subreddits load
   useEffect(() => {
     if (availableSubreddits.length > 0 && !selectedSubreddit) {
       setSelectedSubreddit(availableSubreddits[0]._id);
     }
   }, [availableSubreddits, selectedSubreddit]);
 
-  // Show message if no subreddits available
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        subredditDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSubredditDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [subredditDropdownOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+      }
+    };
+  }, [tooltipTimeout]);
+
   if (!currentUserData?.data?._id) {
     return (
       <div
@@ -114,36 +130,6 @@ const CreatePost: React.FC = () => {
     );
   }
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        subredditDropdownOpen &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setSubredditDropdownOpen(false);
-      }
-    };
-
-    if (subredditDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [subredditDropdownOpen]);
-
-  // Cleanup timeout on component unmount
-  useEffect(() => {
-    return () => {
-      if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-      }
-    };
-  }, [tooltipTimeout]);
-
   const TooltipWrapper = ({
     children,
     tooltipText,
@@ -154,11 +140,9 @@ const CreatePost: React.FC = () => {
     buttonId: string;
   }) => {
     const handleMouseEnter = () => {
-      // Clear any existing timeout
       if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);
       }
-      // Set new timeout for 2 seconds
       const timeout = setTimeout(() => {
         setShowTooltip(buttonId);
       }, 1000);
@@ -167,7 +151,6 @@ const CreatePost: React.FC = () => {
 
     const handleMouseLeave = () => {
       setShowTooltip(null);
-      // Clear timeout when mouse leaves
       if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);
         setTooltipTimeout(null);
@@ -212,7 +195,6 @@ const CreatePost: React.FC = () => {
       return;
     }
 
-    // Prepare content based on active tab
     let contentValue = "";
     let contentType: "text" | "image" | "video" | "link" = "text";
 
@@ -229,21 +211,19 @@ const CreatePost: React.FC = () => {
         contentValue = linkUrl;
         contentType = "link";
         break;
-      case "images":
+      case "images": {
         if (selectedFiles.length === 0) {
           alert("Please select at least one image");
           return;
         }
-        // Upload files and get URLs
         const uploadedUrls = await uploadFiles();
         if (uploadedUrls.length === 0) {
-          return; // Upload failed, error already shown
+          return;
         }
-        // For multiple images, we'll use the first one as the main content
-        // In a full implementation, you might want to handle multiple images differently
         contentValue = uploadedUrls[0];
         contentType = "image";
         break;
+      }
       default:
         contentValue = bodyText;
         contentType = "text";
@@ -261,13 +241,11 @@ const CreatePost: React.FC = () => {
 
       await createPostMutation.mutateAsync(postData);
 
-      // Reset form
       setTitle("");
       setBodyText("");
       setLinkUrl("");
       setSelectedFiles([]);
 
-      // Navigate to home or show success message
       navigate("/");
     } catch (error) {
       console.error("Failed to create post:", error);
@@ -285,7 +263,6 @@ const CreatePost: React.FC = () => {
     alert("Draft saving not yet implemented");
   };
 
-  // File upload handlers
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));

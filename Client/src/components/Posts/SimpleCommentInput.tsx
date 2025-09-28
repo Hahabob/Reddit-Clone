@@ -21,7 +21,6 @@ const SimpleCommentInput: React.FC<SimpleCommentInputProps> = ({
   const { isDarkMode } = useTheme();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Reset the input when shouldReset prop changes to true
   React.useEffect(() => {
     if (shouldReset) {
       setIsExpanded(false);

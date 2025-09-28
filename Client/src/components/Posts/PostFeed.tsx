@@ -29,7 +29,6 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const [location, setLocation] = useState<string>("everywhere");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use backend hooks for data fetching
   const apiSort =
     sortBy === "best" ? "home" : sortBy === "hot" ? "popular" : "new";
   const {
@@ -43,18 +42,13 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
     error: searchError,
   } = useSearchPosts(searchQuery);
 
-  // Extract data array from response object and ensure it's always an array
   const posts = Array.isArray(postsResponse?.data) ? postsResponse.data : [];
   const searchResults = Array.isArray(searchResponse?.data)
     ? searchResponse.data
     : [];
 
-  // TODO: Implement location filtering with backend data if needed
-
-  // Socket functionality can be added back later if needed
   useEffect(() => {
     if (socket) {
-      // TODO: Implement socket listeners for real-time updates if needed
       return () => {
         socket.off("newPost");
         socket.off("postUpdate");

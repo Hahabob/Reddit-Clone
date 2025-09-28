@@ -87,11 +87,9 @@ export const PostCard: React.FC<PostCardProps> = ({
   const navigate = useNavigate();
   const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
 
-  // Get post author data
   const { data: postAuthor } = useUser(post.authorId);
   const votePostMutation = useVotePost();
 
-  // Get comment count for this specific post
   const commentCount = usePostCommentCount(post._id);
 
   const handleVote = async (dir: 1 | -1) => {

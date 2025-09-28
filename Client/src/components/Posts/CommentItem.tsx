@@ -85,7 +85,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const [showReplies, setShowReplies] = useState(true);
   const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
 
-  // Get comment author data
   const { data: commentAuthor } = useUser(comment.authorId);
 
   const voteCommentMutation = useVoteComment();
@@ -125,7 +124,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         commentId: comment._id,
         dir: newVote,
       });
-    } catch (error) {
+    } catch {
       setVoteState(voteState);
     }
   };
@@ -140,8 +139,8 @@ const CommentItem: React.FC<CommentItemProps> = ({
         },
       });
       setIsReplying(false);
-    } catch (error) {
-      // Handle error silently or show user feedback
+    } catch {
+      // Silently handle errors - no action needed
     }
   };
 

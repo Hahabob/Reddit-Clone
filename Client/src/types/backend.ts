@@ -1,5 +1,3 @@
-// Backend data structures that match MongoDB models
-
 export type PostContent =
   | { type: "text"; text: string }
   | { type: "image"; url: string; altText?: string }

@@ -29,7 +29,6 @@ export const UserProfile: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Fetch user data
   const {
     data: user,
     isLoading: userLoading,
@@ -44,7 +43,6 @@ export const UserProfile: React.FC = () => {
   const { data: comments } = useUserComments(userId || "");
   const { data: overview } = useUserOverview(userId || "");
 
-  // Check if the current user is viewing their own profile
   const isOwnProfile = currentUser?.data?._id === userId;
 
   const [selectedSort, setSelectedSort] = useState("New");
@@ -82,7 +80,6 @@ export const UserProfile: React.FC = () => {
     };
   }, [isDropdownOpen]);
 
-  // Add loading and error states
   if (userLoading) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -128,7 +125,6 @@ export const UserProfile: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        // Only show posts if user is viewing their own profile
         if (!isOwnProfile) {
           return (
             <div className="text-center py-16">
@@ -208,7 +204,6 @@ export const UserProfile: React.FC = () => {
           </div>
         );
       case "posts":
-        // Only show posts if user is viewing their own profile
         if (!isOwnProfile) {
           return (
             <div className="text-center py-16">

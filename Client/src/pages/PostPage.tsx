@@ -86,7 +86,6 @@ const PostPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract postId from URL pattern /r/{subreddit}/comments/{postId}
   const postId = location.pathname.split("/comments/")[1]?.split("/")[0];
   const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
   const [commentError, setCommentError] = useState<string | null>(null);
@@ -104,10 +103,8 @@ const PostPage: React.FC = () => {
     error: commentsError,
   } = useComments(postId || "");
 
-  // Get current user data for comment input
   const { data: currentUserData } = useCurrentUser();
 
-  // Get post author data
   const { data: postAuthor } = useUser(post?.authorId || "");
 
   const votePostMutation = useVotePost();
@@ -221,17 +218,15 @@ const PostPage: React.FC = () => {
   };
 
   const handleComment = async (content: string) => {
-    setCommentError(null); // Clear previous errors
-    setCommentSuccess(false); // Clear previous success
-    setRetryCount(0); // Reset retry count
+    setCommentError(null);
+    setCommentSuccess(false);
+    setRetryCount(0);
 
-    // Check if user is authenticated
     if (!currentUserData) {
       setCommentError("You must be logged in to comment.");
       return;
     }
 
-    // Validate content
     if (!content.trim()) {
       setCommentError("Comment cannot be empty.");
       return;
@@ -243,7 +238,6 @@ const PostPage: React.FC = () => {
         commentData: { content: content.trim() },
       });
       setCommentSuccess(true);
-      // Auto-hide success message after 3 seconds
       setTimeout(() => setCommentSuccess(false), 3000);
     } catch (error) {
       let errorMessage = "Unknown error occurred";
@@ -254,7 +248,6 @@ const PostPage: React.FC = () => {
 
         if (axiosError.response?.data?.message) {
           errorMessage = `Server error: ${axiosError.response.data.message}`;
-          // Allow retry for server errors
           canRetry = axiosError.response?.status === 500;
         } else if (axiosError.response?.status === 500) {
           errorMessage = "Internal server error - please try again later";
@@ -272,7 +265,6 @@ const PostPage: React.FC = () => {
 
       setCommentError(errorMessage);
 
-      // Show retry option for server errors
       if (canRetry && retryCount < 2) {
         setRetryCount((prev) => prev + 1);
       }
@@ -583,8 +575,6 @@ const PostPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setCommentError(null);
-                    // You would need to store the last comment content to retry
-                    // For now, just suggest the user to try again
                   }}
                   className={cn(
                     "text-xs underline font-medium",

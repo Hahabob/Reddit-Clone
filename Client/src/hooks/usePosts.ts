@@ -37,7 +37,7 @@ export const usePost = (postId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/posts/${postId}`);
-      return response.data.data; // Extract the actual post data
+      return response.data.data;
     },
     enabled: !!postId,
   });
@@ -81,11 +81,9 @@ export const useCreatePost = () => {
       return response.data;
     },
     onSuccess: (newPost) => {
-      // Invalidate and refetch posts lists
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.feed("home") });
 
-      // If we know the subreddit, invalidate that too
       if (newPost.subredditId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.posts.bySubreddit(newPost.subredditId),
@@ -112,13 +110,11 @@ export const useUpdatePost = () => {
       return response.data;
     },
     onSuccess: (updatedPost, variables) => {
-      // Update the specific post in cache
       queryClient.setQueryData(
         queryKeys.posts.detail(variables.postId),
         updatedPost
       );
 
-      // Invalidate lists to ensure consistency
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
     },
   });
@@ -135,12 +131,10 @@ export const useDeletePost = () => {
       return response.data;
     },
     onSuccess: (_, postId) => {
-      // Remove from cache
       queryClient.removeQueries({ queryKey: queryKeys.posts.detail(postId) });
 
-      // Invalidate lists
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
-      queryClient.invalidateQueries({ queryKey: ["posts"] }); // Invalidate all post-related queries
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 };
@@ -162,25 +156,20 @@ export const useVotePost = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific post and lists
       queryClient.invalidateQueries({
         queryKey: queryKeys.posts.detail(variables.postId),
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
     },
-    // Optimistic updates for better UX
     onMutate: async ({ postId, dir }) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({
         queryKey: queryKeys.posts.detail(postId),
       });
 
-      // Snapshot the previous value
       const previousPost = queryClient.getQueryData(
         queryKeys.posts.detail(postId)
       );
 
-      // Optimistically update the cache
       queryClient.setQueryData(queryKeys.posts.detail(postId), (old: any) => {
         if (!old) return old;
 
@@ -194,7 +183,6 @@ export const useVotePost = () => {
       return { previousPost };
     },
     onError: (_, variables, context) => {
-      // Rollback on error
       if (context?.previousPost) {
         queryClient.setQueryData(
           queryKeys.posts.detail(variables.postId),
@@ -216,7 +204,6 @@ export const useTagPostNsfw = () => {
       return response.data;
     },
     onSuccess: (_, postId) => {
-      // Invalidate the specific post to refresh its NSFW status
       queryClient.invalidateQueries({
         queryKey: queryKeys.posts.detail(postId),
       });
@@ -236,7 +223,6 @@ export const useTagPostSpoiler = () => {
       return response.data;
     },
     onSuccess: (_, postId) => {
-      // Invalidate the specific post to refresh its spoiler status
       queryClient.invalidateQueries({
         queryKey: queryKeys.posts.detail(postId),
       });
