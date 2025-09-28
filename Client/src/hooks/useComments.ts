@@ -265,3 +265,8 @@ export const useRemoveComment = () => {
     },
   });
 };
+
+export const usePostCommentCount = (postId: string) => {
+  const { data: comments } = useComments(postId);
+  return comments ? comments.length : 0;
+};
