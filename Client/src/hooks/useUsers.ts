@@ -20,7 +20,7 @@ export const useUser = (userId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/users/${userId}`);
-      return response.data.data as BackendUser; // Backend returns { data: user, success: true }
+      return response.data.data as BackendUser;
     },
     enabled: !!userId,
   });
@@ -51,7 +51,7 @@ export const useCurrentUser = () => {
       const response = await api.get("/users/me");
       return response.data;
     },
-    enabled: isLoaded && isSignedIn, // Only run when Clerk is loaded and user is signed in
+    enabled: isLoaded && isSignedIn,
   });
 };
 
@@ -72,19 +72,16 @@ export const useUpdateUser = () => {
       return response.data as BackendUser;
     },
     onSuccess: (updatedUser, variables) => {
-      // Update the specific user in cache
       queryClient.setQueryData(
         queryKeys.users.detail(variables.userId),
         updatedUser
       );
 
-      // Update profile cache if it exists
       queryClient.setQueryData(
         queryKeys.users.profile(variables.userId),
         updatedUser
       );
 
-      // If updating current user, update that cache too
       queryClient.invalidateQueries({ queryKey: ["users", "current"] });
     },
   });
@@ -101,7 +98,6 @@ export const useFollowUser = () => {
       return response.data;
     },
     onSuccess: (_, userId) => {
-      // Invalidate user data to refresh follow status
       queryClient.invalidateQueries({
         queryKey: queryKeys.users.detail(userId),
       });
@@ -123,7 +119,6 @@ export const useUnfollowUser = () => {
       return response.data;
     },
     onSuccess: (_, userId) => {
-      // Invalidate user data to refresh follow status
       queryClient.invalidateQueries({
         queryKey: queryKeys.users.detail(userId),
       });

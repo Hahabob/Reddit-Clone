@@ -28,7 +28,6 @@ export const SubredditPostFeed: React.FC<SubredditPostFeedProps> = ({
   const [location, setLocation] = useState<string>("everywhere");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use backend hooks for data fetching
   const {
     data: postsResponse,
     isLoading: loading,

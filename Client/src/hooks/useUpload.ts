@@ -20,11 +20,9 @@ export const useUploadImage = () => {
     mutationFn: async (file: File) => {
       const api = await getApi();
 
-      // Create FormData to send the file
       const formData = new FormData();
       formData.append("file", file);
 
-      // Upload to the backend endpoint
       const response = await api.post("/upload/image", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -46,7 +44,6 @@ export const useUploadMultipleImages = () => {
     mutationFn: async (files: File[]) => {
       const api = await getApi();
 
-      // Upload files one by one (could be optimized to upload in parallel)
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData();
         formData.append("file", file);

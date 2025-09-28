@@ -19,7 +19,6 @@ export const useComments = (postId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/posts/${postId}/comments`);
-      // Backend returns { success: true, data: [...] }, we need just the data
       return response.data.data || response.data;
     },
     enabled: !!postId,
@@ -71,27 +70,23 @@ export const useCreateComment = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      // Invalidate comments for the post with forced refetch
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.byPost(variables.postId),
         refetchType: "active",
       });
 
-      // Force refetch comments immediately
       setTimeout(() => {
         queryClient.refetchQueries({
           queryKey: queryKeys.comments.byPost(variables.postId),
         });
       }, 100);
 
-      // If it's a reply, also invalidate parent comment replies
       if (variables.commentData.parentId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.comments.replies(variables.commentData.parentId),
         });
       }
 
-      // Update post comment count if available
       queryClient.invalidateQueries({
         queryKey: queryKeys.posts.detail(variables.postId),
       });
@@ -116,13 +111,11 @@ export const useUpdateComment = () => {
       return response.data;
     },
     onSuccess: (updatedComment, variables) => {
-      // Update the specific comment in cache
       queryClient.setQueryData(
         queryKeys.comments.detail(variables.commentId),
         updatedComment
       );
 
-      // Invalidate the post's comments to ensure consistency
       if (updatedComment.postId) {
         queryClient.invalidateQueries({
           queryKey: queryKeys.comments.byPost(updatedComment.postId),
@@ -143,12 +136,10 @@ export const useDeleteComment = () => {
       return response.data;
     },
     onSuccess: (_, commentId) => {
-      // Remove from cache
       queryClient.removeQueries({
         queryKey: queryKeys.comments.detail(commentId),
       });
 
-      // Invalidate all comment-related queries
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
@@ -171,15 +162,12 @@ export const useVoteComment = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      // Invalidate the specific comment
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.detail(variables.commentId),
       });
 
-      // Invalidate comments lists
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
-    // Optimistic updates
     onMutate: async ({ commentId, dir }) => {
       await queryClient.cancelQueries({
         queryKey: queryKeys.comments.detail(commentId),
@@ -235,12 +223,10 @@ export const useCreateCommentReply = () => {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      // Invalidate replies for the parent comment
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.replies(variables.commentId),
       });
 
-      // Invalidate all comments to refresh counts
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
@@ -257,7 +243,6 @@ export const useRemoveComment = () => {
       return response.data;
     },
     onSuccess: (_, commentId) => {
-      // Invalidate the specific comment and lists
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.detail(commentId),
       });
