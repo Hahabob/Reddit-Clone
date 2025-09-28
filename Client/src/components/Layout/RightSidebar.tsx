@@ -1,38 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
-import { subredditsApi } from "../../services/redditApi";
-import type { RedditSubreddit } from "../../types/reddit";
+import { usePopularSubreddits } from "../../hooks";
+import type { BackendSubreddit } from "../../types/backend";
 
 export const RightSidebar: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
-  const [popularCommunities, setPopularCommunities] = useState<
-    RedditSubreddit[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchPopularCommunities = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await subredditsApi.getPopular({ limit: 10 });
-        setPopularCommunities(
-          response.data.children.map((child) => child.data)
-        );
-      } catch (err) {
-        setError("Failed to load popular communities");
-        console.error("Error fetching popular communities:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPopularCommunities();
-  }, []);
+  const {
+    data: popularCommunities = [],
+    isLoading: loading,
+    error,
+  } = usePopularSubreddits();
 
   const displayedCommunities = showAll
     ? popularCommunities
@@ -80,57 +63,69 @@ export const RightSidebar: React.FC = () => {
                           isDarkMode ? "text-red-400" : "text-red-500"
                         )}
                       >
-                        {error}
+                        Failed to load popular communities
                       </p>
                     </div>
                   ) : (
                     <>
-                      {displayedCommunities.map((community) => (
-                        <div
-                          key={community.id}
-                          className="flex items-center justify-between py-2 px-1 rounded cursor-pointer"
-                        >
-                          <div className="flex items-center flex-1 min-w-0">
-                            <div className="flex-shrink-0 mr-3">
-                              {community.icon_img ? (
-                                <img
-                                  src={community.icon_img}
-                                  alt={community.display_name}
-                                  className="w-6 h-6 rounded-full object-cover"
-                                />
-                              ) : (
-                                <div
+                      {displayedCommunities.map(
+                        (community: BackendSubreddit) => (
+                          <div
+                            key={community._id}
+                            className="flex items-center justify-between py-2 px-1 rounded cursor-pointer"
+                          >
+                            <div className="flex items-center flex-1 min-w-0">
+                              <div className="flex-shrink-0 mr-3">
+                                {community.iconUrl ? (
+                                  <img
+                                    src={community.iconUrl}
+                                    alt={community.name}
+                                    className="w-6 h-6 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div
+                                    className={cn(
+                                      "w-6 h-6 rounded-full flex items-center justify-center text-xs",
+                                      isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                                    )}
+                                  >
+                                    r/
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p
                                   className={cn(
-                                    "w-6 h-6 rounded-full flex items-center justify-center text-xs",
-                                    isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                                    "text-xs cursor-pointer hover:underline",
+                                    isDarkMode
+                                      ? "text-white hover:text-gray-300"
+                                      : "text-gray-800 hover:text-blue-600"
+                                  )}
+                                  onClick={() =>
+                                    navigate(`/r/${community.name}`)
+                                  }
+                                >
+                                  r/{community.name}
+                                </p>
+                                <p
+                                  className={cn(
+                                    "text-xs",
+                                    isDarkMode
+                                      ? "text-gray-400"
+                                      : "text-gray-500"
                                   )}
                                 >
-                                  r/
-                                </div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p
-                                className={cn(
-                                  "text-xs",
-                                  isDarkMode ? "text-white" : "text-gray-800"
-                                )}
-                              >
-                                r/{community.display_name}
-                              </p>
-                              <p
-                                className={cn(
-                                  "text-xs",
-                                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                                )}
-                              >
-                                {formatMemberCount(community.subscribers)}{" "}
-                                members
-                              </p>
+                                  {formatMemberCount(
+                                    community.memberCount ||
+                                      community.members.length
+                                  )}{" "}
+                                  members
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                       {popularCommunities.length > 5 && (
                         <button
                           onClick={() => setShowAll(!showAll)}

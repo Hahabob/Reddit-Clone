@@ -4,11 +4,11 @@ import { queryKeys } from "../services/queryKeys";
 
 export interface CreatePostData {
   title: string;
-  content?: string;
+  content: {
+    type: "text" | "image" | "video" | "link";
+    value: string;
+  };
   subredditId: string;
-  type: "text" | "image" | "link";
-  imageUrl?: string;
-  linkUrl?: string;
 }
 
 export interface UpdatePostData {
@@ -37,7 +37,7 @@ export const usePost = (postId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/posts/${postId}`);
-      return response.data;
+      return response.data.data; // Extract the actual post data
     },
     enabled: !!postId,
   });
