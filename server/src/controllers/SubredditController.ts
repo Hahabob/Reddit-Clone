@@ -32,6 +32,31 @@ const SubredditController = {
       res.status(500).json({ message: "server error during get function" });
     }
   },
+  async getByName(req: Request, res: Response) {
+    try {
+      const subreddit = await SubredditModel.findOne({ name: req.params.name });
+
+      if (!subreddit) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Subreddit not found" });
+      }
+
+      // Add member count to the response
+      const subredditWithMemberCount = {
+        ...subreddit.toObject(),
+        memberCount: subreddit.members.length,
+      };
+
+      res.json({
+        data: subredditWithMemberCount,
+        success: true,
+      });
+    } catch (error) {
+      console.error("Error getting subreddit by name:", error);
+      res.status(500).json({ message: "Server error getting subreddit" });
+    }
+  },
   async getAll(req: Request, res: Response) {
     try {
       const { topic } = req.query;
@@ -54,6 +79,24 @@ const SubredditController = {
     } catch (error) {
       console.error("cant get", error);
       res.status(500).json({ message: "server error during get function" });
+    }
+  },
+  async getPopular(req: Request, res: Response) {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const subreddits = await SubredditModel.aggregate([
+        { $addFields: { memberCount: { $size: "$members" } } },
+        { $sort: { memberCount: -1 } },
+        { $limit: limit },
+      ]);
+
+      res.json(subreddits);
+    } catch (error) {
+      console.error("Error getting popular subreddits:", error);
+      res
+        .status(500)
+        .json({ message: "Server error getting popular subreddits" });
     }
   },
   async create(req: Request, res: Response) {
@@ -132,12 +175,12 @@ const SubredditController = {
   },
   async join(req: Request, res: Response) {
     try {
-      let { userId } = getAuth(req) || {};
+      let { userId: clerkUserId } = getAuth(req) || {};
 
-      if (!userId) {
-        userId = req.body.userId;
+      if (!clerkUserId) {
+        clerkUserId = req.body.userId;
       }
-      if (!userId) {
+      if (!clerkUserId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
@@ -146,19 +189,21 @@ const SubredditController = {
         return res.status(404).json({ message: "Subreddit not found" });
       }
 
-      const user = await UserModel.findById(userId);
+      // Find user by Clerk ID, not MongoDB ID
+      const user = await UserModel.findOne({ clerkId: clerkUserId });
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
+      // Check if user is already a member
       if (!subreddit.members.includes(user._id)) {
         subreddit.members.push(user._id);
+        await subreddit.save();
       }
 
-      await subreddit.save();
       res.json({
         data: subreddit.members,
-        sucess: true,
+        success: true,
       });
     } catch (error) {
       console.error("Error joining subreddit:", error);
@@ -167,12 +212,12 @@ const SubredditController = {
   },
   async leave(req: Request, res: Response) {
     try {
-      let { userId } = getAuth(req) || {};
+      let { userId: clerkUserId } = getAuth(req) || {};
 
-      if (!userId) {
-        userId = req.body.userId;
+      if (!clerkUserId) {
+        clerkUserId = req.body.userId;
       }
-      if (!userId) {
+      if (!clerkUserId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
@@ -181,18 +226,24 @@ const SubredditController = {
         return res.status(404).json({ message: "Subreddit not found" });
       }
 
-      const user = await UserModel.findById(userId);
+      // Find user by Clerk ID, not MongoDB ID
+      const user = await UserModel.findOne({ clerkId: clerkUserId });
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
 
-      if (!subreddit.members.includes(user._id)) {
+      // Remove user from members if they are a member
+      if (subreddit.members.includes(user._id)) {
         subreddit.members = subreddit.members.filter(
           (memberId) => memberId.toString() !== user._id.toString()
         );
+        await subreddit.save();
       }
 
-      await subreddit.save();
+      res.json({
+        data: subreddit.members,
+        success: true,
+      });
     } catch (error) {
       console.error("Error leaving subreddit:", error);
       return res.status(500).json({ message: "Something went wrong" });
@@ -201,7 +252,7 @@ const SubredditController = {
   async getPosts(req: Request, res: Response) {
     try {
       const Posts =
-        (await PostModel.find({ subredditId: req.params.subredditId })) || [];
+        (await PostModel.find({ subredditId: req.params.subredditId }).populate('subredditId', 'name')) || [];
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
@@ -228,7 +279,7 @@ const SubredditController = {
       const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
         return {
-          ...p,
+          ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
         };

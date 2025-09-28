@@ -19,7 +19,8 @@ export const useComments = (postId: string) => {
     queryFn: async () => {
       const api = await getApi();
       const response = await api.get(`/posts/${postId}/comments`);
-      return response.data;
+      // Backend returns { success: true, data: [...] }, we need just the data
+      return response.data.data || response.data;
     },
     enabled: !!postId,
   });
@@ -69,11 +70,19 @@ export const useCreateComment = () => {
       const response = await api.post(`/posts/${postId}/comments`, commentData);
       return response.data;
     },
-    onSuccess: (newComment, variables) => {
-      // Invalidate comments for the post
+    onSuccess: (_, variables) => {
+      // Invalidate comments for the post with forced refetch
       queryClient.invalidateQueries({
         queryKey: queryKeys.comments.byPost(variables.postId),
+        refetchType: "active",
       });
+
+      // Force refetch comments immediately
+      setTimeout(() => {
+        queryClient.refetchQueries({
+          queryKey: queryKeys.comments.byPost(variables.postId),
+        });
+      }, 100);
 
       // If it's a reply, also invalidate parent comment replies
       if (variables.commentData.parentId) {
@@ -255,4 +264,9 @@ export const useRemoveComment = () => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
   });
+};
+
+export const usePostCommentCount = (postId: string) => {
+  const { data: comments } = useComments(postId);
+  return comments ? comments.length : 0;
 };

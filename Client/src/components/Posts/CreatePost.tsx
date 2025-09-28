@@ -1,6 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { cn } from "../../lib/utils";
+import {
+  useCreatePost,
+  useJoinedSubreddits,
+  usePopularSubreddits,
+  useCurrentUser,
+  useUploadMultipleImages,
+} from "../../hooks";
+import type { BackendSubreddit } from "../../types/backend";
 import defaultAvatar from "../../assets/defaultAvatar.png";
 import UploadPicIcon from "../../assets/uploadPicIcon.svg";
 import LinkIcon from "../../assets/link-icon.svg";
@@ -13,16 +23,117 @@ import QuoteBlockIcon from "../../assets/quoteBlockIcon.svg";
 
 const CreatePost: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const navigate = useNavigate();
+  const { user } = useUser();
+
+  // State
   const [activeTab, setActiveTab] = useState<
     "text" | "images" | "link" | "poll"
   >("text");
   const [title, setTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [bodyText, setBodyText] = useState("");
+  const [selectedSubreddit, setSelectedSubreddit] = useState<string>("");
+  const [subredditDropdownOpen, setSubredditDropdownOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [tooltipTimeout, setTooltipTimeout] = useState<NodeJS.Timeout | null>(
     null
   );
+  // File upload state
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  // Refs
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Hooks
+  const createPostMutation = useCreatePost();
+  const uploadMultipleImagesMutation = useUploadMultipleImages();
+
+  // Get current user's backend data to get MongoDB _id
+  const { data: currentUserData } = useCurrentUser();
+
+  // Get user's joined subreddits using their MongoDB _id, fallback to popular if none
+  const { data: joinedSubreddits = [] } = useJoinedSubreddits(
+    currentUserData?.data?._id || ""
+  );
+  const { data: popularSubreddits = [] } = usePopularSubreddits();
+
+  // Combine subreddits for selection (prioritize joined ones)
+  const availableSubreddits =
+    joinedSubreddits.length > 0 ? joinedSubreddits : popularSubreddits;
+
+  // Set default subreddit when subreddits load
+  useEffect(() => {
+    if (availableSubreddits.length > 0 && !selectedSubreddit) {
+      setSelectedSubreddit(availableSubreddits[0]._id);
+    }
+  }, [availableSubreddits, selectedSubreddit]);
+
+  // Show message if no subreddits available
+  if (!currentUserData?.data?._id) {
+    return (
+      <div
+        className={`flex items-center justify-center min-h-screen ${
+          isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
+        }`}
+      >
+        <div className="text-center">
+          <p className={`text-lg ${isDarkMode ? "text-white" : "text-black"}`}>
+            Loading user data...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (availableSubreddits.length === 0) {
+    return (
+      <div
+        className={`flex items-center justify-center min-h-screen ${
+          isDarkMode ? "bg-[#0d0d0f]" : "bg-white"
+        }`}
+      >
+        <div className="text-center">
+          <p
+            className={`text-lg mb-4 ${
+              isDarkMode ? "text-white" : "text-black"
+            }`}
+          >
+            You need to join a community before creating posts.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Browse Communities
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        subredditDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setSubredditDropdownOpen(false);
+      }
+    };
+
+    if (subredditDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [subredditDropdownOpen]);
 
   // Cleanup timeout on component unmount
   useEffect(() => {
@@ -90,13 +201,78 @@ const CreatePost: React.FC = () => {
     );
   };
 
-  const handlePost = () => {
-    console.log("Creating post:", {
-      title,
-      linkUrl,
-      bodyText,
-      type: activeTab,
-    });
+  const handlePost = async () => {
+    if (!title.trim()) {
+      alert("Please enter a title for your post");
+      return;
+    }
+
+    if (!selectedSubreddit) {
+      alert("Please select a subreddit");
+      return;
+    }
+
+    // Prepare content based on active tab
+    let contentValue = "";
+    let contentType: "text" | "image" | "video" | "link" = "text";
+
+    switch (activeTab) {
+      case "text":
+        contentValue = bodyText;
+        contentType = "text";
+        break;
+      case "link":
+        if (!linkUrl.trim()) {
+          alert("Please enter a link URL");
+          return;
+        }
+        contentValue = linkUrl;
+        contentType = "link";
+        break;
+      case "images":
+        if (selectedFiles.length === 0) {
+          alert("Please select at least one image");
+          return;
+        }
+        // Upload files and get URLs
+        const uploadedUrls = await uploadFiles();
+        if (uploadedUrls.length === 0) {
+          return; // Upload failed, error already shown
+        }
+        // For multiple images, we'll use the first one as the main content
+        // In a full implementation, you might want to handle multiple images differently
+        contentValue = uploadedUrls[0];
+        contentType = "image";
+        break;
+      default:
+        contentValue = bodyText;
+        contentType = "text";
+    }
+
+    try {
+      const postData = {
+        title: title.trim(),
+        content: {
+          type: contentType,
+          value: contentValue,
+        },
+        subredditId: selectedSubreddit,
+      };
+
+      await createPostMutation.mutateAsync(postData);
+
+      // Reset form
+      setTitle("");
+      setBodyText("");
+      setLinkUrl("");
+      setSelectedFiles([]);
+
+      // Navigate to home or show success message
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      alert("Failed to create post. Please try again.");
+    }
   };
 
   const handleSaveDraft = () => {
@@ -106,6 +282,71 @@ const CreatePost: React.FC = () => {
       bodyText,
       type: activeTab,
     });
+    alert("Draft saving not yet implemented");
+  };
+
+  // File upload handlers
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    if (imageFiles.length !== files.length) {
+      alert("Only image files are currently supported");
+    }
+
+    if (imageFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    }
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragOver(false);
+
+    const files = Array.from(event.dataTransfer.files);
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+    if (imageFiles.length !== files.length) {
+      alert("Only image files are currently supported");
+    }
+
+    if (imageFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...imageFiles]);
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadFiles = async () => {
+    if (selectedFiles.length === 0) return [];
+
+    try {
+      const uploadResult = await uploadMultipleImagesMutation.mutateAsync(
+        selectedFiles
+      );
+      const urls = uploadResult.map((result) => result.url);
+      return urls;
+    } catch (error) {
+      console.error("Failed to upload files:", error);
+      alert("Failed to upload images. Please try again.");
+      return [];
+    }
   };
 
   const tabs = [
@@ -162,7 +403,7 @@ const CreatePost: React.FC = () => {
                   isDarkMode ? "text-white" : "text-black"
                 }`}
               >
-                u/Commissioninside5439
+                {user?.username || "Anonymous"}
               </span>
               <svg
                 className="w-4 h-4 ml-1"
@@ -177,6 +418,98 @@ const CreatePost: React.FC = () => {
                   d="M19 9l-7 7-7-7"
                 />
               </svg>
+            </div>
+          </div>
+
+          {/* Subreddit Selection */}
+          <div className="mb-6">
+            <label
+              className={`block text-sm font-medium mb-2 ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Choose a community
+            </label>
+            <div className="relative" ref={dropdownRef}>
+              <button
+                type="button"
+                onClick={() => setSubredditDropdownOpen(!subredditDropdownOpen)}
+                className={cn(
+                  "w-full px-3 py-2 border rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-blue-500",
+                  isDarkMode
+                    ? "bg-black border-gray-600 text-white"
+                    : "bg-white border-gray-300 text-black"
+                )}
+              >
+                {selectedSubreddit && availableSubreddits.length > 0 ? (
+                  <span>
+                    r/
+                    {availableSubreddits.find(
+                      (s: BackendSubreddit) => s._id === selectedSubreddit
+                    )?.name || "Select community"}
+                  </span>
+                ) : (
+                  <span
+                    className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+                  >
+                    Select a community
+                  </span>
+                )}
+                <svg
+                  className="w-4 h-4 ml-2 float-right mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {subredditDropdownOpen && (
+                <div
+                  className={cn(
+                    "absolute z-10 w-full mt-1 border rounded-lg shadow-lg max-h-60 overflow-y-auto",
+                    isDarkMode
+                      ? "bg-black border-gray-600"
+                      : "bg-white border-gray-300"
+                  )}
+                >
+                  {availableSubreddits.length > 0 ? (
+                    availableSubreddits.map((subreddit: BackendSubreddit) => (
+                      <button
+                        key={subreddit._id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedSubreddit(subreddit._id);
+                          setSubredditDropdownOpen(false);
+                        }}
+                        className={cn(
+                          "w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 first:rounded-t-lg last:rounded-b-lg",
+                          selectedSubreddit === subreddit._id
+                            ? "bg-blue-50 dark:bg-blue-900"
+                            : ""
+                        )}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold mr-2">
+                            r
+                          </div>
+                          <span>r/{subreddit.name}</span>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-gray-500">
+                      No communities available
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -237,6 +570,15 @@ const CreatePost: React.FC = () => {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {createPostMutation.isError && (
+          <div className="mb-4 p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg">
+            <p className="text-sm">
+              {createPostMutation.error?.message ||
+                "Failed to create post. Please try again."}
+            </p>
           </div>
         )}
 
@@ -306,23 +648,130 @@ const CreatePost: React.FC = () => {
             )}
 
             {activeTab === "images" && (
-              <div
-                className={`border-2 border-dashed rounded-lg p-15 text-center  ${
-                  isDarkMode ? "border-gray-600" : "border-gray-300"
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <p
-                    className={`text-sm ${
-                      isDarkMode ? "text-gray-300" : "text-gray-700"
-                    }`}
-                  >
-                    Drag and Drop or upload media
-                  </p>
-                  <div className="cursor-pointer bg-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-full p-2 flex items-center justify-center">
-                    <UploadPicIcon />
+              <div className="space-y-4">
+                {/* File Upload Area */}
+                <div
+                  className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragOver
+                      ? isDarkMode
+                        ? "border-blue-400 bg-blue-900/20"
+                        : "border-blue-400 bg-blue-50"
+                      : isDarkMode
+                      ? "border-gray-600 hover:border-gray-500"
+                      : "border-gray-300 hover:border-gray-400"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div
+                      className="cursor-pointer bg-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-full p-3 flex items-center justify-center"
+                      onClick={handleUploadClick}
+                    >
+                      <UploadPicIcon />
+                    </div>
+                    <div className="text-center">
+                      <p
+                        className={`text-sm font-medium ${
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                        }`}
+                      >
+                        Drag and drop images here, or{" "}
+                        <button
+                          type="button"
+                          onClick={handleUploadClick}
+                          className="text-blue-500 hover:text-blue-600 underline"
+                        >
+                          browse files
+                        </button>
+                      </p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        Supports: JPG, PNG, GIF (Max 10MB each)
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
                 </div>
+
+                {/* Selected Files Preview */}
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <h4
+                      className={`text-sm font-medium ${
+                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Selected Images ({selectedFiles.length})
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {selectedFiles.map((file, index) => (
+                        <div
+                          key={index}
+                          className={`relative rounded-lg overflow-hidden border ${
+                            isDarkMode ? "border-gray-600" : "border-gray-300"
+                          }`}
+                        >
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                          <div
+                            className={`absolute bottom-0 left-0 right-0 px-2 py-1 text-xs truncate ${
+                              isDarkMode
+                                ? "bg-black/70 text-white"
+                                : "bg-white/70 text-black"
+                            }`}
+                          >
+                            {file.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Status */}
+                {uploadMultipleImagesMutation.isPending && (
+                  <div className="text-center py-4">
+                    <p
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Uploading images...
+                    </p>
+                  </div>
+                )}
+
+                {uploadMultipleImagesMutation.isError && (
+                  <div className="p-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-lg">
+                    <p className="text-sm">
+                      Failed to upload images. Please try again.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -472,17 +921,30 @@ const CreatePost: React.FC = () => {
               </button>
               <button
                 onClick={handlePost}
-                className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer ${
-                  title.length > 0 || bodyText.length > 0 || linkUrl.length > 0
+                disabled={
+                  createPostMutation.isPending ||
+                  !title.trim() ||
+                  !selectedSubreddit
+                }
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  createPostMutation.isPending ||
+                  !title.trim() ||
+                  !selectedSubreddit
                     ? isDarkMode
-                      ? "bg-blue-800 text-white hover:bg-blue-700"
-                      : "bg-blue-800 text-white hover:bg-blue-900"
+                      ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+                      : "bg-gray-100 text-gray-300 cursor-not-allowed"
+                    : title.length > 0 ||
+                      bodyText.length > 0 ||
+                      linkUrl.length > 0
+                    ? isDarkMode
+                      ? "bg-blue-800 text-white hover:bg-blue-700 cursor-pointer"
+                      : "bg-blue-800 text-white hover:bg-blue-900 cursor-pointer"
                     : isDarkMode
-                    ? "bg-gray-900 text-gray-600"
-                    : "bg-gray-100 text-gray-300 "
+                    ? "bg-gray-900 text-gray-600 cursor-not-allowed"
+                    : "bg-gray-100 text-gray-300 cursor-not-allowed"
                 }`}
               >
-                Post
+                {createPostMutation.isPending ? "Posting..." : "Post"}
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PostModel, { EnrichedPost } from "../models/Post"; // long schema model
 import SubredditModel, { CommunityTopic } from "../models/Subreddit"; // long schema model
+import UserModel from "../models/User";
 import { getAuth } from "@clerk/express";
 import VoteModel from "../models/Vote";
 import {
@@ -17,25 +18,43 @@ const PostController = {
     try {
       const { title, content, subredditId } = req.body;
 
-      let { userId } = getAuth(req) || {};
+      let { userId: clerkUserId } = getAuth(req) || {};
 
-      if (!userId) {
-        userId = req.body.userId;
+      if (!clerkUserId) {
+        clerkUserId = req.body.userId;
       }
-      if (!userId) {
+      if (!clerkUserId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
 
-      const subreddit = await SubredditModel.findById(subredditId);
+      // Find the user in our database to get their MongoDB ObjectId
+      const user = await UserModel.findOne({ clerkId: clerkUserId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-      if (
-        !subreddit?.members
-          .map((member) => member.toString())
-          .includes(userId.toString())
-      ) {
+      const subreddit = await SubredditModel.findById(subredditId);
+      if (!subreddit) {
+        return res.status(404).json({ message: "Subreddit not found" });
+      }
+
+      // Check if user is a member using their MongoDB ObjectId
+      const isMember = subreddit.members
+        .map((member) => member.toString())
+        .includes(user._id.toString());
+
+      // For now, allow posting to any public subreddit to help new users
+      // In a full Reddit implementation, you'd want to enforce membership
+      if (!isMember && subreddit.isPrivate) {
         return res
           .status(403)
-          .json({ message: "User is not a member of this subreddit" });
+          .json({ message: "User is not a member of this private subreddit" });
+      }
+
+      // If user is not a member of a public subreddit, auto-join them
+      if (!isMember && !subreddit.isPrivate) {
+        subreddit.members.push(user._id);
+        await subreddit.save();
       }
 
       if (!title || !content?.type || !content?.value || !subredditId) {
@@ -49,14 +68,31 @@ const PostController = {
           .json({ message: `Invalid content type: ${content.type}` });
       }
 
+      // Map content based on type
+      let contentData: any = { type: content.type };
+
+      switch (content.type) {
+        case "text":
+          contentData.text = content.value;
+          break;
+        case "image":
+          contentData.url = content.value;
+          break;
+        case "video":
+          contentData.url = content.value;
+          break;
+        case "link":
+          contentData.url = content.value;
+          break;
+        default:
+          contentData.text = content.value;
+      }
+
       const newPost = await PostModel.create({
         title,
-        content: {
-          type: content.type,
-          value: content.value,
-        },
+        content: contentData,
         topics: subreddit.topics,
-        authorId: userId,
+        authorId: user._id,
         subredditId,
         createdAt: new Date(),
       });
@@ -68,7 +104,7 @@ const PostController = {
   },
   async getAll(req: Request, res: Response) {
     try {
-      const Posts = (await PostModel.find({})) || "no posts yet";
+      const Posts = (await PostModel.find({}).populate('subredditId', 'name')) || "no posts yet";
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
@@ -91,20 +127,35 @@ const PostController = {
         ])
       );
 
-      // Attach to posts
+      // Attach to posts and convert to plain objects
       const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
         return {
-          ...p,
+          ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
         };
       });
 
       let sortedPosts;
-      const { topic, sort, t } = req.query;
+      const { topic, sort, t, feed } = req.query;
+
+      // Handle feed parameter (used by usePostsFeed hook)
+      if (feed) {
+        switch (feed) {
+          case "home":
+          case "popular":
+            sortedPosts = sortHot(enrichedPosts);
+            break;
+          case "new":
+            sortedPosts = sortNew(enrichedPosts);
+            break;
+          default:
+            sortedPosts = sortHot(enrichedPosts);
+        }
+      }
       // Enforce either filtering by topic or sorting by sort type
-      if (
+      else if (
         topic &&
         Object.values(CommunityTopic).includes(topic as CommunityTopic)
       ) {
@@ -144,7 +195,7 @@ const PostController = {
   async get(req: Request, res: Response) {
     try {
       const { postId } = req.params;
-      const post = await PostModel.findById(postId);
+      const post = await PostModel.findById(postId).populate('subredditId', 'name');
 
       if (!post) {
         res.status(400).json({ success: false, message: "post not found" });
@@ -303,7 +354,7 @@ const PostController = {
           .status(400)
           .json({ success: false, message: "User ID is required" });
       }
-      const userPosts = await PostModel.find({ authorId: userId }).sort({
+      const userPosts = await PostModel.find({ authorId: userId }).populate('subredditId', 'name').sort({
         createdAt: -1,
       });
       const userPostIds = userPosts.map((p) => p._id);
@@ -332,7 +383,7 @@ const PostController = {
       const enrichedPosts: EnrichedPost[] = userPosts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
         return {
-          ...p,
+          ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
         };
