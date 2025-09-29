@@ -11,24 +11,28 @@ Developed as a final project for a fullstack development course.
 
 <table>
   <tr>
+    <th>Photo</th>
     <th>Name</th>
     <th>Role</th>
     <th>LinkedIn</th>
     <th>GitHub</th>
   </tr>
   <tr>
+    <td><img src="https://user-images.githubusercontent.com/ori-hadad-profile.jpg" alt="Ori Hadad" width="60" style="border-radius:50%"></td>
     <td><b>Ori Hadad</b></td>
     <td>Backend Lead</td>
     <td><a href="https://www.linkedin.com/in/ori-hadad">LinkedIn</a></td>
     <td><a href="https://github.com/ori-hadad">GitHub</a></td>
   </tr>
   <tr>
+    <td><img src="https://user-images.githubusercontent.com/omer-len-profile.jpg" alt="Omer Len" width="60" style="border-radius:50%"></td>
     <td><b>Omer Len</b></td>
     <td>Integration & Authentication</td>
     <td><a href="https://www.linkedin.com/in/omer-len">LinkedIn</a></td>
     <td><a href="https://github.com/omer-len">GitHub</a></td>
   </tr>
   <tr>
+    <td><img src="https://user-images.githubusercontent.com/shalev-kehaty-profile.jpg" alt="Shalev Kehaty" width="60" style="border-radius:50%"></td>
     <td><b>Shalev Kehaty</b></td>
     <td>Frontend Lead</td>
     <td><a href="https://www.linkedin.com/in/shalev-kehaty">LinkedIn</a></td>
