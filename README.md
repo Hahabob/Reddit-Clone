@@ -11,7 +11,6 @@ Developed as a final project for a fullstack development course.
 
 <table>
   <tr>
-    <th>Photo</th>
     <th>Name</th>
     <th>Role</th>
     <th>LinkedIn</th>
