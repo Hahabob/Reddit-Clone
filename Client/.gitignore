@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Team member images
+src/assets/Ori-Pic.png
+src/assets/Omer-Pic.png
+src/assets/Shalev-Pic.png
