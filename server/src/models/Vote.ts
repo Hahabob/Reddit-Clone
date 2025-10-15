@@ -40,8 +40,21 @@ const voteSchema = new Schema<IVote>(
 );
 
 // Ensure a user can only vote once per post or comment
-voteSchema.index({ userId: 1, postId: 1 }, { unique: true, sparse: true });
-voteSchema.index({ userId: 1, commentId: 1 }, { unique: true, sparse: true });
+// Use partial indexes to only apply uniqueness when the field exists (not null)
+voteSchema.index(
+  { userId: 1, postId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { postId: { $type: "objectId" } },
+  }
+);
+voteSchema.index(
+  { userId: 1, commentId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { commentId: { $type: "objectId" } },
+  }
+);
 
 const VoteModel = model<IVote>("Vote", voteSchema);
 

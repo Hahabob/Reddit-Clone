@@ -41,6 +41,7 @@ export interface IPost extends Document {
 export interface Voteable {
   upvotes: number;
   downvotes: number;
+  userVote?: 1 | -1 | 0; // Optional: current user's vote on this item
 }
 
 // Omit all Document keys from IPost

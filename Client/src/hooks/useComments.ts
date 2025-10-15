@@ -169,26 +169,101 @@ export const useVoteComment = () => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
     onMutate: async ({ commentId, dir }) => {
+      // Cancel any outgoing refetches
       await queryClient.cancelQueries({
         queryKey: queryKeys.comments.detail(commentId),
       });
+      await queryClient.cancelQueries({ queryKey: ["comments"] });
 
       const previousComment = queryClient.getQueryData(
         queryKeys.comments.detail(commentId)
       );
 
+      // Helper function to update a comment's vote counts recursively
+      const updateCommentVotes = (comment: any): any => {
+        if (!comment) return comment;
+
+        // Update this comment if it matches
+        if (comment._id === commentId) {
+          const oldVote = comment.userVote || 0;
+          let upvotesChange = 0;
+          let downvotesChange = 0;
+
+          // Calculate changes based on vote transition
+          if (oldVote === 1) {
+            if (dir === 1) {
+              upvotesChange = -1;
+            } else if (dir === -1) {
+              upvotesChange = -1;
+              downvotesChange = 1;
+            } else {
+              upvotesChange = -1;
+            }
+          } else if (oldVote === -1) {
+            if (dir === 1) {
+              upvotesChange = 1;
+              downvotesChange = -1;
+            } else if (dir === -1) {
+              downvotesChange = -1;
+            } else {
+              downvotesChange = -1;
+            }
+          } else {
+            if (dir === 1) {
+              upvotesChange = 1;
+            } else if (dir === -1) {
+              downvotesChange = 1;
+            }
+          }
+
+          return {
+            ...comment,
+            userVote: dir,
+            upvotes: comment.upvotes + upvotesChange,
+            downvotes: comment.downvotes + downvotesChange,
+            replies: comment.replies?.map(updateCommentVotes) || [],
+          };
+        }
+
+        // Recursively update replies
+        if (comment.replies && Array.isArray(comment.replies)) {
+          return {
+            ...comment,
+            replies: comment.replies.map(updateCommentVotes),
+          };
+        }
+
+        return comment;
+      };
+
+      // Update single comment detail view
       queryClient.setQueryData(
         queryKeys.comments.detail(commentId),
         (old: any) => {
           if (!old) return old;
-
-          return {
-            ...old,
-            userVote: dir,
-            upvotes: old.upvotes + (dir === 1 ? 1 : dir === -1 ? -1 : 0),
-          };
+          return updateCommentVotes(old);
         }
       );
+
+      // Update comment in all list views (including nested replies)
+      queryClient.setQueriesData({ queryKey: ["comments"] }, (old: any) => {
+        if (!old) return old;
+
+        // Handle array of comments
+        if (Array.isArray(old)) {
+          return old.map(updateCommentVotes);
+        }
+
+        // Handle response with data array
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map(updateCommentVotes),
+          };
+        }
+
+        return old;
+      });
 
       return { previousComment };
     },

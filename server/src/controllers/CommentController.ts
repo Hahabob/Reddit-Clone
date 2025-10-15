@@ -137,13 +137,33 @@ const CommentController = {
         ])
       );
 
+      // Get current user's votes if authenticated
+      let userVotesMap = new Map<string, 1 | -1>();
+      const auth = getAuth(req);
+      if (auth?.userId) {
+        const user = await UserModel.findOne({ clerkId: auth.userId });
+        if (user) {
+          const userVotes = await VoteModel.find({
+            userId: user._id,
+            commentId: { $in: commentIds },
+          });
+          userVotes.forEach((vote) => {
+            if (vote.commentId) {
+              userVotesMap.set(vote.commentId.toString(), vote.value);
+            }
+          });
+        }
+      }
+
       // Attach votes and initialize replies array
       const enrichedComments: EnrichedComment[] = comments.map((c) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(c._id)) || {};
+        const userVote = (userVotesMap.get(String(c._id)) || 0) as 1 | -1 | 0;
         return {
           ...c,
           upvotes,
           downvotes,
+          userVote,
           replies: [],
         };
       });
