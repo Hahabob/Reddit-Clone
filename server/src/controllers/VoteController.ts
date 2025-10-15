@@ -13,14 +13,22 @@ interface IVoteQuery {
 export const VoteController = {
   async vote(req: Request, res: Response) {
     try {
-      let { userId } = getAuth(req) || {};
+      let { userId: clerkUserId } = getAuth(req) || {};
 
-      if (!userId) {
-        userId = req.body.userId;
+      if (!clerkUserId) {
+        clerkUserId = req.body.userId;
       }
-      if (!userId) {
+      if (!clerkUserId) {
         return res.status(401).json({ message: "Not authenticated" });
       }
+
+      // Find the user in our database to get their MongoDB ObjectId
+      const user = await UserModel.findOne({ clerkId: clerkUserId });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const userId = user._id.toString();
 
       const { postId, commentId } = req.params;
       const { dir } = req.body;

@@ -26,6 +26,7 @@ export interface BackendPost {
   score: number;
   upvotes: number;
   downvotes: number;
+  userVote?: 1 | -1 | 0; // Current user's vote on this post
   isNSFW: boolean;
   isSpoiler: boolean;
   isPinned: boolean;
@@ -61,6 +62,7 @@ export interface BackendComment {
   score: number;
   upvotes: number;
   downvotes: number;
+  userVote?: 1 | -1 | 0; // Current user's vote on this comment
   parentId?: string;
   replies?: BackendComment[];
   createdAt: string;

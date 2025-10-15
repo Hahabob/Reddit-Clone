@@ -162,22 +162,93 @@ export const useVotePost = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.posts.all });
     },
     onMutate: async ({ postId, dir }) => {
+      // Cancel any outgoing refetches
       await queryClient.cancelQueries({
         queryKey: queryKeys.posts.detail(postId),
       });
+      await queryClient.cancelQueries({ queryKey: queryKeys.posts.all });
+      await queryClient.cancelQueries({ queryKey: ["posts"] }); // Catch any other posts queries
 
       const previousPost = queryClient.getQueryData(
         queryKeys.posts.detail(postId)
       );
 
-      queryClient.setQueryData(queryKeys.posts.detail(postId), (old: any) => {
-        if (!old) return old;
+      // Helper function to update a post's vote counts
+      const updatePostVotes = (post: any) => {
+        if (!post || post._id !== postId) return post;
+
+        const oldVote = post.userVote || 0;
+        let upvotesChange = 0;
+        let downvotesChange = 0;
+
+        // Calculate changes based on vote transition
+        if (oldVote === 1) {
+          // Was upvoted
+          if (dir === 1) {
+            // Remove upvote (toggle off)
+            upvotesChange = -1;
+          } else if (dir === -1) {
+            // Switch to downvote
+            upvotesChange = -1;
+            downvotesChange = 1;
+          } else {
+            // dir === 0, clear vote
+            upvotesChange = -1;
+          }
+        } else if (oldVote === -1) {
+          // Was downvoted
+          if (dir === 1) {
+            // Switch to upvote
+            upvotesChange = 1;
+            downvotesChange = -1;
+          } else if (dir === -1) {
+            // Remove downvote (toggle off)
+            downvotesChange = -1;
+          } else {
+            // dir === 0, clear vote
+            downvotesChange = -1;
+          }
+        } else {
+          // Was not voted
+          if (dir === 1) {
+            upvotesChange = 1;
+          } else if (dir === -1) {
+            downvotesChange = 1;
+          }
+        }
 
         return {
-          ...old,
+          ...post,
           userVote: dir,
-          upvotes: old.upvotes + (dir === 1 ? 1 : dir === -1 ? -1 : 0),
+          upvotes: post.upvotes + upvotesChange,
+          downvotes: post.downvotes + downvotesChange,
         };
+      };
+
+      // Update single post detail view
+      queryClient.setQueryData(queryKeys.posts.detail(postId), (old: any) => {
+        if (!old) return old;
+        return updatePostVotes(old);
+      });
+
+      // Update post in all list views (feed, all posts, etc.)
+      queryClient.setQueriesData({ queryKey: ["posts"] }, (old: any) => {
+        if (!old) return old;
+
+        // Handle array of posts
+        if (Array.isArray(old)) {
+          return old.map(updatePostVotes);
+        }
+
+        // Handle response with data array
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map(updatePostVotes),
+          };
+        }
+
+        return old;
       });
 
       return { previousPost };

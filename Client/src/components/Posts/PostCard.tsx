@@ -85,12 +85,17 @@ export const PostCard: React.FC<PostCardProps> = ({
 }) => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
-  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
+  const [voteState, setVoteState] = useState<1 | -1 | 0>(post.userVote || 0);
 
   const { data: postAuthor } = useUser(post.authorId);
   const votePostMutation = useVotePost();
 
   const commentCount = usePostCommentCount(post._id);
+
+  // Update voteState when post.userVote changes
+  React.useEffect(() => {
+    setVoteState(post.userVote || 0);
+  }, [post.userVote]);
 
   const handleVote = async (dir: 1 | -1) => {
     const newVote = voteState === dir ? 0 : dir;
@@ -183,9 +188,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 isDarkMode ? "text-gray-300" : "text-gray-600"
               )}
             >
-              {formatScore(
-                (post.upvotes || 0) - (post.downvotes || 0) + voteState
-              )}
+              {formatScore((post.upvotes || 0) - (post.downvotes || 0))}
             </span>
             <button
               onClick={() => handleVote(-1)}
@@ -450,7 +453,7 @@ export const PostCard: React.FC<PostCardProps> = ({
               <UpvoteIcon />
             </IconWrapper>
             <span className="text-sm font-medium">
-              {formatScore(post.upvotes - post.downvotes + voteState)}
+              {formatScore(post.upvotes - post.downvotes)}
             </span>
           </button>
           <button

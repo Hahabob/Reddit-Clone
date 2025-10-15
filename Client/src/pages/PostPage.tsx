@@ -87,7 +87,6 @@ const PostPage: React.FC = () => {
   const navigate = useNavigate();
 
   const postId = location.pathname.split("/comments/")[1]?.split("/")[0];
-  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentSuccess, setCommentSuccess] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
@@ -106,6 +105,14 @@ const PostPage: React.FC = () => {
   const { data: currentUserData } = useCurrentUser();
 
   const { data: postAuthor } = useUser(post?.authorId || "");
+
+  // Initialize voteState from post.userVote
+  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
+  React.useEffect(() => {
+    if (post?.userVote !== undefined) {
+      setVoteState(post.userVote);
+    }
+  }, [post?.userVote]);
 
   const votePostMutation = useVotePost();
   const createCommentMutation = useCreateComment();
@@ -481,9 +488,7 @@ const PostPage: React.FC = () => {
                   <UpvoteIcon />
                 </IconWrapper>
                 <span className="text-sm font-medium">
-                  {formatScore(
-                    (post?.upvotes || 0) - (post?.downvotes || 0) + voteState
-                  )}
+                  {formatScore((post?.upvotes || 0) - (post?.downvotes || 0))}
                 </span>
               </button>
               <button

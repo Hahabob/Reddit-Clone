@@ -83,12 +83,17 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const { isDarkMode } = useTheme();
   const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(true);
-  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
+  const [voteState, setVoteState] = useState<1 | -1 | 0>(comment.userVote || 0);
 
   const { data: commentAuthor } = useUser(comment.authorId);
 
   const voteCommentMutation = useVoteComment();
   const createCommentMutation = useCreateComment();
+
+  // Update voteState when comment.userVote changes
+  React.useEffect(() => {
+    setVoteState(comment.userVote || 0);
+  }, [comment.userVote]);
 
   const formatTimeAgo = (dateString: string): string => {
     const now = Date.now();
@@ -254,7 +259,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 <UpvoteIcon />
               </IconWrapper>
               <span className="text-xs font-medium">
-                {formatScore(comment.upvotes - comment.downvotes + voteState)}
+                {formatScore(comment.upvotes - comment.downvotes)}
               </span>
             </button>
 
