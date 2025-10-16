@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import {
   useSubredditByName,
@@ -11,7 +10,7 @@ import { SubredditPostFeed } from "../components/Subreddit/SubredditPostFeed";
 import { RightSidebar } from "../components/Layout/RightSidebar";
 import { cn } from "../lib/utils";
 
-export const SubredditPage: React.FC = () => {
+export const SubredditPage = () => {
   const { subreddit: subredditName } = useParams<{ subreddit: string }>();
   const { isDarkMode } = useTheme();
 

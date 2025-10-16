@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/clerk-react";
 import { useAuthenticatedApi } from "../services/backendApi";
-import { queryKeys } from "../services/queryKeys";
+import { queryKeys } from "./queryKeys";
 
 export interface CreatePostData {
   title: string;
@@ -18,6 +19,7 @@ export interface UpdatePostData {
 
 export const usePosts = () => {
   const getApi = useAuthenticatedApi();
+  const { isLoaded } = useAuth();
 
   return useQuery({
     queryKey: queryKeys.posts.all,
@@ -26,11 +28,13 @@ export const usePosts = () => {
       const response = await api.get("/posts");
       return response.data;
     },
+    enabled: isLoaded, // Wait for auth to be loaded before fetching
   });
 };
 
 export const usePost = (postId: string) => {
   const getApi = useAuthenticatedApi();
+  const { isLoaded } = useAuth();
 
   return useQuery({
     queryKey: queryKeys.posts.detail(postId),
@@ -39,12 +43,13 @@ export const usePost = (postId: string) => {
       const response = await api.get(`/posts/${postId}`);
       return response.data.data;
     },
-    enabled: !!postId,
+    enabled: !!postId && isLoaded, // Wait for auth to be loaded
   });
 };
 
 export const usePostsBySubreddit = (subredditId: string) => {
   const getApi = useAuthenticatedApi();
+  const { isLoaded } = useAuth();
 
   return useQuery({
     queryKey: queryKeys.posts.bySubreddit(subredditId),
@@ -53,12 +58,13 @@ export const usePostsBySubreddit = (subredditId: string) => {
       const response = await api.get(`/posts?subredditId=${subredditId}`);
       return response.data;
     },
-    enabled: !!subredditId,
+    enabled: !!subredditId && isLoaded, // Wait for auth to be loaded
   });
 };
 
 export const usePostsFeed = (feedType: "home" | "popular" | "new" = "home") => {
   const getApi = useAuthenticatedApi();
+  const { isLoaded } = useAuth();
 
   return useQuery({
     queryKey: queryKeys.posts.feed(feedType),
@@ -67,6 +73,7 @@ export const usePostsFeed = (feedType: "home" | "popular" | "new" = "home") => {
       const response = await api.get(`/posts?feed=${feedType}`);
       return response.data;
     },
+    enabled: isLoaded, // Wait for auth to be loaded before fetching
   });
 };
 

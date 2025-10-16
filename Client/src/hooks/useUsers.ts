@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@clerk/clerk-react";
 import { useAuthenticatedApi, type BackendUser } from "../services/backendApi";
-import { queryKeys } from "../services/queryKeys";
+import { queryKeys } from "./queryKeys";
 
 export interface UpdateUserData {
   displayName?: string;
