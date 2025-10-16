@@ -77,6 +77,28 @@ export const usePostsFeed = (feedType: "home" | "popular" | "new" = "home") => {
   });
 };
 
+export const usePostsSort = (
+  sortType: "hot" | "new" | "top" | "rising" | "controversial" = "hot",
+  timeFilter?: "hour" | "day" | "week" | "month" | "year" | "all"
+) => {
+  const getApi = useAuthenticatedApi();
+  const { isLoaded } = useAuth();
+
+  return useQuery({
+    queryKey: ["posts", "sort", sortType, timeFilter],
+    queryFn: async () => {
+      const api = await getApi();
+      const params = new URLSearchParams({ sort: sortType });
+      if (timeFilter) {
+        params.append("t", timeFilter);
+      }
+      const response = await api.get(`/posts?${params.toString()}`);
+      return response.data;
+    },
+    enabled: isLoaded, // Wait for auth to be loaded before fetching
+  });
+};
+
 export const useCreatePost = () => {
   const queryClient = useQueryClient();
   const getApi = useAuthenticatedApi();
