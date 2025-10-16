@@ -3,6 +3,7 @@ export {
   usePost,
   usePostsBySubreddit,
   usePostsFeed,
+  usePostsSort,
   useCreatePost,
   useUpdatePost,
   useDeletePost,

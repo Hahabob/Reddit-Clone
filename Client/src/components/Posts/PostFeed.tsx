@@ -6,7 +6,7 @@ import { ViewDropdown } from "./ViewDropdown";
 import { LocationDropdown } from "./LocationDropdown";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useSocket } from "../../contexts/SocketContext";
-import { usePostsFeed, useSearchPosts } from "../../hooks";
+import { usePostsFeed, usePostsSort, useSearchPosts } from "../../hooks";
 import type { BackendPost } from "../../types/backend";
 import { cn } from "../../lib/utils";
 
@@ -29,13 +29,28 @@ export const PostFeed = forwardRef<PostFeedRef>((_, ref) => {
   const [location, setLocation] = useState<string>("everywhere");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const apiSort =
+  // Use different hooks based on sort type
+  // For best/hot/new, use feed parameter
+  // For top/rising, use sort parameter
+  const useFeedQuery =
+    sortBy === "best" || sortBy === "hot" || sortBy === "new";
+
+  const feedType =
     sortBy === "best" ? "home" : sortBy === "hot" ? "popular" : "new";
+
+  const feedQueryResult = usePostsFeed(feedType as "home" | "popular" | "new");
+  const sortQueryResult = usePostsSort(
+    sortBy as "hot" | "new" | "top" | "rising",
+    "all" // default time filter for top
+  );
+
+  // Use the appropriate result based on which query should be active
   const {
     data: postsResponse,
     isLoading: loading,
     error,
-  } = usePostsFeed(apiSort as "home" | "popular" | "new");
+  } = useFeedQuery ? feedQueryResult : sortQueryResult;
+
   const {
     data: searchResponse,
     isLoading: isSearching,

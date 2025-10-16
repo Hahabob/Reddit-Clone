@@ -65,21 +65,8 @@ const CustomSignUp = () => {
 
     setIsLoading(true);
     try {
-      const generateSecurePassword = () => {
-        const chars =
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-        let password = "";
-        for (let i = 0; i < 16; i++) {
-          password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return password;
-      };
-
-      const tempPassword = generateSecurePassword();
-
       await signUp.create({
         emailAddress: data.email,
-        password: tempPassword,
       });
 
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
