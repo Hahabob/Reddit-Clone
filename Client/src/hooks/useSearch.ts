@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
-import { queryKeys } from "../services/queryKeys";
+import { queryKeys } from "./queryKeys";
 
 export interface SearchOptions {
   sort?: "relevance" | "new" | "top";

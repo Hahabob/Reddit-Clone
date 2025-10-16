@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
 import { cn } from "../lib/utils";
@@ -20,11 +20,11 @@ interface IconWrapperProps {
   size?: "sm" | "md" | "lg";
 }
 
-const IconWrapper: React.FC<IconWrapperProps> = ({
+const IconWrapper = ({
   children,
   className = "",
   size = "md",
-}) => {
+}: IconWrapperProps) => {
   const { isDarkMode } = useTheme();
 
   const sizeClasses = {
@@ -81,13 +81,12 @@ const SaveIcon = () => (
   </svg>
 );
 
-const PostPage: React.FC = () => {
+const PostPage = () => {
   const { isDarkMode } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
 
   const postId = location.pathname.split("/comments/")[1]?.split("/")[0];
-  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
   const [commentError, setCommentError] = useState<string | null>(null);
   const [commentSuccess, setCommentSuccess] = useState<boolean>(false);
   const [retryCount, setRetryCount] = useState<number>(0);
@@ -106,6 +105,14 @@ const PostPage: React.FC = () => {
   const { data: currentUserData } = useCurrentUser();
 
   const { data: postAuthor } = useUser(post?.authorId || "");
+
+  // Initialize voteState from post.userVote
+  const [voteState, setVoteState] = useState<1 | -1 | 0>(0);
+  useEffect(() => {
+    if (post?.userVote !== undefined) {
+      setVoteState(post.userVote);
+    }
+  }, [post?.userVote]);
 
   const votePostMutation = useVotePost();
   const createCommentMutation = useCreateComment();
@@ -481,9 +488,7 @@ const PostPage: React.FC = () => {
                   <UpvoteIcon />
                 </IconWrapper>
                 <span className="text-sm font-medium">
-                  {formatScore(
-                    (post?.upvotes || 0) - (post?.downvotes || 0) + voteState
-                  )}
+                  {formatScore((post?.upvotes || 0) - (post?.downvotes || 0))}
                 </span>
               </button>
               <button

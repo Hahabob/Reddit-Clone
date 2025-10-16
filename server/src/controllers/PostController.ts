@@ -104,7 +104,9 @@ const PostController = {
   },
   async getAll(req: Request, res: Response) {
     try {
-      const Posts = (await PostModel.find({}).populate('subredditId', 'name')) || "no posts yet";
+      const Posts =
+        (await PostModel.find({}).populate("subredditId", "name")) ||
+        "no posts yet";
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
@@ -127,13 +129,33 @@ const PostController = {
         ])
       );
 
+      // Get current user's votes if authenticated
+      let userVotesMap = new Map<string, 1 | -1>();
+      const auth = getAuth(req);
+      if (auth?.userId) {
+        const user = await UserModel.findOne({ clerkId: auth.userId });
+        if (user) {
+          const userVotes = await VoteModel.find({
+            userId: user._id,
+            postId: { $in: postIds },
+          });
+          userVotes.forEach((vote) => {
+            if (vote.postId) {
+              userVotesMap.set(vote.postId.toString(), vote.value);
+            }
+          });
+        }
+      }
+
       // Attach to posts and convert to plain objects
       const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
+        const userVote = (userVotesMap.get(String(p._id)) || 0) as 1 | -1 | 0;
         return {
           ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
+          userVote,
         };
       });
 
@@ -195,7 +217,10 @@ const PostController = {
   async get(req: Request, res: Response) {
     try {
       const { postId } = req.params;
-      const post = await PostModel.findById(postId).populate('subredditId', 'name');
+      const post = await PostModel.findById(postId).populate(
+        "subredditId",
+        "name"
+      );
 
       if (!post) {
         res.status(400).json({ success: false, message: "post not found" });
@@ -222,10 +247,26 @@ const PostController = {
 
       const { upvotes = 0, downvotes = 0 } =
         voteMap.get(String(post._id)) || {};
+
+      // Get current user's vote if authenticated
+      let userVote: 1 | -1 | 0 = 0;
+      const auth = getAuth(req);
+      if (auth?.userId) {
+        const user = await UserModel.findOne({ clerkId: auth.userId });
+        if (user) {
+          const existingVote = await VoteModel.findOne({
+            userId: user._id,
+            postId: post._id,
+          });
+          userVote = existingVote ? existingVote.value : 0;
+        }
+      }
+
       const enrichedPost: EnrichedPost = {
         ...post.toObject(),
         upvotes,
         downvotes,
+        userVote,
       };
       res.json({
         data: enrichedPost,
@@ -354,9 +395,11 @@ const PostController = {
           .status(400)
           .json({ success: false, message: "User ID is required" });
       }
-      const userPosts = await PostModel.find({ authorId: userId }).populate('subredditId', 'name').sort({
-        createdAt: -1,
-      });
+      const userPosts = await PostModel.find({ authorId: userId })
+        .populate("subredditId", "name")
+        .sort({
+          createdAt: -1,
+        });
       const userPostIds = userPosts.map((p) => p._id);
 
       // Aggregate votes
@@ -379,13 +422,33 @@ const PostController = {
         ])
       );
 
+      // Get current user's votes if authenticated
+      let userVotesMap = new Map<string, 1 | -1>();
+      const auth = getAuth(req);
+      if (auth?.userId) {
+        const user = await UserModel.findOne({ clerkId: auth.userId });
+        if (user) {
+          const userVotes = await VoteModel.find({
+            userId: user._id,
+            postId: { $in: userPostIds },
+          });
+          userVotes.forEach((vote) => {
+            if (vote.postId) {
+              userVotesMap.set(vote.postId.toString(), vote.value);
+            }
+          });
+        }
+      }
+
       // Attach to posts
       const enrichedPosts: EnrichedPost[] = userPosts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
+        const userVote = (userVotesMap.get(String(p._id)) || 0) as 1 | -1 | 0;
         return {
           ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
+          userVote,
         };
       });
 

@@ -14,6 +14,11 @@ import { QRCodeModal } from "../ui/RedditQRPop";
 import { UserSidebar } from "./UserSidebar";
 import NotificationsIconSvg from "../../assets/notificationIcon.svg";
 import ChatIcon from "../../assets/ChatIcon.svg";
+import {
+  useSearchSubreddits,
+  useSearchUsers,
+  useDebounceSearch,
+} from "../../hooks";
 
 interface IconWrapperProps {
   children: React.ReactNode;
@@ -106,6 +111,13 @@ export const Header: React.FC<HeaderProps> = ({
   const [showQRModal, setShowQRModal] = useState(false);
   const [showUserSidebar, setShowUserSidebar] = useState(false);
   const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  // Debounce search query for API calls
+  const debouncedSearchQuery = useDebounceSearch(searchQuery, 300);
+
+  // Search hooks
+  const { data: subredditResults } = useSearchSubreddits(debouncedSearchQuery);
+  const { data: userResults } = useSearchUsers(debouncedSearchQuery);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -234,24 +246,114 @@ export const Header: React.FC<HeaderProps> = ({
                 )}
               />
             </form>
-            {showSearchResults && (
+            {showSearchResults && searchQuery.trim().length > 0 && (
               <div
                 className={cn(
-                  "absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-10",
+                  "absolute top-full left-0 right-0 mt-1 rounded-md shadow-lg z-10 max-h-96 overflow-y-auto",
                   isDarkMode
                     ? "bg-gray-900 border border-gray-800"
                     : "bg-white border border-gray-200"
                 )}
               >
                 <div className="py-2">
-                  <div
-                    className={cn(
-                      "px-4 py-2 text-sm",
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                  {/* Subreddit Results */}
+                  {subredditResults?.data &&
+                    subredditResults.data.length > 0 && (
+                      <div className="mb-2">
+                        <div
+                          className={cn(
+                            "px-4 py-2 text-xs font-semibold uppercase",
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          )}
+                        >
+                          Communities
+                        </div>
+                        {subredditResults.data.map(
+                          (subreddit: { _id: string; name: string }) => (
+                            <button
+                              key={subreddit._id}
+                              onClick={() => {
+                                navigate(`/r/${subreddit.name}`);
+                                setSearchQuery("");
+                                setShowSearchResults(false);
+                              }}
+                              className={cn(
+                                "w-full px-4 py-2 text-left text-sm flex items-center space-x-2 transition-colors",
+                                isDarkMode
+                                  ? "text-gray-200 hover:bg-gray-800"
+                                  : "text-gray-900 hover:bg-gray-100"
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "text-xs font-medium",
+                                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                                )}
+                              >
+                                r/
+                              </span>
+                              <span>{subreddit.name}</span>
+                            </button>
+                          )
+                        )}
+                      </div>
                     )}
-                  >
-                    No results found.
-                  </div>
+
+                  {/* User Results */}
+                  {userResults?.data && userResults.data.length > 0 && (
+                    <div>
+                      <div
+                        className={cn(
+                          "px-4 py-2 text-xs font-semibold uppercase",
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        )}
+                      >
+                        Users
+                      </div>
+                      {userResults.data.map(
+                        (user: { _id: string; displayName: string }) => (
+                          <button
+                            key={user._id}
+                            onClick={() => {
+                              navigate(`/user/${user._id}`);
+                              setSearchQuery("");
+                              setShowSearchResults(false);
+                            }}
+                            className={cn(
+                              "w-full px-4 py-2 text-left text-sm flex items-center space-x-2 transition-colors",
+                              isDarkMode
+                                ? "text-gray-200 hover:bg-gray-800"
+                                : "text-gray-900 hover:bg-gray-100"
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "text-xs font-medium",
+                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                              )}
+                            >
+                              u/
+                            </span>
+                            <span>{user.displayName}</span>
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
+
+                  {/* No Results */}
+                  {(!subredditResults?.data ||
+                    subredditResults.data.length === 0) &&
+                    (!userResults?.data || userResults.data.length === 0) && (
+                      <div
+                        className={cn(
+                          "px-4 py-2 text-sm",
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        )}
+                      >
+                        No results found for "{searchQuery}"
+                      </div>
+                    )}
                 </div>
               </div>
             )}

@@ -30,13 +30,61 @@ const UserController = {
 
       console.log("Looking for user with clerkId:", clerkId);
 
-      const user = await UserModel.findOne({ clerkId });
+      let user = await UserModel.findOne({ clerkId });
 
       if (!user) {
         console.log("User not found in database for clerkId:", clerkId);
-        return res
-          .status(404)
-          .json({ success: false, message: "User not found" });
+        console.log(
+          "Creating user automatically (webhook might have been missed)"
+        );
+
+        // Auto-create user if they exist in Clerk but not in our DB
+        // This handles cases where webhooks fail during development
+        try {
+          const { clerkClient } = await import("@clerk/express");
+          const clerkUser = await clerkClient.users.getUser(clerkId);
+
+          const primaryEmail =
+            clerkUser.emailAddresses.find(
+              (email) => email.id === clerkUser.primaryEmailAddressId
+            )?.emailAddress ||
+            clerkUser.emailAddresses[0]?.emailAddress ||
+            "";
+
+          const username =
+            clerkUser.username ||
+            primaryEmail.split("@")[0] ||
+            `user_${clerkId.slice(-6)}`;
+
+          user = await UserModel.create({
+            clerkId: clerkId,
+            username: username,
+            email: primaryEmail,
+            displayName: username,
+            about: "",
+            socialLinks: [],
+            isMature: false,
+            isModerator: false,
+            avatarUrl: clerkUser.imageUrl || "",
+            bannerUrl: "",
+            karma: {
+              post: 0,
+              comment: 0,
+            },
+            gender: "unspecified",
+          });
+
+          console.log("User auto-created:", {
+            id: user._id,
+            username: user.username,
+          });
+        } catch (createError) {
+          console.error("Failed to auto-create user:", createError);
+          return res.status(404).json({
+            success: false,
+            message: "User not found and could not be created",
+          });
+        }
       }
 
       console.log("User found:", { id: user._id, username: user.username });

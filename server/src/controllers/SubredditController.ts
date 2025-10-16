@@ -252,7 +252,10 @@ const SubredditController = {
   async getPosts(req: Request, res: Response) {
     try {
       const Posts =
-        (await PostModel.find({ subredditId: req.params.subredditId }).populate('subredditId', 'name')) || [];
+        (await PostModel.find({ subredditId: req.params.subredditId }).populate(
+          "subredditId",
+          "name"
+        )) || [];
       const postIds = Posts.map((p) => p._id);
 
       // Aggregate votes
@@ -275,13 +278,33 @@ const SubredditController = {
         ])
       );
 
+      // Get current user's votes if authenticated
+      let userVotesMap = new Map<string, 1 | -1>();
+      const auth = getAuth(req);
+      if (auth?.userId) {
+        const user = await UserModel.findOne({ clerkId: auth.userId });
+        if (user) {
+          const userVotes = await VoteModel.find({
+            userId: user._id,
+            postId: { $in: postIds },
+          });
+          userVotes.forEach((vote) => {
+            if (vote.postId) {
+              userVotesMap.set(vote.postId.toString(), vote.value);
+            }
+          });
+        }
+      }
+
       // Attach to posts
       const enrichedPosts: EnrichedPost[] = Posts.map((p) => {
         const { upvotes = 0, downvotes = 0 } = voteMap.get(String(p._id)) || {};
+        const userVote = (userVotesMap.get(String(p._id)) || 0) as 1 | -1 | 0;
         return {
           ...p.toObject(), // Convert Mongoose document to plain object
           upvotes,
           downvotes,
+          userVote,
         };
       });
 

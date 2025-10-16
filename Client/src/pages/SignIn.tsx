@@ -1,53 +1,30 @@
 import { useSignIn } from "@clerk/clerk-react";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { cn } from "../lib/utils";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../contexts/ThemeContext";
+import { cn } from "../lib/utils";
 
-const signInSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-});
-
-type SignInFormData = z.infer<typeof signInSchema>;
-
-const CustomSignIn: React.FC = () => {
+const CustomSignIn = () => {
   const { isDarkMode } = useTheme();
-  const { signIn, isLoaded } = useSignIn();
+  const navigate = useNavigate();
+  const { signIn, isLoaded, setActive } = useSignIn();
   const [isLoading, setIsLoading] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setError,
-  } = useForm<SignInFormData>({
-    resolver: zodResolver(signInSchema),
-  });
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const handleGoogleSignIn = async () => {
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: unknown) {
+    } catch (err) {
       console.error("Google sign-in error:", err);
-
-      if (err && typeof err === "object" && "errors" in err) {
-        const errorObj = err as {
-          errors: Array<{ longMessage?: string; message?: string }>;
-        };
-        errorObj.errors.forEach((error) => {
-          console.error("OAuth error:", error.longMessage || error.message);
-        });
-      }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -55,44 +32,186 @@ const CustomSignIn: React.FC = () => {
   const handleAppleSignIn = async () => {
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await signIn.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: unknown) {
+    } catch (err) {
       console.error("Apple sign-in error:", err);
+      setIsLoading(false);
+    }
+  };
 
-      if (err && typeof err === "object" && "errors" in err) {
-        const errorObj = err as {
-          errors: Array<{ longMessage?: string; message?: string }>;
-        };
-        errorObj.errors.forEach((error) => {
-          console.error("OAuth error:", error.longMessage || error.message);
+  const handleEmailSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLoaded || !email) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      // Start the sign-in process
+      await signIn.create({
+        identifier: email,
+      });
+
+      // Send the email verification code
+      const emailCodeFactor = signIn.supportedFirstFactors?.find(
+        (factor) => factor.strategy === "email_code"
+      );
+
+      if (emailCodeFactor && "emailAddressId" in emailCodeFactor) {
+        await signIn.prepareFirstFactor({
+          strategy: "email_code",
+          emailAddressId: emailCodeFactor.emailAddressId,
         });
+      }
+
+      setVerificationStep(true);
+    } catch (err: any) {
+      console.error("Email sign-in error:", err);
+
+      if (err.errors) {
+        err.errors.forEach((error: any) => {
+          if (error.code === "form_identifier_not_found") {
+            setError("No account found with this email. Please sign up first.");
+          } else {
+            setError(
+              error.longMessage || "Something went wrong. Please try again."
+            );
+          }
+        });
+      } else {
+        setError("Something went wrong. Please try again.");
       }
     } finally {
       setIsLoading(false);
     }
   };
-  const onSubmit = async () => {
+
+  const handleVerification = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!isLoaded) return;
 
     setIsLoading(true);
+    setError("");
+
     try {
-      setError("email", {
-        message:
-          "Email-only sign-in coming soon. Please use Google sign-in for now.",
+      const completeSignIn = await signIn.attemptFirstFactor({
+        strategy: "email_code",
+        code: verificationCode,
       });
-    } catch (err: unknown) {
-      console.error("Sign-in error:", err);
-      setError("email", { message: "Something went wrong. Please try again." });
+
+      if (completeSignIn.status === "complete") {
+        await setActive({ session: completeSignIn.createdSessionId });
+        navigate("/");
+      }
+    } catch (err: any) {
+      console.error("Verification error:", err);
+
+      if (err.errors) {
+        err.errors.forEach((error: any) => {
+          setError(error.longMessage || "Invalid code. Please try again.");
+        });
+      } else {
+        setError("Invalid code. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Verification step UI
+  if (verificationStep) {
+    return (
+      <div
+        className={`min-h-screen flex items-center justify-center px-4 py-12 ${
+          isDarkMode ? "bg-gray-900" : "bg-gray-100"
+        }`}
+      >
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <Link to="/" className="inline-block">
+              <img
+                src="/src/assets/reddit-logo.svg"
+                alt="Reddit"
+                className="w-8 h-8"
+              />
+            </Link>
+          </div>
+
+          <div
+            className={`rounded-2xl shadow-lg border p-8 ${
+              isDarkMode
+                ? "bg-gray-800 border-gray-700"
+                : "bg-white border-gray-200"
+            }`}
+          >
+            <h2
+              className={`text-2xl font-bold text-center mb-2 ${
+                isDarkMode ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Check your email
+            </h2>
+            <p
+              className={`text-sm text-center mb-6 ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              We sent a verification code to <strong>{email}</strong>
+            </p>
+
+            <form onSubmit={handleVerification} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="Enter verification code"
+                  className={cn(
+                    "w-full px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent",
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-gray-100 border-transparent text-gray-900 placeholder-gray-500"
+                  )}
+                  required
+                />
+                {error && (
+                  <p className="mt-1 text-sm text-red-500 px-4">{error}</p>
+                )}
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold rounded-full transition-colors cursor-pointer"
+              >
+                {isLoading ? "Verifying..." : "Verify Email"}
+              </button>
+            </form>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setVerificationStep(false);
+                  setVerificationCode("");
+                  setError("");
+                }}
+                className="text-sm text-blue-600 hover:underline"
+              >
+                Back to sign in
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen flex items-center justify-center px-4 py-12 ${
@@ -214,28 +333,28 @@ const CustomSignIn: React.FC = () => {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleEmailSignIn} className="space-y-4">
             <div>
               <input
-                {...register("email")}
                 type="email"
-                placeholder="Email or username *"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
                 className={cn(
                   "w-full px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent",
                   isDarkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-gray-100 border-transparent text-gray-900 placeholder-gray-500",
-                  errors.email
+                  error
                     ? isDarkMode
                       ? "border-red-500 bg-red-900/20"
                       : "border-red-500 bg-red-50"
                     : ""
                 )}
+                required
               />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500 px-4">
-                  {errors.email.message}
-                </p>
+              {error && (
+                <p className="mt-1 text-sm text-red-500 px-4">{error}</p>
               )}
             </div>
 
@@ -244,18 +363,9 @@ const CustomSignIn: React.FC = () => {
               disabled={isLoading}
               className="w-full py-3 px-4 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white font-bold rounded-full transition-colors cursor-pointer"
             >
-              {isLoading ? "Signing In..." : "Log In"}
+              {isLoading ? "Sending code..." : "Log In"}
             </button>
           </form>
-
-          <div className="text-center mt-4">
-            <Link
-              to="/reset-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
         </div>
 
         <div className="text-center mt-6">
