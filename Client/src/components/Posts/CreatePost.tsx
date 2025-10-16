@@ -40,9 +40,12 @@ const CreatePost: React.FC = () => {
   );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
 
   const createPostMutation = useCreatePost();
   const uploadMultipleImagesMutation = useUploadMultipleImages();
@@ -72,13 +75,20 @@ const CreatePost: React.FC = () => {
       ) {
         setSubredditDropdownOpen(false);
       }
+      if (
+        userDropdownOpen &&
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setUserDropdownOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [subredditDropdownOpen]);
+  }, [subredditDropdownOpen, userDropdownOpen]);
 
   useEffect(() => {
     return () => {
@@ -361,40 +371,99 @@ const CreatePost: React.FC = () => {
           </div>
 
           <div className="mb-6">
-            <div
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full cursor-pointer ${
-                isDarkMode
-                  ? "bg-gray-800 hover:bg-gray-700"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              <div className="flex items-center">
-                <img
-                  src={defaultAvatar}
-                  alt="User Avatar"
-                  className="w-6 h-6 rounded-full overflow-hidden"
-                />
-              </div>
-              <span
-                className={`font-medium text-sm ${
-                  isDarkMode ? "text-white" : "text-black"
+            <div className="relative" ref={userDropdownRef}>
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full cursor-pointer ${
+                  isDarkMode
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
-                {user?.username || "Anonymous"}
-              </span>
-              <svg
-                className="w-4 h-4 ml-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+                <div className="flex items-center">
+                  <img
+                    src={defaultAvatar}
+                    alt="User Avatar"
+                    className="w-6 h-6 rounded-full overflow-hidden"
+                  />
+                </div>
+                <span
+                  className={`font-medium text-sm ${
+                    isDarkMode ? "text-white" : "text-black"
+                  }`}
+                >
+                  {isAnonymous
+                    ? "Anonymous"
+                    : currentUserData?.data?.username ||
+                      user?.username ||
+                      user?.firstName ||
+                      "User"}
+                </span>
+                <svg
+                  className="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {userDropdownOpen && (
+                <div
+                  className={cn(
+                    "absolute z-10 mt-1 border rounded-lg shadow-lg min-w-[200px]",
+                    isDarkMode
+                      ? "bg-black border-gray-600"
+                      : "bg-white border-gray-300"
+                  )}
+                >
+                  <button
+                    onClick={() => {
+                      setIsAnonymous(false);
+                      setUserDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 first:rounded-t-lg flex items-center gap-2",
+                      !isAnonymous ? "bg-blue-50 dark:bg-blue-900" : ""
+                    )}
+                  >
+                    <img
+                      src={defaultAvatar}
+                      alt="User Avatar"
+                      className="w-6 h-6 rounded-full overflow-hidden"
+                    />
+                    <span>
+                      {currentUserData?.data?.username ||
+                        user?.username ||
+                        user?.firstName ||
+                        "User"}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsAnonymous(true);
+                      setUserDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-800 last:rounded-b-lg flex items-center gap-2",
+                      isAnonymous ? "bg-blue-50 dark:bg-blue-900" : ""
+                    )}
+                  >
+                    <img
+                      src={defaultAvatar}
+                      alt="Anonymous Avatar"
+                      className="w-6 h-6 rounded-full overflow-hidden"
+                    />
+                    <span>Anonymous</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
