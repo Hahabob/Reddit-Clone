@@ -1,8 +1,115 @@
 # Reddit-Clone
 
 A simplified Reddit-like web application built with the **MERN stack**.  
-This project replicates core Reddit features such as communities, posts, comments, voting, and basic moderator controls.  
-Built as a final project in a fullstack development course.
+This project replicates core Reddit features such as communities, posts, comments, voting, and basic moderator controls.
+
+Developed as a final project for a fullstack development course.
+
+---
+
+## 👥 Meet the Team
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Role</th>
+    <th>LinkedIn</th>
+    <th>GitHub</th>
+  </tr>
+  <tr>
+    <td><b>Ori Hadad</b></td>
+    <td>Backend Lead</td>
+    <td><a href="https://www.linkedin.com/in/ori-hadad-58620b377/">LinkedIn</a></td>
+    <td><a href="https://github.com/Hahabob">GitHub</a></td>
+  </tr>
+  <tr>
+    <td><b>Omer Len</b></td>
+    <td>Integration & Authentication</td>
+    <td><a href="https://www.linkedin.com/in/omer-len-29541a146/">LinkedIn</a></td>
+    <td><a href="https://github.com/omerlen312">GitHub</a></td>
+  </tr>
+  <tr>
+    <td><b>Shalev Kehaty</b></td>
+    <td>Frontend Lead</td>
+    <td><a href="https://www.linkedin.com/in/shalev-kehaty">LinkedIn</a></td>
+    <td><a href="https://github.com/shalevkehaty">GitHub</a></td>
+  </tr>
+</table>
+
+---
+
+---
+
+## 🏁 Getting Started / Installation
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [MongoDB Atlas](https://www.mongodb.com/atlas) account (or local MongoDB)
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/Hahabob/Reddit-Clone.git
+cd Reddit-Clone
+```
+
+### Install Dependencies
+
+#### Client
+
+```bash
+cd Client
+npm install
+# or
+yarn install
+```
+
+#### Server
+
+```bash
+cd ../server
+npm install
+# or
+yarn install
+```
+
+### Environment Variables
+
+Create a `.env` file in the `server/` directory with the following:
+
+```
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+Optionally, set `VITE_SERVER_URL` in `Client/.env` (defaults to `http://localhost:3001`).
+
+### Running the App Locally
+
+#### Start the Server
+
+```bash
+cd server
+npm run dev
+# or
+yarn dev
+```
+
+#### Start the Client
+
+```bash
+cd ../Client
+npm run dev
+# or
+yarn dev
+```
+
+The client will run on `http://localhost:5173` (or as specified by Vite), and the server on `http://localhost:3001`.
+
+---
 
 ---
 
@@ -103,3 +210,6 @@ Upload endpoint:
 
 - `POST /upload/image` with `multipart/form-data`, field `file`
 - Response JSON: `{ url, public_id, width, height, format }`
+- Response JSON: `{ url, public_id, width, height, format }`
+
+---
