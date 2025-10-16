@@ -1,8 +1,7 @@
 import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
-import React from "react";
 import { useTheme } from "../contexts/ThemeContext";
 
-const SSOCallback: React.FC = () => {
+const SSOCallback = () => {
   const { isDarkMode } = useTheme();
 
   return (

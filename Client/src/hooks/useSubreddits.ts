@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthenticatedApi } from "../services/backendApi";
-import { queryKeys } from "../services/queryKeys";
+import { queryKeys } from "./queryKeys";
 
 export interface CreateSubredditData {
   name: string;

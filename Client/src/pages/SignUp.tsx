@@ -1,5 +1,5 @@
 import { useSignUp } from "@clerk/clerk-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -13,7 +13,7 @@ const signUpSchema = z.object({
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-const CustomSignUp: React.FC = () => {
+const CustomSignUp = () => {
   const { isDarkMode } = useTheme();
   const navigate = useNavigate();
   const { signUp, isLoaded, setActive } = useSignUp();
@@ -32,22 +32,15 @@ const CustomSignUp: React.FC = () => {
   const handleGoogleSignUp = async () => {
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error("Google sign-up error:", err);
-
-      if (err.errors) {
-        err.errors.forEach((error: any) => {
-          console.error("OAuth error:", error.longMessage || error.message);
-        });
-      }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -55,22 +48,15 @@ const CustomSignUp: React.FC = () => {
   const handleAppleSignUp = async () => {
     if (!isLoaded) return;
 
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       await signUp.authenticateWithRedirect({
         strategy: "oauth_apple",
         redirectUrl: "/sso-callback",
         redirectUrlComplete: "/",
       });
-    } catch (err: any) {
+    } catch (err) {
       console.error("Apple sign-up error:", err);
-
-      if (err.errors) {
-        err.errors.forEach((error: any) => {
-          console.error("OAuth error:", error.longMessage || error.message);
-        });
-      }
-    } finally {
       setIsLoading(false);
     }
   };

@@ -1,9 +1,8 @@
-import React from "react";
 import { useParams } from "react-router-dom";
 import { UserProfile } from "../components/Profile/UserProfile";
 import { ProfileSidebar } from "../components/Profile/ProfileSidebar";
 
-export const ProfilePage: React.FC = () => {
+export const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
   return (
     <div className="flex max-w-7xl mx-auto dark:bg-[#0d0d0f] bg-white">

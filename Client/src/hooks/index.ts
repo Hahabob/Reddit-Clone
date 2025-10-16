@@ -61,7 +61,7 @@ export {
 export { useUploadImage, useUploadMultipleImages } from "./useUpload";
 
 export { useAuthenticatedApi } from "../services/backendApi";
-export { queryKeys } from "../services/queryKeys";
+export { queryKeys } from "./queryKeys";
 
 export type { BackendUser } from "../services/backendApi";
 export type { CreatePostData, UpdatePostData } from "./usePosts";
