@@ -19,6 +19,7 @@ export enum CommunityTopic {
   Anime = "Anime",
   Arts = "Arts",
   Business = "Business",
+  Education = "Education",
   Collectibles = "Collectibles & Other",
   EducationCareer = "Education & Career",
   FashionBeauty = "Fashion & Beauty",
@@ -46,6 +47,7 @@ export enum CommunityTopic {
   Wholesome = "Wholesome & Heartwarming",
 
   // Games
+  Gaming = "Gaming",
   ActionGames = "Action Games",
   AdventureGames = "Adventure Games",
   Esports = "Esports",
@@ -64,12 +66,14 @@ export enum CommunityTopic {
   StoriesConfessions = "Stories & Confessions",
 
   // Technology
+  Technology = "Technology",
   Printing3D = "3D Printing",
   AI_ML = "Artificial Intelligence & Machine Learning",
   ComputersHardware = "Computers & Hardware",
   ConsumerElectronics = "Consumer Electronics",
   DIYElectronics = "DIY Electronics",
   Programming = "Programming",
+  Databases = "Databases",
   SoftwareApps = "Software & Apps",
   StreamingServices = "Streaming Services",
   TechNewsDiscussion = "Tech News & Discussion",
