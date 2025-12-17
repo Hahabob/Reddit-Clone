@@ -105,7 +105,7 @@ const PostController = {
   async getAll(req: Request, res: Response) {
     try {
       const Posts =
-        (await PostModel.find({}).populate("subredditId", "name")) ||
+        (await PostModel.find({}).populate("subredditId", "name iconUrl")) ||
         "no posts yet";
       const postIds = Posts.map((p) => p._id);
 
@@ -219,7 +219,7 @@ const PostController = {
       const { postId } = req.params;
       const post = await PostModel.findById(postId).populate(
         "subredditId",
-        "name"
+        "name iconUrl"
       );
 
       if (!post) {
@@ -396,7 +396,7 @@ const PostController = {
           .json({ success: false, message: "User ID is required" });
       }
       const userPosts = await PostModel.find({ authorId: userId })
-        .populate("subredditId", "name")
+        .populate("subredditId", "name iconUrl")
         .sort({
           createdAt: -1,
         });

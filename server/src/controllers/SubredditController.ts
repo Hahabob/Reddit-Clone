@@ -254,7 +254,7 @@ const SubredditController = {
       const Posts =
         (await PostModel.find({ subredditId: req.params.subredditId }).populate(
           "subredditId",
-          "name"
+          "name iconUrl"
         )) || [];
       const postIds = Posts.map((p) => p._id);
 

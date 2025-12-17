@@ -92,6 +92,9 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   const commentCount = usePostCommentCount(post._id);
 
+  const subredditInfo =
+    typeof post.subredditId === "object" ? post.subredditId : undefined;
+
   // Update voteState when post.userVote changes
   React.useEffect(() => {
     setVoteState(post.userVote || 0);
@@ -113,10 +116,14 @@ export const PostCard: React.FC<PostCardProps> = ({
   };
 
   const getSubredditName = (): string => {
-    if (typeof post.subredditId === "object" && post.subredditId.name) {
-      return post.subredditId.name;
+    if (subredditInfo?.name) {
+      return subredditInfo.name;
     }
     return "unknown";
+  };
+
+  const getSubredditIconUrl = (): string | undefined => {
+    return subredditInfo?.iconUrl || undefined;
   };
 
   const formatTimeAgo = (dateString: string): string => {
@@ -255,12 +262,24 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div
-              className={cn(
-                "w-6 h-6 rounded-full",
-                isDarkMode ? "bg-gray-800" : "bg-gray-200"
-              )}
-            ></div>
+            {getSubredditIconUrl() ? (
+              <img
+                src={getSubredditIconUrl()}
+                alt={`r/${getSubredditName()} icon`}
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
+                  isDarkMode
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-200 text-gray-700"
+                )}
+              >
+                r/
+              </div>
+            )}
             <span
               className={cn(
                 "text-sm font-medium cursor-pointer hover:underline",
